@@ -1,73 +1,82 @@
-# React + TypeScript + Vite
+# LLF Webview
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Веб-приложение для отображения внутри [LLF Score](https://github.com/alinakassym/llf-score) в качестве WebView. Предоставляет дополнительные страницы и функциональность для основного мобильного приложения.
 
-Currently, two official plugins are available:
+### Назначение
+Это приложение разработано для интеграции с мобильным приложением LLF Score через WebView компонент. Позволяет использовать веб-технологии для определённых экранов и функций внутри нативного приложения.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Стек технологий:**
+- [React](https://react.dev/) 19.x
+- [TypeScript](https://www.typescriptlang.org/) 5.x
+- [Vite](https://vite.dev/) 7.x
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Требования
+- Node.js LTS (рекомендуется 20.x)
+- npm / pnpm / yarn
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Установка и запуск
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+```bash
+# 1. Клонирование репозитория
+git clone <repository-url>
+cd llf-webview
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# 2. Установка зависимостей
+npm install
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 3. Запуск dev-сервера
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+📱 **Разработка**: приложение будет доступно по адресу `http://localhost:5173`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Сборка
+
+```bash
+# Production build
+npm run build
+
+# Preview production build
+npm run preview
 ```
+
+---
+
+## Скрипты
+
+```json
+{
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  }
+}
+```
+
+---
+
+## Интеграция с LLF Score
+
+Приложение предназначено для встраивания в мобильное приложение LLF Score через WebView. Убедитесь, что:
+- Приложение адаптивно и работает на мобильных экранах
+- Поддерживается работа на Android и iOS
+- Учитываются особенности WebView (например, safe areas)
+
+---
+
+## Коммит-стиль
+
+Мы придерживаемся [Conventional Commits](https://www.conventionalcommits.org/):
+- `feat: ...` — новая функциональность
+- `fix: ...` — исправление ошибок
+- `chore: ...` — изменения в инфраструктуре/конфиге
+- `docs: ...` — документация
+- `refactor: ...` — рефакторинг без изменения логики
