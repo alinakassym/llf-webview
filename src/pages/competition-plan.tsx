@@ -1,5 +1,4 @@
 import { type FC, useMemo } from "react";
-import { Link } from "react-router-dom";
 
 type CityPlan = {
   city: string;
@@ -149,10 +148,6 @@ const CompetitionPlanPage: FC = () => {
           ) : null}
         </section>
       ))}
-
-      <Link to="/" style={styles.back}>
-        ← На главную
-      </Link>
     </main>
   );
 };
