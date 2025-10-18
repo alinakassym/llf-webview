@@ -2,10 +2,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath, URL } from "node:url";
 
-const isVercel = !!process.env.VERCEL;
 
 export default defineConfig({
-  base: isVercel ? "/" : "/sharity-web/",
+  base: "/",
   plugins: [react()],
   resolve: {
     dedupe: ["react", "react-dom"],
@@ -15,7 +14,7 @@ export default defineConfig({
     allowedHosts: [".ngrok-free.dev", ".ngrok.io"],
   },
   build: {
-    outDir: isVercel ? "dist" : "docs",
+    outDir: "dist",
     assetsDir: "assets",
     emptyOutDir: true,
   },
