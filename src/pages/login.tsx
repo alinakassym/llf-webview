@@ -1,6 +1,7 @@
-import { type FC, useState, useMemo, type FormEvent } from "react";
+import { type FC, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { Box, TextField, Button, Typography, Alert } from "@mui/material";
 import { app } from "../firebaseConfig";
 
 const auth = getAuth(app);
@@ -11,60 +12,6 @@ const LoginPage: FC = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const styles = useMemo(
-    () => ({
-      page: {
-        display: "flex",
-        flexDirection: "column" as const,
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
-        padding: 16,
-      },
-      form: {
-        width: "100%",
-        maxWidth: 400,
-        display: "flex",
-        flexDirection: "column" as const,
-        gap: 16,
-      },
-      title: {
-        margin: "0 0 24px 0",
-        fontSize: 24,
-        textAlign: "center" as const,
-      },
-      input: {
-        padding: 12,
-        fontSize: 16,
-        border: "1px solid #ddd",
-        borderRadius: 4,
-        outline: "none",
-      },
-      button: {
-        padding: 12,
-        fontSize: 16,
-        backgroundColor: "#007bff",
-        color: "white",
-        border: "none",
-        borderRadius: 4,
-        cursor: "pointer",
-        opacity: 1,
-      },
-      buttonDisabled: {
-        opacity: 0.6,
-        cursor: "not-allowed",
-      },
-      error: {
-        padding: 12,
-        backgroundColor: "#fee",
-        color: "#c33",
-        borderRadius: 4,
-        fontSize: 14,
-      },
-    }),
-    [],
-  );
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -86,44 +33,70 @@ const LoginPage: FC = () => {
   };
 
   return (
-    <main style={styles.page}>
-      <form style={styles.form} onSubmit={handleSubmit}>
-        <h1 style={styles.title}>Вход</h1>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        padding: 2,
+      }}
+    >
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          width: "100%",
+          maxWidth: 400,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+        }}
+      >
+        <Typography variant="h4" component="h1" textAlign="center" mb={1}>
+          Вход
+        </Typography>
 
-        {error && <div style={styles.error}>{error}</div>}
+        {error && (
+          <Alert severity="error" onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        )}
 
-        <input
+        <TextField
           type="email"
-          placeholder="Email"
+          label="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          style={styles.input}
           disabled={loading}
           required
+          fullWidth
+          autoComplete="email"
         />
 
-        <input
+        <TextField
           type="password"
-          placeholder="Пароль"
+          label="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
           disabled={loading}
           required
+          fullWidth
+          autoComplete="current-password"
         />
 
-        <button
+        <Button
           type="submit"
-          style={{
-            ...styles.button,
-            ...(loading ? styles.buttonDisabled : {}),
-          }}
+          variant="contained"
+          size="large"
           disabled={loading}
+          fullWidth
         >
           {loading ? "Вход..." : "Войти"}
-        </button>
-      </form>
-    </main>
+        </Button>
+      </Box>
+    </Box>
   );
 };
 
