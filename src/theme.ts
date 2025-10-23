@@ -30,6 +30,14 @@ export const theme = createTheme({
         root: {
           borderRadius: 8,
           textTransform: "none",
+          padding: "14px",
+          boxShadow: "none",
+          "&:hover": {
+            boxShadow: "none",
+          },
+          "&:active": {
+            boxShadow: "none",
+          },
         },
       },
     },
