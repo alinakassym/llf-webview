@@ -1,0 +1,46 @@
+import { createTheme } from "@mui/material/styles";
+
+declare module "@mui/material/styles" {
+  interface Palette {
+    tertiary: Palette["primary"];
+  }
+  interface PaletteOptions {
+    tertiary?: PaletteOptions["primary"];
+  }
+}
+
+export const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#5060D8",
+    },
+    secondary: {
+      main: "#8450D8",
+    },
+    tertiary: {
+      main: "#50A4D8",
+    },
+  },
+  shape: {
+    borderRadius: 8,
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          textTransform: "none",
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          "& .MuiOutlinedInput-root": {
+            borderRadius: 8,
+          },
+        },
+      },
+    },
+  },
+});
