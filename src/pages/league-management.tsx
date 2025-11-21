@@ -13,7 +13,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
-import LeagueCard from "../components/LeagueCard";
+import ManagementItemCard from "../components/ManagementItemCard";
 import type { League, LeagueCity, LeagueGroup } from "../types/league";
 
 const CITIES: readonly LeagueCity[] = [
@@ -60,13 +60,13 @@ const LeagueManagementPage: FC = () => {
     });
   }, [searchQuery, selectedCity, selectedGroup]);
 
-  const handleEdit = (league: League) => {
-    console.log("Edit league:", league);
-    // TODO: Открыть модальное окно редактирования
+  const handleEdit = (leagueId: string) => {
+    console.log("Edit league:", leagueId);
+    // TODO: Открыть модальное окно редактирования или перейти на страницу редактирования
   };
 
-  const handleDelete = (leagueId: string) => {
-    console.log("Delete league:", leagueId);
+  const handleDelete = (leagueId: string, leagueName: string) => {
+    console.log("Delete league:", leagueId, leagueName);
     // TODO: Показать диалог подтверждения и удалить лигу
   };
 
@@ -132,14 +132,15 @@ const LeagueManagementPage: FC = () => {
               {selectedCity !== "Все города" ? selectedCity : "Все города"}
             </Typography>
 
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
               {filteredLeagues.length > 0 ? (
                 filteredLeagues.map((league) => (
-                  <LeagueCard
+                  <ManagementItemCard
                     key={league.id}
-                    league={league}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
+                    title={league.name}
+                    subtitle={`Группа: ${league.group}`}
+                    onEdit={() => handleEdit(league.id)}
+                    onDelete={() => handleDelete(league.id, league.name)}
                   />
                 ))
               ) : (
