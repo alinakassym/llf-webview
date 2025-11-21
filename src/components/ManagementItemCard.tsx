@@ -59,10 +59,11 @@ const ManagementItemCard: FC<ManagementItemCardProps> = ({
             width: 32,
             height: 32,
             borderRadius: "8px",
-            backgroundColor: "action.hover",
+            backgroundColor: "surface",
             color: "primary.main",
             "&:hover": {
-              backgroundColor: "action.selected",
+              backgroundColor: "surface",
+              opacity: 0.8,
             },
           }}
         >
@@ -75,10 +76,11 @@ const ManagementItemCard: FC<ManagementItemCardProps> = ({
             width: 32,
             height: 32,
             borderRadius: "8px",
-            backgroundColor: "action.hover",
+            backgroundColor: "surface",
             color: "#ef4444",
             "&:hover": {
-              backgroundColor: "action.selected",
+              backgroundColor: "surface",
+              opacity: 0.8,
             },
           }}
         >

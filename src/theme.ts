@@ -4,10 +4,12 @@ declare module "@mui/material/styles" {
   interface Palette {
     tertiary: Palette["primary"];
     cardBorder: string;
+    surface: string;
   }
   interface PaletteOptions {
     tertiary?: PaletteOptions["primary"];
     cardBorder?: string;
+    surface?: string;
   }
 }
 
@@ -25,6 +27,7 @@ export const createAppTheme = (mode: PaletteMode) =>
         main: "#50A4D8",
       },
       cardBorder: mode === "light" ? "#EDF2F8" : "#1D1527",
+      surface: mode === "light" ? "#EAECFA" : "#1D1527",
     },
     shape: {
       borderRadius: 8,
