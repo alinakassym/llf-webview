@@ -88,11 +88,7 @@ const LeagueManagementPage: FC = () => {
         }}
       >
         <Toolbar>
-          <IconButton
-            edge="start"
-            onClick={() => navigate(-1)}
-            sx={{ mr: 2 }}
-          >
+          <IconButton edge="start" onClick={() => navigate(-1)} sx={{ mr: 2 }}>
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h6" component="div" fontWeight={600}>
@@ -102,14 +98,14 @@ const LeagueManagementPage: FC = () => {
       </AppBar>
 
       <Container maxWidth="md" sx={{ py: 3, pb: 10 }}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
             placeholder="Поиск лиги..."
           />
 
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 0 }}>
             <FilterChips
               options={CITIES}
               selected={selectedCity}
@@ -127,7 +123,7 @@ const LeagueManagementPage: FC = () => {
               variant="subtitle1"
               fontWeight={600}
               gutterBottom
-              sx={{ mb: 2 }}
+              sx={{ mb: 1, mt: 0 }}
             >
               {selectedCity !== "Все города" ? selectedCity : "Все города"}
             </Typography>

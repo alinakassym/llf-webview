@@ -34,6 +34,7 @@ const FilterChips = <T extends string>({
           variant={selected === option ? "filled" : "outlined"}
           sx={{
             borderRadius: 2,
+            fontSize: "12px",
             fontWeight: selected === option ? 600 : 400,
             flexShrink: 0,
           }}

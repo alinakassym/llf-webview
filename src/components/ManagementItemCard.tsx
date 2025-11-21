@@ -36,7 +36,7 @@ const ManagementItemCard: FC<ManagementItemCardProps> = ({
       <Box sx={{ flex: 1 }}>
         <Typography
           variant="body2"
-          fontWeight={500}
+          fontWeight={600}
           sx={{ fontSize: "12px", marginBottom: "4px" }}
         >
           {title}
