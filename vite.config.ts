@@ -11,7 +11,10 @@ export default defineConfig({
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
   server: {
-    allowedHosts: [".ngrok-free.dev", ".ngrok.io"],
+    host: "192.168.18.102",
+    port: 5173,
+    strictPort: true,
+    allowedHosts: [".ngrok-free.dev", ".ngrok.io", "llf-webview.local"],
   },
   build: {
     outDir: "dist",

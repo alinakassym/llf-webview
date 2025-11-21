@@ -33,7 +33,12 @@ const MOCK_LEAGUES: League[] = [
   { id: "4", name: "Лига C", city: "Астана", group: "Молодежная Лига" },
   { id: "5", name: "Лига D", city: "Астана", group: "Молодежная Лига" },
   { id: "6", name: "Лига E", city: "Астана", group: "Молодежная Лига" },
-  { id: "7", name: "Мастер Лига 35+", city: "Астана", group: "Молодежная Лига" },
+  {
+    id: "7",
+    name: "Мастер Лига 35+",
+    city: "Астана",
+    group: "Молодежная Лига",
+  },
 ];
 
 const LeagueManagementPage: FC = () => {
@@ -41,13 +46,12 @@ const LeagueManagementPage: FC = () => {
   const dispatch = useAppDispatch();
   const { token, loading: authLoading } = useAuth();
   const { cities, loading: citiesLoading } = useAppSelector(
-    (state) => state.cities
+    (state) => state.cities,
   );
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>("Все города");
-  const [selectedGroup, setSelectedGroup] =
-    useState<LeagueGroup>("Все группы");
+  const [selectedGroup, setSelectedGroup] = useState<LeagueGroup>("Все группы");
 
   useEffect(() => {
     if (token && !authLoading) {
