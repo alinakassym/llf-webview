@@ -6,14 +6,15 @@ const HomePage: FC = () => {
     <main style={{ padding: 16 }}>
       <h1 style={{ marginBottom: 16 }}>Главная</h1>
 
-      <nav style={{ display: 'grid', gap: 12 }}>
+      <nav style={{ display: "grid", gap: 12 }}>
+        <Link to="/league-management">Управление лигами</Link>
         <Link to="/competition-plan">План соревнований</Link>
         <Link to="/regulations">Регламент</Link>
         <Link to="/rules">Правила</Link>
         <Link to="/contacts">Контакты</Link>
       </nav>
     </main>
-  )
+  );
 }
 
 export default HomePage
