@@ -28,7 +28,24 @@ const SearchBar: FC<SearchBarProps> = ({
       }}
       sx={{
         "& .MuiOutlinedInput-root": {
+          height: "44px",
           backgroundColor: "background.paper",
+          fontSize: "14px",
+          fontWeight: 400,
+          "& fieldset": {
+            borderColor: "cardBorder",
+          },
+          "&:hover fieldset": {
+            borderColor: "cardBorder",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "primary.main",
+          },
+        },
+        "& .MuiOutlinedInput-input": {
+          padding: "10px 14px",
+          fontSize: "14px",
+          fontWeight: 400,
         },
       }}
     />
