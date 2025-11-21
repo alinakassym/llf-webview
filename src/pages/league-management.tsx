@@ -1,4 +1,4 @@
-import { type FC, useState, useMemo } from "react";
+import { type FC, useState, useMemo, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -7,6 +7,7 @@ import {
   Container,
   AppBar,
   Toolbar,
+  CircularProgress,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
@@ -14,14 +15,10 @@ import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import ManagementItemCard from "../components/ManagementItemCard";
-import type { League, LeagueCity, LeagueGroup } from "../types/league";
-
-const CITIES: readonly LeagueCity[] = [
-  "Все города",
-  "Астана",
-  "Алматы",
-  "Шымкент",
-] as const;
+import type { League, LeagueGroup } from "../types/league";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { fetchCities } from "../store/slices/citySlice";
+import { useAuth } from "../hooks/useAuth";
 
 const GROUPS: readonly LeagueGroup[] = [
   "Все группы",
@@ -41,10 +38,27 @@ const MOCK_LEAGUES: League[] = [
 
 const LeagueManagementPage: FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { token, loading: authLoading } = useAuth();
+  const { cities, loading: citiesLoading } = useAppSelector(
+    (state) => state.cities
+  );
+
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCity, setSelectedCity] = useState<LeagueCity>("Все города");
+  const [selectedCity, setSelectedCity] = useState<string>("Все города");
   const [selectedGroup, setSelectedGroup] =
     useState<LeagueGroup>("Все группы");
+
+  useEffect(() => {
+    if (token && !authLoading) {
+      dispatch(fetchCities(token));
+    }
+  }, [token, authLoading, dispatch]);
+
+  const cityOptions = useMemo(() => {
+    const cityNames = cities.map((city) => city.name);
+    return ["Все города", ...cityNames];
+  }, [cities]);
 
   const filteredLeagues = useMemo(() => {
     return MOCK_LEAGUES.filter((league) => {
@@ -106,11 +120,17 @@ const LeagueManagementPage: FC = () => {
           />
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            <FilterChips
-              options={CITIES}
-              selected={selectedCity}
-              onSelect={setSelectedCity}
-            />
+            {citiesLoading ? (
+              <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+                <CircularProgress size={24} />
+              </Box>
+            ) : (
+              <FilterChips
+                options={cityOptions as readonly string[]}
+                selected={selectedCity}
+                onSelect={setSelectedCity}
+              />
+            )}
             <FilterChips
               options={GROUPS}
               selected={selectedGroup}
@@ -120,7 +140,7 @@ const LeagueManagementPage: FC = () => {
 
           <Box>
             <Typography
-              variant="subtitle1"
+              variant="subtitle2"
               fontWeight={600}
               gutterBottom
               sx={{ mb: 1, mt: 0 }}
