@@ -28,7 +28,7 @@ const ManagementItemCard: FC<ManagementItemCardProps> = ({
         paddingY: "12px",
         borderRadius: "12px",
         border: 1,
-        borderColor: "divider",
+        borderColor: "cardBorder",
         backgroundColor: "background.paper",
         marginBottom: 1,
       }}
