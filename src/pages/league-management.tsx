@@ -19,6 +19,7 @@ import type { League, LeagueGroup } from "../types/league";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
 import { useAuth } from "../hooks/useAuth";
+import { useWebViewToken } from "../hooks/useWebViewToken";
 
 const GROUPS: readonly LeagueGroup[] = [
   "Все группы",
@@ -45,6 +46,7 @@ const LeagueManagementPage: FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { token, loading: authLoading } = useAuth();
+  const { webViewToken, loading: webViewLoading } = useWebViewToken();
   const { cities, loading: citiesLoading } = useAppSelector(
     (state) => state.cities,
   );
@@ -54,10 +56,13 @@ const LeagueManagementPage: FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<LeagueGroup>("Все группы");
 
   useEffect(() => {
-    if (token && !authLoading) {
-      dispatch(fetchCities(token));
+    // Используем webViewToken если доступен, иначе fallback на Firebase token
+    const activeToken = webViewToken || token;
+
+    if (activeToken && !authLoading && !webViewLoading) {
+      dispatch(fetchCities(activeToken));
     }
-  }, [token, authLoading, dispatch]);
+  }, [token, webViewToken, authLoading, webViewLoading, dispatch]);
 
   const cityOptions = useMemo(() => {
     const cityNames = cities.map((city) => city.name);
