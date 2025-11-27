@@ -1,7 +1,7 @@
+// llf-webview/src/pages/league-management.tsx
 import { type FC, useState, useMemo, useEffect } from "react";
 import {
   Box,
-  Typography,
   Fab,
   Container,
   CircularProgress,
@@ -10,7 +10,8 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
-import ManagementItemCard from "../components/ManagementItemCard";
+import SingleCityLeaguesList from "../components/SingleCityLeaguesList";
+import AllCitiesLeaguesList from "../components/AllCitiesLeaguesList";
 import type { League, LeagueGroup } from "../types/league";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
@@ -33,9 +34,11 @@ const LeagueManagementPage: FC = () => {
   const dispatch = useAppDispatch();
   const { token, loading: authLoading } = useAuth();
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
-  const { cities, loading: citiesLoading, error: citiesError } = useAppSelector(
-    (state) => state.cities,
-  );
+  const {
+    cities,
+    loading: citiesLoading,
+    error: citiesError,
+  } = useAppSelector((state) => state.cities);
   const leagueGroups = useAppSelector(selectLeagueGroups);
   const leagueGroupsLoading = useAppSelector(selectLeagueGroupsLoading);
   const leagueGroupsError = useAppSelector(selectLeagueGroupsError);
@@ -47,7 +50,7 @@ const LeagueManagementPage: FC = () => {
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
     () => webViewToken || token,
-    [webViewToken, token]
+    [webViewToken, token],
   );
 
   // Общий флаг загрузки: true если хотя бы один из флагов true
@@ -79,7 +82,7 @@ const LeagueManagementPage: FC = () => {
   // Находим данные выбранного города
   const selectedCityData = useMemo(
     () => cities.find((city) => city.name === selectedCity),
-    [cities, selectedCity]
+    [cities, selectedCity],
   );
 
   // Загружаем лиги при выборе города
@@ -95,7 +98,7 @@ const LeagueManagementPage: FC = () => {
           fetchLeaguesByCityId({
             cityId: String(city.id),
             token: activeToken,
-          })
+          }),
         );
       });
     } else {
@@ -105,7 +108,7 @@ const LeagueManagementPage: FC = () => {
           fetchLeaguesByCityId({
             cityId: String(selectedCityData.id),
             token: activeToken,
-          })
+          }),
         );
       }
     }
@@ -229,77 +232,19 @@ const LeagueManagementPage: FC = () => {
           </Box>
 
           <Box>
-            {/* Рендеринг для "Все города" - группировка по городам */}
             {selectedCity === ALL_CITIES && leaguesByCity ? (
-              Object.keys(leaguesByCity).length > 0 ? (
-                Object.entries(leaguesByCity).map(([cityName, cityLeagues]) => (
-                  <Box key={cityName} sx={{ mb: 3 }}>
-                    <Typography
-                      variant="subtitle2"
-                      fontWeight={600}
-                      gutterBottom
-                      sx={{ mb: 1, mt: 0 }}
-                    >
-                      {cityName}
-                    </Typography>
-                    <Box sx={{ display: "flex", flexDirection: "column" }}>
-                      {cityLeagues.map((league) => (
-                        <ManagementItemCard
-                          key={league.id}
-                          title={league.name}
-                          subtitle={`Группа: ${league.leagueGroupName}`}
-                          onEdit={() => handleEdit(league.id)}
-                          onDelete={() => handleDelete(league.id, league.name)}
-                        />
-                      ))}
-                    </Box>
-                  </Box>
-                ))
-              ) : (
-                <Typography
-                  variant="body1"
-                  color="text.secondary"
-                  textAlign="center"
-                  sx={{ py: 4 }}
-                >
-                  Лиги не найдены
-                </Typography>
-              )
+              <AllCitiesLeaguesList
+                leaguesByCity={leaguesByCity}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             ) : (
-              /* Рендеринг для конкретного города */
-              <>
-                <Typography
-                  variant="subtitle2"
-                  fontWeight={600}
-                  gutterBottom
-                  sx={{ mb: 1, mt: 0 }}
-                >
-                  {selectedCity}
-                </Typography>
-
-                <Box sx={{ display: "flex", flexDirection: "column" }}>
-                  {filteredLeagues.length > 0 ? (
-                    filteredLeagues.map((league) => (
-                      <ManagementItemCard
-                        key={league.id}
-                        title={league.name}
-                        subtitle={`Группа: ${league.leagueGroupName}`}
-                        onEdit={() => handleEdit(league.id)}
-                        onDelete={() => handleDelete(league.id, league.name)}
-                      />
-                    ))
-                  ) : (
-                    <Typography
-                      variant="body1"
-                      color="text.secondary"
-                      textAlign="center"
-                      sx={{ py: 4 }}
-                    >
-                      Лиги не найдены
-                    </Typography>
-                  )}
-                </Box>
-              </>
+              <SingleCityLeaguesList
+                cityName={selectedCity}
+                leagues={filteredLeagues}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             )}
           </Box>
         </Box>
