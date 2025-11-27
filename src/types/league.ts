@@ -1,9 +1,12 @@
 export interface League {
   id: string;
   name: string;
-  city: string;
-  group: string;
+  cityId: string;
+  cityName: string;
+  leagueGroupId: number;
+  leagueGroupName: string;
+  order: number;
+  icon?: { uri: string };
 }
 
-export type LeagueCity = "Все города" | "Астана" | "Алматы" | "Шымкент";
-export type LeagueGroup = "Все группы" | "Молодежная Лига";
+export type LeagueGroup = "Все группы" | string;

@@ -3,50 +3,83 @@ import type { League } from "../../types/league";
 import { leagueService } from "../../services/leagueService";
 
 interface LeagueState {
-  leagues: League[];
-  loading: boolean;
-  error: string | null;
+  itemsByCityId: Record<string, League[]>; // Лиги по городам
+  loadingCities: string[]; // Какие города сейчас загружаются
+  errorByCityId: Record<string, string | null>; // Ошибки по городам
 }
 
 const initialState: LeagueState = {
-  leagues: [],
-  loading: false,
-  error: null,
+  itemsByCityId: {},
+  loadingCities: [],
+  errorByCityId: {},
 };
 
-export const fetchLeagues = createAsyncThunk(
-  "leagues/fetchLeagues",
-  async (token: string) => {
-    const leagues = await leagueService.getLeagues(token);
-    return leagues;
-  }
-);
+// Thunk для загрузки лиг по cityId
+export const fetchLeaguesByCityId = createAsyncThunk<
+  { cityId: string; leagues: League[] },
+  { cityId: string; token: string }
+>("leagues/fetchLeaguesByCityId", async ({ cityId, token }) => {
+  const leagues = await leagueService.getLeaguesByCityId(cityId, token);
+  return { cityId, leagues };
+});
 
 const leagueSlice = createSlice({
   name: "leagues",
   initialState,
   reducers: {
     clearLeagues: (state) => {
-      state.leagues = [];
-      state.error = null;
+      state.itemsByCityId = {};
+      state.loadingCities = [];
+      state.errorByCityId = {};
+    },
+    clearLeaguesForCity: (state, action: { payload: string }) => {
+      delete state.itemsByCityId[action.payload];
+      state.loadingCities = state.loadingCities.filter(
+        (cityId) => cityId !== action.payload
+      );
+      delete state.errorByCityId[action.payload];
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchLeagues.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(fetchLeaguesByCityId.pending, (state, action) => {
+        const cityId = action.meta.arg.cityId;
+        if (!state.loadingCities.includes(cityId)) {
+          state.loadingCities.push(cityId);
+        }
+        delete state.errorByCityId[cityId];
       })
-      .addCase(fetchLeagues.fulfilled, (state, action) => {
-        state.loading = false;
-        state.leagues = action.payload;
+      .addCase(fetchLeaguesByCityId.fulfilled, (state, action) => {
+        const { cityId, leagues } = action.payload;
+        state.itemsByCityId[cityId] = leagues;
+        state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
+        delete state.errorByCityId[cityId];
       })
-      .addCase(fetchLeagues.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "Failed to fetch leagues";
+      .addCase(fetchLeaguesByCityId.rejected, (state, action) => {
+        const cityId = action.meta.arg.cityId;
+        state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
+        state.errorByCityId[cityId] =
+          action.error.message || "Failed to load leagues";
       });
   },
 });
 
-export const { clearLeagues } = leagueSlice.actions;
+export const { clearLeagues, clearLeaguesForCity } = leagueSlice.actions;
 export default leagueSlice.reducer;
+
+// Селекторы
+export type RootState = { leagues: LeagueState };
+export const selectLeaguesByCity = (cityId: string) => (state: RootState) =>
+  state.leagues.itemsByCityId[cityId] || [];
+export const selectLeaguesLoadingForCity =
+  (cityId: string) => (state: RootState) =>
+    state.leagues.loadingCities.includes(cityId);
+export const selectLeaguesErrorForCity =
+  (cityId: string) => (state: RootState) =>
+    state.leagues.errorByCityId[cityId] || null;
+
+// Селектор для получения всех лиг (для "Все города")
+export const selectAllLeagues = (state: RootState) =>
+  Object.values(state.leagues.itemsByCityId).flat();
+export const selectLeaguesLoading = (state: RootState) =>
+  state.leagues.loadingCities.length > 0;

@@ -1,11 +1,22 @@
 import { apiRequest } from "./api";
 import type { League } from "../types/league";
 
+interface LeaguesResponse {
+  leagues: League[];
+}
+
 export const leagueService = {
-  getLeagues: async (token: string): Promise<League[]> => {
-    return apiRequest<League[]>("/leagues", {
-      method: "GET",
-      token,
-    });
+  getLeaguesByCityId: async (
+    cityId: string,
+    token: string
+  ): Promise<League[]> => {
+    const response = await apiRequest<LeaguesResponse>(
+      `/leagues?cityId=${cityId}`,
+      {
+        method: "GET",
+        token,
+      }
+    );
+    return response.leagues;
   },
 };

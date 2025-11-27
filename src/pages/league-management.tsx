@@ -13,29 +13,18 @@ import ManagementItemCard from "../components/ManagementItemCard";
 import type { League, LeagueGroup } from "../types/league";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
+import {
+  fetchLeaguesByCityId,
+  selectLeaguesByCity,
+  selectAllLeagues,
+} from "../store/slices/leagueSlice";
+import {
+  fetchLeagueGroups,
+  selectLeagueGroups,
+  selectLeagueGroupsLoading,
+} from "../store/slices/leagueGroupSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
-
-const GROUPS: readonly LeagueGroup[] = [
-  "Все группы",
-  "Молодежная Лига",
-] as const;
-
-// Моковые данные для демонстрации
-const MOCK_LEAGUES: League[] = [
-  { id: "1", name: "Супер Лига", city: "Астана", group: "Молодежная Лига" },
-  { id: "2", name: "Лига A", city: "Астана", group: "Молодежная Лига" },
-  { id: "3", name: "Лига B", city: "Астана", group: "Молодежная Лига" },
-  { id: "4", name: "Лига C", city: "Астана", group: "Молодежная Лига" },
-  { id: "5", name: "Лига D", city: "Астана", group: "Молодежная Лига" },
-  { id: "6", name: "Лига E", city: "Астана", group: "Молодежная Лига" },
-  {
-    id: "7",
-    name: "Мастер Лига 35+",
-    city: "Астана",
-    group: "Молодежная Лига",
-  },
-];
 
 const LeagueManagementPage: FC = () => {
   const dispatch = useAppDispatch();
@@ -44,6 +33,8 @@ const LeagueManagementPage: FC = () => {
   const { cities, loading: citiesLoading } = useAppSelector(
     (state) => state.cities,
   );
+  const leagueGroups = useAppSelector(selectLeagueGroups);
+  const leagueGroupsLoading = useAppSelector(selectLeagueGroupsLoading);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>("Все города");
@@ -51,15 +42,19 @@ const LeagueManagementPage: FC = () => {
 
   // Общий флаг загрузки: true если хотя бы один из флагов true
   const isLoading = useMemo(() => {
-    return authLoading || webViewLoading || citiesLoading;
-  }, [authLoading, webViewLoading, citiesLoading]);
+    return (
+      authLoading || webViewLoading || citiesLoading || leagueGroupsLoading
+    );
+  }, [authLoading, webViewLoading, citiesLoading, leagueGroupsLoading]);
 
+  // Загружаем города и группы лиг при монтировании
   useEffect(() => {
     // Используем webViewToken если доступен, иначе fallback на Firebase token
     const activeToken = webViewToken || token;
 
     if (activeToken && !authLoading && !webViewLoading) {
       dispatch(fetchCities(activeToken));
+      dispatch(fetchLeagueGroups(activeToken));
     }
   }, [token, webViewToken, authLoading, webViewLoading, dispatch]);
 
@@ -68,19 +63,86 @@ const LeagueManagementPage: FC = () => {
     return ["Все города", ...cityNames];
   }, [cities]);
 
+  // Формируем опции групп лиг из API
+  const groupOptions = useMemo(() => {
+    const groupNames = leagueGroups.map((group) => group.name);
+    return ["Все группы", ...groupNames] as readonly LeagueGroup[];
+  }, [leagueGroups]);
+
+  // Загружаем лиги при выборе города
+  useEffect(() => {
+    const activeToken = webViewToken || token;
+
+    // Если выбран конкретный город (не "Все города")
+    if (
+      selectedCity !== "Все города" &&
+      activeToken &&
+      !authLoading &&
+      !webViewLoading
+    ) {
+      // Находим cityId выбранного города
+      const selectedCityData = cities.find(
+        (city) => city.name === selectedCity,
+      );
+      if (selectedCityData) {
+        dispatch(
+          fetchLeaguesByCityId({
+            cityId: String(selectedCityData.id),
+            token: activeToken,
+          }),
+        );
+      }
+    }
+  }, [
+    selectedCity,
+    cities,
+    token,
+    webViewToken,
+    authLoading,
+    webViewLoading,
+    dispatch,
+  ]);
+
+  // Получаем лиги в зависимости от выбранного города
+  const selectedCityData = cities.find((city) => city.name === selectedCity);
+  const leagues = useAppSelector((state) =>
+    selectedCity === "Все города"
+      ? selectAllLeagues(state)
+      : selectedCityData
+      ? selectLeaguesByCity(String(selectedCityData.id))(state)
+      : [],
+  );
+
   const filteredLeagues = useMemo(() => {
-    return MOCK_LEAGUES.filter((league) => {
+    return leagues.filter((league: League) => {
       const matchesSearch = league.name
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
-      const matchesCity =
-        selectedCity === "Все города" || league.city === selectedCity;
       const matchesGroup =
-        selectedGroup === "Все группы" || league.group === selectedGroup;
+        selectedGroup === "Все группы" ||
+        league.leagueGroupName === selectedGroup;
 
-      return matchesSearch && matchesCity && matchesGroup;
+      return matchesSearch && matchesGroup;
     });
-  }, [searchQuery, selectedCity, selectedGroup]);
+  }, [leagues, searchQuery, selectedGroup]);
+
+  // Группировка лиг по городам для "Все города"
+  const leaguesByCity = useMemo(() => {
+    if (selectedCity !== "Все города") {
+      return null;
+    }
+
+    const grouped: Record<string, League[]> = {};
+    filteredLeagues.forEach((league) => {
+      const cityName = league.cityName;
+      if (!grouped[cityName]) {
+        grouped[cityName] = [];
+      }
+      grouped[cityName].push(league);
+    });
+
+    return grouped;
+  }, [selectedCity, filteredLeagues]);
 
   const handleEdit = (leagueId: string) => {
     console.log("Edit league:", leagueId);
@@ -130,33 +192,42 @@ const LeagueManagementPage: FC = () => {
               selected={selectedCity}
               onSelect={setSelectedCity}
             />
-            <FilterChips
-              options={GROUPS}
-              selected={selectedGroup}
-              onSelect={setSelectedGroup}
-            />
+            {/* Показываем фильтр по группам только если выбран конкретный город */}
+            {selectedCity !== "Все города" && (
+              <FilterChips
+                options={groupOptions}
+                selected={selectedGroup}
+                onSelect={setSelectedGroup}
+              />
+            )}
           </Box>
 
           <Box>
-            <Typography
-              variant="subtitle2"
-              fontWeight={600}
-              gutterBottom
-              sx={{ mb: 1, mt: 0 }}
-            >
-              {selectedCity !== "Все города" ? selectedCity : "Все города"}
-            </Typography>
-
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
-              {filteredLeagues.length > 0 ? (
-                filteredLeagues.map((league) => (
-                  <ManagementItemCard
-                    key={league.id}
-                    title={league.name}
-                    subtitle={`Группа: ${league.group}`}
-                    onEdit={() => handleEdit(league.id)}
-                    onDelete={() => handleDelete(league.id, league.name)}
-                  />
+            {/* Рендеринг для "Все города" - группировка по городам */}
+            {selectedCity === "Все города" && leaguesByCity ? (
+              Object.keys(leaguesByCity).length > 0 ? (
+                Object.entries(leaguesByCity).map(([cityName, cityLeagues]) => (
+                  <Box key={cityName} sx={{ mb: 3 }}>
+                    <Typography
+                      variant="subtitle2"
+                      fontWeight={600}
+                      gutterBottom
+                      sx={{ mb: 1, mt: 0 }}
+                    >
+                      {cityName}
+                    </Typography>
+                    <Box sx={{ display: "flex", flexDirection: "column" }}>
+                      {cityLeagues.map((league) => (
+                        <ManagementItemCard
+                          key={league.id}
+                          title={league.name}
+                          subtitle={`Группа: ${league.leagueGroupName}`}
+                          onEdit={() => handleEdit(league.id)}
+                          onDelete={() => handleDelete(league.id, league.name)}
+                        />
+                      ))}
+                    </Box>
+                  </Box>
                 ))
               ) : (
                 <Typography
@@ -167,8 +238,43 @@ const LeagueManagementPage: FC = () => {
                 >
                   Лиги не найдены
                 </Typography>
-              )}
-            </Box>
+              )
+            ) : (
+              /* Рендеринг для конкретного города */
+              <>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={600}
+                  gutterBottom
+                  sx={{ mb: 1, mt: 0 }}
+                >
+                  {selectedCity}
+                </Typography>
+
+                <Box sx={{ display: "flex", flexDirection: "column" }}>
+                  {filteredLeagues.length > 0 ? (
+                    filteredLeagues.map((league) => (
+                      <ManagementItemCard
+                        key={league.id}
+                        title={league.name}
+                        subtitle={`Группа: ${league.leagueGroupName}`}
+                        onEdit={() => handleEdit(league.id)}
+                        onDelete={() => handleDelete(league.id, league.name)}
+                      />
+                    ))
+                  ) : (
+                    <Typography
+                      variant="body1"
+                      color="text.secondary"
+                      textAlign="center"
+                      sx={{ py: 4 }}
+                    >
+                      Лиги не найдены
+                    </Typography>
+                  )}
+                </Box>
+              </>
+            )}
           </Box>
         </Box>
       </Container>
