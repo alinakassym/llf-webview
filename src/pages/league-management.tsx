@@ -2,16 +2,11 @@ import { type FC, useState, useMemo, useEffect } from "react";
 import {
   Box,
   Typography,
-  IconButton,
   Fab,
   Container,
-  AppBar,
-  Toolbar,
   CircularProgress,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
-import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import ManagementItemCard from "../components/ManagementItemCard";
@@ -43,7 +38,6 @@ const MOCK_LEAGUES: League[] = [
 ];
 
 const LeagueManagementPage: FC = () => {
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { token, loading: authLoading } = useAuth();
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
@@ -54,6 +48,11 @@ const LeagueManagementPage: FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>("Все города");
   const [selectedGroup, setSelectedGroup] = useState<LeagueGroup>("Все группы");
+
+  // Общий флаг загрузки: true если хотя бы один из флагов true
+  const isLoading = useMemo(() => {
+    return authLoading || webViewLoading || citiesLoading;
+  }, [authLoading, webViewLoading, citiesLoading]);
 
   useEffect(() => {
     // Используем webViewToken если доступен, иначе fallback на Firebase token
@@ -98,29 +97,26 @@ const LeagueManagementPage: FC = () => {
     // TODO: Открыть модальное окно создания новой лиги
   };
 
-  return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
-      <AppBar
-        position="sticky"
-        color="default"
-        elevation={0}
+  // Если идет загрузка - показываем loader на весь экран
+  if (isLoading) {
+    return (
+      <Box
         sx={{
-          backgroundColor: "background.paper",
-          borderBottom: 1,
-          borderColor: "divider",
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "background.default",
         }}
       >
-        <Toolbar>
-          <IconButton edge="start" onClick={() => navigate(-1)} sx={{ mr: 2 }}>
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="h6" component="div" fontWeight={600}>
-            Управление лигами
-          </Typography>
-        </Toolbar>
-      </AppBar>
+        <CircularProgress size={48} />
+      </Box>
+    );
+  }
 
-      <Container maxWidth="md" sx={{ py: 3, pb: 10 }}>
+  return (
+    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
+      <Container maxWidth="md" sx={{ py: 2, pb: 10 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
           <SearchBar
             value={searchQuery}
@@ -129,17 +125,11 @@ const LeagueManagementPage: FC = () => {
           />
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            {citiesLoading ? (
-              <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-                <CircularProgress size={24} />
-              </Box>
-            ) : (
-              <FilterChips
-                options={cityOptions as readonly string[]}
-                selected={selectedCity}
-                onSelect={setSelectedCity}
-              />
-            )}
+            <FilterChips
+              options={cityOptions as readonly string[]}
+              selected={selectedCity}
+              onSelect={setSelectedCity}
+            />
             <FilterChips
               options={GROUPS}
               selected={selectedGroup}
