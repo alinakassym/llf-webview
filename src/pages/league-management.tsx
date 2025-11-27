@@ -5,6 +5,7 @@ import {
   Fab,
   Container,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
@@ -22,23 +23,32 @@ import {
   fetchLeagueGroups,
   selectLeagueGroups,
   selectLeagueGroupsLoading,
+  selectLeagueGroupsError,
 } from "../store/slices/leagueGroupSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
+import { ALL_CITIES, ALL_GROUPS } from "../constants/leagueManagement";
 
 const LeagueManagementPage: FC = () => {
   const dispatch = useAppDispatch();
   const { token, loading: authLoading } = useAuth();
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
-  const { cities, loading: citiesLoading } = useAppSelector(
+  const { cities, loading: citiesLoading, error: citiesError } = useAppSelector(
     (state) => state.cities,
   );
   const leagueGroups = useAppSelector(selectLeagueGroups);
   const leagueGroupsLoading = useAppSelector(selectLeagueGroupsLoading);
+  const leagueGroupsError = useAppSelector(selectLeagueGroupsError);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCity, setSelectedCity] = useState<string>("Все города");
-  const [selectedGroup, setSelectedGroup] = useState<LeagueGroup>("Все группы");
+  const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
+  const [selectedGroup, setSelectedGroup] = useState<LeagueGroup>(ALL_GROUPS);
+
+  // Используем webViewToken если доступен, иначе fallback на Firebase token
+  const activeToken = useMemo(
+    () => webViewToken || token,
+    [webViewToken, token]
+  );
 
   // Общий флаг загрузки: true если хотя бы один из флагов true
   const isLoading = useMemo(() => {
@@ -49,35 +59,36 @@ const LeagueManagementPage: FC = () => {
 
   // Загружаем города и группы лиг при монтировании
   useEffect(() => {
-    // Используем webViewToken если доступен, иначе fallback на Firebase token
-    const activeToken = webViewToken || token;
-
     if (activeToken && !authLoading && !webViewLoading) {
       dispatch(fetchCities(activeToken));
       dispatch(fetchLeagueGroups(activeToken));
     }
-  }, [token, webViewToken, authLoading, webViewLoading, dispatch]);
+  }, [activeToken, authLoading, webViewLoading, dispatch]);
 
   const cityOptions = useMemo(() => {
     const cityNames = cities.map((city) => city.name);
-    return ["Все города", ...cityNames];
+    return [ALL_CITIES, ...cityNames];
   }, [cities]);
 
   // Формируем опции групп лиг из API
   const groupOptions = useMemo(() => {
     const groupNames = leagueGroups.map((group) => group.name);
-    return ["Все группы", ...groupNames] as readonly LeagueGroup[];
+    return [ALL_GROUPS, ...groupNames] as readonly LeagueGroup[];
   }, [leagueGroups]);
+
+  // Находим данные выбранного города
+  const selectedCityData = useMemo(
+    () => cities.find((city) => city.name === selectedCity),
+    [cities, selectedCity]
+  );
 
   // Загружаем лиги при выборе города
   useEffect(() => {
-    const activeToken = webViewToken || token;
-
     if (!activeToken || authLoading || webViewLoading || cities.length === 0) {
       return;
     }
 
-    if (selectedCity === "Все города") {
+    if (selectedCity === ALL_CITIES) {
       // Загружаем лиги для всех городов
       cities.forEach((city) => {
         dispatch(
@@ -89,9 +100,6 @@ const LeagueManagementPage: FC = () => {
       });
     } else {
       // Загружаем лиги для конкретного города
-      const selectedCityData = cities.find(
-        (city) => city.name === selectedCity
-      );
       if (selectedCityData) {
         dispatch(
           fetchLeaguesByCityId({
@@ -103,18 +111,17 @@ const LeagueManagementPage: FC = () => {
     }
   }, [
     selectedCity,
+    selectedCityData,
     cities,
-    token,
-    webViewToken,
+    activeToken,
     authLoading,
     webViewLoading,
     dispatch,
   ]);
 
   // Получаем лиги в зависимости от выбранного города
-  const selectedCityData = cities.find((city) => city.name === selectedCity);
   const leagues = useAppSelector((state) =>
-    selectedCity === "Все города"
+    selectedCity === ALL_CITIES
       ? selectAllLeagues(state)
       : selectedCityData
       ? selectLeaguesByCity(String(selectedCityData.id))(state)
@@ -127,7 +134,7 @@ const LeagueManagementPage: FC = () => {
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
       const matchesGroup =
-        selectedGroup === "Все группы" ||
+        selectedGroup === ALL_GROUPS ||
         league.leagueGroupName === selectedGroup;
 
       return matchesSearch && matchesGroup;
@@ -136,7 +143,7 @@ const LeagueManagementPage: FC = () => {
 
   // Группировка лиг по городам для "Все города"
   const leaguesByCity = useMemo(() => {
-    if (selectedCity !== "Все города") {
+    if (selectedCity !== ALL_CITIES) {
       return null;
     }
 
@@ -188,6 +195,17 @@ const LeagueManagementPage: FC = () => {
     <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
       <Container maxWidth="md" sx={{ py: 2, pb: 10 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          {/* Отображение ошибок */}
+          {citiesError && (
+            <Alert severity="error" sx={{ mb: 1 }}>
+              Ошибка загрузки городов: {citiesError}
+            </Alert>
+          )}
+          {leagueGroupsError && (
+            <Alert severity="error" sx={{ mb: 1 }}>
+              Ошибка загрузки групп лиг: {leagueGroupsError}
+            </Alert>
+          )}
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
@@ -201,7 +219,7 @@ const LeagueManagementPage: FC = () => {
               onSelect={setSelectedCity}
             />
             {/* Показываем фильтр по группам только если выбран конкретный город */}
-            {selectedCity !== "Все города" && (
+            {selectedCity !== ALL_CITIES && (
               <FilterChips
                 options={groupOptions}
                 selected={selectedGroup}
@@ -212,7 +230,7 @@ const LeagueManagementPage: FC = () => {
 
           <Box>
             {/* Рендеринг для "Все города" - группировка по городам */}
-            {selectedCity === "Все города" && leaguesByCity ? (
+            {selectedCity === ALL_CITIES && leaguesByCity ? (
               Object.keys(leaguesByCity).length > 0 ? (
                 Object.entries(leaguesByCity).map(([cityName, cityLeagues]) => (
                   <Box key={cityName} sx={{ mb: 3 }}>
