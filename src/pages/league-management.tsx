@@ -73,23 +73,31 @@ const LeagueManagementPage: FC = () => {
   useEffect(() => {
     const activeToken = webViewToken || token;
 
-    // Если выбран конкретный город (не "Все города")
-    if (
-      selectedCity !== "Все города" &&
-      activeToken &&
-      !authLoading &&
-      !webViewLoading
-    ) {
-      // Находим cityId выбранного города
+    if (!activeToken || authLoading || webViewLoading || cities.length === 0) {
+      return;
+    }
+
+    if (selectedCity === "Все города") {
+      // Загружаем лиги для всех городов
+      cities.forEach((city) => {
+        dispatch(
+          fetchLeaguesByCityId({
+            cityId: String(city.id),
+            token: activeToken,
+          })
+        );
+      });
+    } else {
+      // Загружаем лиги для конкретного города
       const selectedCityData = cities.find(
-        (city) => city.name === selectedCity,
+        (city) => city.name === selectedCity
       );
       if (selectedCityData) {
         dispatch(
           fetchLeaguesByCityId({
             cityId: String(selectedCityData.id),
             token: activeToken,
-          }),
+          })
         );
       }
     }
