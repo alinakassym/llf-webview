@@ -5,6 +5,13 @@ interface LeaguesResponse {
   leagues: League[];
 }
 
+export interface CreateLeaguePayload {
+  name: string;
+  order: number;
+  cityId: number;
+  leagueGroupId: number;
+}
+
 export const leagueService = {
   getLeaguesByCityId: async (
     cityId: string,
@@ -18,5 +25,17 @@ export const leagueService = {
       }
     );
     return response.leagues;
+  },
+
+  createLeague: async (
+    data: CreateLeaguePayload,
+    token: string
+  ): Promise<League> => {
+    const response = await apiRequest<League>("/leagues", {
+      method: "POST",
+      token,
+      body: JSON.stringify(data),
+    });
+    return response;
   },
 };

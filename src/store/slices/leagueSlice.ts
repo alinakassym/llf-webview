@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { League } from "../../types/league";
-import { leagueService } from "../../services/leagueService";
+import { leagueService, type CreateLeaguePayload } from "../../services/leagueService";
 
 interface LeagueState {
   itemsByCityId: Record<string, League[]>; // Лиги по городам
@@ -21,6 +21,15 @@ export const fetchLeaguesByCityId = createAsyncThunk<
 >("leagues/fetchLeaguesByCityId", async ({ cityId, token }) => {
   const leagues = await leagueService.getLeaguesByCityId(cityId, token);
   return { cityId, leagues };
+});
+
+// Thunk для создания лиги
+export const createLeague = createAsyncThunk<
+  League,
+  { data: CreateLeaguePayload; token: string }
+>("leagues/createLeague", async ({ data, token }) => {
+  const league = await leagueService.createLeague(data, token);
+  return league;
 });
 
 const leagueSlice = createSlice({
@@ -60,6 +69,16 @@ const leagueSlice = createSlice({
         state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
         state.errorByCityId[cityId] =
           action.error.message || "Failed to load leagues";
+      })
+      .addCase(createLeague.fulfilled, (state, action) => {
+        const newLeague = action.payload;
+        const cityId = String(newLeague.cityId);
+        // Добавляем новую лигу в список лиг города
+        if (state.itemsByCityId[cityId]) {
+          state.itemsByCityId[cityId].push(newLeague);
+        } else {
+          state.itemsByCityId[cityId] = [newLeague];
+        }
       });
   },
 });

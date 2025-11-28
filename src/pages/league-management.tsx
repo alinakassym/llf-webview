@@ -12,7 +12,9 @@ import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import SingleCityLeaguesList from "../components/SingleCityLeaguesList";
 import AllCitiesLeaguesList from "../components/AllCitiesLeaguesList";
-import CreateLeagueModal from "../components/CreateLeagueModal";
+import CreateLeagueModal, {
+  type CreateLeagueData,
+} from "../components/CreateLeagueModal";
 import type { League, LeagueGroup } from "../types/league";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
@@ -20,6 +22,7 @@ import {
   fetchLeaguesByCityId,
   selectLeaguesByCity,
   selectAllLeagues,
+  createLeague,
 } from "../store/slices/leagueSlice";
 import {
   fetchLeagueGroups,
@@ -210,6 +213,13 @@ const LeagueManagementPage: FC = () => {
     setIsCreateModalOpen(false);
   };
 
+  const handleCreateLeague = async (data: CreateLeagueData) => {
+    if (!activeToken) {
+      throw new Error("No auth token available");
+    }
+    await dispatch(createLeague({ data, token: activeToken })).unwrap();
+  };
+
   // Если идет загрузка - показываем loader на весь экран
   if (isLoading) {
     return (
@@ -296,7 +306,13 @@ const LeagueManagementPage: FC = () => {
         <AddIcon />
       </Fab>
 
-      <CreateLeagueModal open={isCreateModalOpen} onClose={handleCloseModal} />
+      <CreateLeagueModal
+        open={isCreateModalOpen}
+        onClose={handleCloseModal}
+        cities={cities}
+        leagueGroups={leagueGroups}
+        onSubmit={handleCreateLeague}
+      />
     </Box>
   );
 };
