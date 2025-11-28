@@ -9,6 +9,7 @@ import AllCitiesLeaguesList from "../components/AllCitiesLeaguesList";
 import CreateLeagueModal, {
   type CreateLeagueData,
 } from "../components/CreateLeagueModal";
+import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import type { League, LeagueGroup } from "../types/league";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
@@ -17,6 +18,7 @@ import {
   selectLeaguesByCity,
   selectAllLeagues,
   createLeague,
+  deleteLeague,
 } from "../store/slices/leagueSlice";
 import {
   fetchLeagueGroups,
@@ -45,6 +47,13 @@ const LeagueManagementPage: FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
   const [selectedGroup, setSelectedGroup] = useState<LeagueGroup>(ALL_GROUPS);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [leagueToDelete, setLeagueToDelete] = useState<{
+    id: string;
+    name: string;
+    cityId: string;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -193,8 +202,16 @@ const LeagueManagementPage: FC = () => {
   };
 
   const handleDelete = (leagueId: string, leagueName: string) => {
-    console.log("Delete league:", leagueId, leagueName);
-    // TODO: Показать диалог подтверждения и удалить лигу
+    // Находим лигу чтобы получить её cityId
+    const league = leagues.find((l) => String(l.id) === String(leagueId));
+    if (league) {
+      setLeagueToDelete({
+        id: leagueId,
+        name: leagueName,
+        cityId: String(league.cityId),
+      });
+      setDeleteDialogOpen(true);
+    }
   };
 
   const handleAdd = () => {
@@ -203,6 +220,35 @@ const LeagueManagementPage: FC = () => {
 
   const handleCloseModal = () => {
     setIsCreateModalOpen(false);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    if (!isDeleting) {
+      setDeleteDialogOpen(false);
+      setLeagueToDelete(null);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!leagueToDelete || !activeToken) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await dispatch(
+        deleteLeague({
+          leagueId: leagueToDelete.id,
+          cityId: leagueToDelete.cityId,
+          token: activeToken,
+        }),
+      ).unwrap();
+      handleCloseDeleteDialog();
+    } catch (error) {
+      console.error("Error deleting league:", error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleCreateLeague = async (data: CreateLeagueData) => {
@@ -215,9 +261,11 @@ const LeagueManagementPage: FC = () => {
   const handleCityChangeInModal = useCallback(
     (cityId: number) => {
       if (!activeToken) return;
-      dispatch(fetchLeagueGroups({ token: activeToken, cityId: String(cityId) }));
+      dispatch(
+        fetchLeagueGroups({ token: activeToken, cityId: String(cityId) }),
+      );
     },
-    [activeToken, dispatch]
+    [activeToken, dispatch],
   );
 
   // Если идет загрузка - показываем loader на весь экран
@@ -318,6 +366,19 @@ const LeagueManagementPage: FC = () => {
         leagueGroups={leagueGroups}
         onSubmit={handleCreateLeague}
         onCityChange={handleCityChangeInModal}
+      />
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
+        title="Удалить лигу?"
+        message={
+          leagueToDelete
+            ? `Вы уверены, что хотите удалить лигу "${leagueToDelete.name}"? Это действие нельзя отменить.`
+            : ""
+        }
+        loading={isDeleting}
       />
     </Box>
   );

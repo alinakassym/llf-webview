@@ -32,6 +32,15 @@ export const createLeague = createAsyncThunk<
   return league;
 });
 
+// Thunk для удаления лиги
+export const deleteLeague = createAsyncThunk<
+  { leagueId: string; cityId: string },
+  { leagueId: string; cityId: string; token: string }
+>("leagues/deleteLeague", async ({ leagueId, cityId, token }) => {
+  await leagueService.deleteLeague(leagueId, token);
+  return { leagueId, cityId };
+});
+
 const leagueSlice = createSlice({
   name: "leagues",
   initialState,
@@ -81,6 +90,18 @@ const leagueSlice = createSlice({
           state.itemsByCityId[cityId].sort((a, b) => a.order - b.order);
         } else {
           state.itemsByCityId[cityId] = [newLeague];
+        }
+      })
+      .addCase(deleteLeague.fulfilled, (state, action) => {
+        const { leagueId, cityId } = action.payload;
+        // Удаляем лигу из списка лиг города
+        if (state.itemsByCityId[cityId]) {
+          const index = state.itemsByCityId[cityId].findIndex(
+            (league) => league.id === leagueId
+          );
+          if (index !== -1) {
+            state.itemsByCityId[cityId].splice(index, 1);
+          }
         }
       });
   },

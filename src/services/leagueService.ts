@@ -38,4 +38,14 @@ export const leagueService = {
     });
     return response;
   },
+
+  deleteLeague: async (
+    leagueId: string,
+    token: string
+  ): Promise<void> => {
+    await apiRequest<void>(`/leagues/${leagueId}`, {
+      method: "DELETE",
+      token,
+    });
+  },
 };

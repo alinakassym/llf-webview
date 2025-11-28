@@ -28,5 +28,17 @@ export const apiRequest = async <T>(
     throw new Error(`API Error: ${response.status} ${response.statusText}`);
   }
 
-  return response.json();
+  // Если ответ пустой (например, DELETE запрос), не пытаемся парсить JSON
+  const contentLength = response.headers.get("Content-Length");
+  if (response.status === 204 || contentLength === "0") {
+    return {} as T;
+  }
+
+  // Получаем текст ответа и проверяем, не пустой ли он
+  const text = await response.text();
+  if (!text || text.trim().length === 0) {
+    return {} as T;
+  }
+
+  return JSON.parse(text);
 };
