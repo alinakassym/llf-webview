@@ -1,6 +1,6 @@
 // llf-webview/src/components/CreateLeagueModal.tsx
 
-import { type FC, useState } from "react";
+import { type FC, useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -23,6 +23,7 @@ interface CreateLeagueModalProps {
   cities: City[];
   leagueGroups: LeagueGroup[];
   onSubmit: (data: CreateLeagueData) => Promise<void>;
+  onCityChange: (cityId: number) => void;
 }
 
 export interface CreateLeagueData {
@@ -38,6 +39,7 @@ const CreateLeagueModal: FC<CreateLeagueModalProps> = ({
   cities,
   leagueGroups,
   onSubmit,
+  onCityChange,
 }) => {
   const [formData, setFormData] = useState<CreateLeagueData>({
     name: "",
@@ -47,6 +49,15 @@ const CreateLeagueModal: FC<CreateLeagueModalProps> = ({
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof CreateLeagueData, string>>>({});
+
+  // Загружаем группы лиг при изменении города
+  useEffect(() => {
+    if (formData.cityId > 0) {
+      onCityChange(formData.cityId);
+      // Сбрасываем выбранную группу лиги при смене города
+      setFormData((prev) => ({ ...prev, leagueGroupId: 0 }));
+    }
+  }, [formData.cityId, onCityChange]);
 
   const handleChange = (field: keyof CreateLeagueData) => (
     e: React.ChangeEvent<HTMLInputElement>
@@ -190,7 +201,7 @@ const CreateLeagueModal: FC<CreateLeagueModalProps> = ({
             onChange={handleChange("leagueGroupId")}
             error={Boolean(errors.leagueGroupId)}
             helperText={errors.leagueGroupId}
-            disabled={loading}
+            disabled={loading || formData.cityId === 0}
             fullWidth
             required
           >

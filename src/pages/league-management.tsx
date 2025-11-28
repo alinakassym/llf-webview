@@ -220,6 +220,11 @@ const LeagueManagementPage: FC = () => {
     await dispatch(createLeague({ data, token: activeToken })).unwrap();
   };
 
+  const handleCityChangeInModal = (cityId: number) => {
+    if (!activeToken) return;
+    dispatch(fetchLeagueGroups({ token: activeToken, cityId: String(cityId) }));
+  };
+
   // Если идет загрузка - показываем loader на весь экран
   if (isLoading) {
     return (
@@ -312,6 +317,7 @@ const LeagueManagementPage: FC = () => {
         cities={cities}
         leagueGroups={leagueGroups}
         onSubmit={handleCreateLeague}
+        onCityChange={handleCityChangeInModal}
       />
     </Box>
   );
