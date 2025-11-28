@@ -1,4 +1,4 @@
-// llf-webview/src/components/CreateSeasonModal.tsx
+// llf-webview/src/components/EditSeasonModal.tsx
 
 import { type FC, useState, useEffect, useRef } from "react";
 import {
@@ -17,30 +17,38 @@ import CloseIcon from "@mui/icons-material/Close";
 import type { City } from "../types/city";
 import type { League } from "../types/league";
 
-interface CreateSeasonModalProps {
+interface EditSeasonModalProps {
   open: boolean;
   onClose: () => void;
   cities: City[];
   leagues: League[];
-  onSubmit: (data: CreateSeasonData) => Promise<void>;
+  onSubmit: (data: EditSeasonData) => Promise<void>;
   onCityChange: (cityId: number) => void;
+  season: {
+    id: string;
+    name: string;
+    date: string;
+    leagueId: number;
+    cityId: number;
+  } | null;
 }
 
-export interface CreateSeasonData {
+export interface EditSeasonData {
   name: string;
   date: string;
   leagueId: number;
 }
 
-const CreateSeasonModal: FC<CreateSeasonModalProps> = ({
+const EditSeasonModal: FC<EditSeasonModalProps> = ({
   open,
   onClose,
   cities,
   leagues,
   onSubmit,
   onCityChange,
+  season,
 }) => {
-  const [formData, setFormData] = useState<CreateSeasonData>({
+  const [formData, setFormData] = useState<EditSeasonData>({
     name: "",
     date: "",
     leagueId: 0,
@@ -48,9 +56,30 @@ const CreateSeasonModal: FC<CreateSeasonModalProps> = ({
   const [selectedCityId, setSelectedCityId] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<
-    Partial<Record<keyof CreateSeasonData | "cityId", string>>
+    Partial<Record<keyof EditSeasonData | "cityId", string>>
   >({});
   const prevCityIdRef = useRef<number>(0);
+
+  // Заполняем форму данными сезона при открытии
+  useEffect(() => {
+    if (season && open) {
+      // Конвертируем ISO дату в формат yyyy-MM-dd для input type="date"
+      const dateObj = new Date(season.date);
+      const localDate = dateObj.toISOString().split("T")[0];
+
+      setFormData({
+        name: season.name,
+        date: localDate,
+        leagueId: season.leagueId,
+      });
+      setSelectedCityId(season.cityId);
+      prevCityIdRef.current = season.cityId;
+
+      // Загружаем лиги для города сезона
+      onCityChange(season.cityId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [season?.id, open]);
 
   // Загружаем лиги при изменении города
   useEffect(() => {
@@ -62,7 +91,7 @@ const CreateSeasonModal: FC<CreateSeasonModalProps> = ({
   }, [selectedCityId]);
 
   const handleChange = (
-    field: keyof CreateSeasonData | "cityId"
+    field: keyof EditSeasonData | "cityId"
   ) => (e: React.ChangeEvent<HTMLInputElement>) => {
     if (field === "cityId") {
       const cityId = Number(e.target.value);
@@ -83,7 +112,7 @@ const CreateSeasonModal: FC<CreateSeasonModalProps> = ({
   };
 
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof CreateSeasonData | "cityId", string>> = {};
+    const newErrors: Partial<Record<keyof EditSeasonData | "cityId", string>> = {};
 
     if (!formData.name.trim()) {
       newErrors.name = "Название обязательно";
@@ -119,7 +148,7 @@ const CreateSeasonModal: FC<CreateSeasonModalProps> = ({
       });
       handleClose();
     } catch (error) {
-      console.error("Error creating season:", error);
+      console.error("Error updating season:", error);
     } finally {
       setLoading(false);
     }
@@ -161,7 +190,7 @@ const CreateSeasonModal: FC<CreateSeasonModalProps> = ({
           pb: 1,
         }}
       >
-        Создать сезон
+        Редактировать сезон
         <IconButton
           onClick={handleClose}
           disabled={loading}
@@ -253,11 +282,11 @@ const CreateSeasonModal: FC<CreateSeasonModalProps> = ({
           variant="contained"
           color="primary"
         >
-          {loading ? <CircularProgress size={24} /> : "Создать"}
+          {loading ? <CircularProgress size={24} /> : "Сохранить"}
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default CreateSeasonModal;
+export default EditSeasonModal;

@@ -3,6 +3,7 @@ import type { Season } from "../../types/season";
 import {
   seasonService,
   type CreateSeasonPayload,
+  type UpdateSeasonPayload,
 } from "../../services/seasonService";
 
 interface SeasonState {
@@ -35,6 +36,15 @@ export const createSeason = createAsyncThunk<
   return season;
 });
 
+// Thunk для обновления сезона
+export const updateSeason = createAsyncThunk<
+  Season,
+  { seasonId: string; data: UpdateSeasonPayload; token: string }
+>("seasons/updateSeason", async ({ seasonId, data, token }) => {
+  const season = await seasonService.updateSeason(seasonId, data, token);
+  return season;
+});
+
 const seasonSlice = createSlice({
   name: "seasons",
   initialState,
@@ -47,7 +57,7 @@ const seasonSlice = createSlice({
     clearSeasonsForCity: (state, action: { payload: string }) => {
       delete state.itemsByCityId[action.payload];
       state.loadingCities = state.loadingCities.filter(
-        (cityId) => cityId !== action.payload
+        (cityId) => cityId !== action.payload,
       );
       delete state.errorByCityId[action.payload];
     },
@@ -65,7 +75,7 @@ const seasonSlice = createSlice({
         const { cityId, seasons } = action.payload;
         // Сортируем сезоны по дате (от новых к старым)
         state.itemsByCityId[cityId] = seasons.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
         );
         state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
         delete state.errorByCityId[cityId];
@@ -78,16 +88,74 @@ const seasonSlice = createSlice({
       })
       .addCase(createSeason.fulfilled, (state, action) => {
         const newSeason = action.payload;
+
+        // Проверка на корректность данных
+        if (!newSeason || !newSeason.id) {
+          console.error("Invalid season data received from create API");
+          return;
+        }
+
         const cityId = String(newSeason.cityId);
         // Добавляем новый сезон в список сезонов города
         if (state.itemsByCityId[cityId]) {
           state.itemsByCityId[cityId].push(newSeason);
           // Сортируем сезоны по дате (от новых к старым)
           state.itemsByCityId[cityId].sort(
-            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
           );
         } else {
           state.itemsByCityId[cityId] = [newSeason];
+        }
+      })
+      .addCase(updateSeason.fulfilled, (state, action) => {
+        const updatedSeason = action.payload;
+
+        // Логируем ответ API для отладки
+        console.log("Update API response:", updatedSeason);
+
+        // Проверка на корректность данных
+        if (!updatedSeason || typeof updatedSeason !== "object") {
+          console.error("Invalid season data received from update API", updatedSeason);
+          return;
+        }
+
+        // Если API не вернул id, попробуем получить его из meta
+        const seasonId = updatedSeason.id || action.meta.arg.seasonId;
+        if (!seasonId) {
+          console.error("Cannot identify updated season - no ID available");
+          return;
+        }
+
+        const newCityId = String(updatedSeason.cityId);
+
+        // Если нет cityId в ответе, не можем обновить state
+        if (!newCityId || newCityId === "undefined") {
+          console.warn("Update succeeded but API did not return cityId, state not updated");
+          return;
+        }
+
+        // Находим и удаляем старую версию сезона из всех городов
+        Object.keys(state.itemsByCityId).forEach((cityId) => {
+          if (state.itemsByCityId[cityId]) {
+            state.itemsByCityId[cityId] = state.itemsByCityId[cityId].filter(
+              (season) => season && String(season.id) !== String(seasonId),
+            );
+            // Удаляем пустые массивы для чистоты state
+            if (state.itemsByCityId[cityId].length === 0) {
+              delete state.itemsByCityId[cityId];
+            }
+          }
+        });
+
+        // Добавляем обновленный сезон в новый город
+        if (state.itemsByCityId[newCityId]) {
+          state.itemsByCityId[newCityId].push(updatedSeason);
+          // Сортируем сезоны по дате (от новых к старым)
+          state.itemsByCityId[newCityId].sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+          );
+        } else {
+          state.itemsByCityId[newCityId] = [updatedSeason];
         }
       });
   },
@@ -99,7 +167,9 @@ export default seasonSlice.reducer;
 // Селекторы
 export type RootState = { seasons: SeasonState };
 export const selectSeasonsByCity = (cityId: string) => (state: RootState) =>
-  state.seasons.itemsByCityId[cityId] || [];
+  (state.seasons.itemsByCityId[cityId] || []).filter(
+    (season) => season && season.id && season.name,
+  );
 export const selectSeasonsLoadingForCity =
   (cityId: string) => (state: RootState) =>
     state.seasons.loadingCities.includes(cityId);
@@ -109,6 +179,8 @@ export const selectSeasonsErrorForCity =
 
 // Селектор для получения всех сезонов (для "Все города")
 export const selectAllSeasons = (state: RootState) =>
-  Object.values(state.seasons.itemsByCityId).flat();
+  Object.values(state.seasons.itemsByCityId)
+    .flat()
+    .filter((season) => season && season.id && season.name);
 export const selectSeasonsLoading = (state: RootState) =>
   state.seasons.loadingCities.length > 0;

@@ -45,7 +45,7 @@ const AllCitiesSeasonsList: FC<AllCitiesSeasonsListProps> = ({
           <Box sx={{ display: "flex", flexDirection: "column" }}>
             {citySeasons.map((season) => (
               <ManagementItemCard
-                key={season.id}
+                key={`${cityName}${season.id}`}
                 title={season.name}
                 subtitle={formatDate(season.date)}
                 onEdit={() => onEdit(String(season.id))}

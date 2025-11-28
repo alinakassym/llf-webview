@@ -9,6 +9,9 @@ import AllCitiesSeasonsList from "../components/AllCitiesSeasonsList";
 import CreateSeasonModal, {
   type CreateSeasonData,
 } from "../components/CreateSeasonModal";
+import EditSeasonModal, {
+  type EditSeasonData,
+} from "../components/EditSeasonModal";
 import type { Season } from "../types/season";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
@@ -17,6 +20,7 @@ import {
   selectSeasonsByCity,
   selectAllSeasons,
   createSeason,
+  updateSeason,
 } from "../store/slices/seasonSlice";
 import {
   fetchLeaguesByCityId,
@@ -40,6 +44,9 @@ const SeasonsManagementPage: FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [modalCityId, setModalCityId] = useState<number>(0);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editSeason, setEditSeason] = useState<Season | null>(null);
+  const [editModalCityId, setEditModalCityId] = useState<number>(0);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -121,9 +128,16 @@ const SeasonsManagementPage: FC = () => {
     modalCityId > 0 ? selectLeaguesByCity(String(modalCityId))(state) : [],
   );
 
+  // Получаем лиги для модала редактирования
+  const editModalLeagues = useAppSelector((state) =>
+    editModalCityId > 0
+      ? selectLeaguesByCity(String(editModalCityId))(state)
+      : [],
+  );
+
   const filteredSeasons = useMemo(() => {
     return seasons.filter((season: Season) => {
-      const matchesSearch = season.name
+      const matchesSearch = (season.name || "")
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
       return matchesSearch;
@@ -134,9 +148,14 @@ const SeasonsManagementPage: FC = () => {
   const seasonsByGroup = useMemo(() => {
     const grouped: Record<string, Season[]> = {};
     filteredSeasons.forEach((season) => {
+      // Защита от undefined значений
+      if (!season || !season.leagueName) {
+        return;
+      }
+
       const groupKey =
         selectedCity === ALL_CITIES
-          ? `${season.cityName} - ${season.leagueName}`
+          ? `${season.cityName || "Неизвестный город"} - ${season.leagueName}`
           : season.leagueName;
       if (!grouped[groupKey]) {
         grouped[groupKey] = [];
@@ -148,8 +167,13 @@ const SeasonsManagementPage: FC = () => {
   }, [selectedCity, filteredSeasons]);
 
   const handleEdit = (seasonId: string) => {
-    console.log("Edit season:", seasonId);
-    // TODO: Открыть модальное окно редактирования
+    // Находим сезон по ID
+    const season = seasons.find((s) => String(s.id) === seasonId);
+    if (season) {
+      setEditSeason(season);
+      setEditModalCityId(season.cityId);
+      setIsEditModalOpen(true);
+    }
   };
 
   const handleDelete = (seasonId: string, seasonName: string) => {
@@ -173,13 +197,73 @@ const SeasonsManagementPage: FC = () => {
     await dispatch(createSeason({ data, token: activeToken })).unwrap();
   };
 
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditSeason(null);
+    setEditModalCityId(0);
+  };
+
+  const handleUpdateSeason = async (data: EditSeasonData) => {
+    console.log("Updating season with data:", data);
+    if (!activeToken || !editSeason) {
+      throw new Error("No auth token or season available");
+    }
+
+    const oldCityId = editSeason.cityId;
+
+    // Обновляем сезон
+    await dispatch(
+      updateSeason({
+        seasonId: String(editSeason.id),
+        data,
+        token: activeToken,
+      }),
+    ).unwrap();
+
+    // Перезагружаем сезоны для старого города
+    if (oldCityId) {
+      await dispatch(
+        fetchSeasonsByCityId({
+          cityId: String(oldCityId),
+          token: activeToken,
+        }),
+      );
+    }
+
+    // Перезагружаем сезоны для нового города (если лига в другом городе)
+    const newLeague = editModalLeagues.find(
+      (l) => l.id === String(data.leagueId),
+    );
+    if (newLeague && newLeague.cityId !== String(oldCityId)) {
+      await dispatch(
+        fetchSeasonsByCityId({
+          cityId: String(newLeague.cityId),
+          token: activeToken,
+        }),
+      );
+    }
+  };
+
   const handleCityChangeInModal = useCallback(
     (cityId: number) => {
       if (!activeToken) return;
       setModalCityId(cityId);
-      dispatch(fetchLeaguesByCityId({ cityId: String(cityId), token: activeToken }));
+      dispatch(
+        fetchLeaguesByCityId({ cityId: String(cityId), token: activeToken }),
+      );
     },
-    [activeToken, dispatch]
+    [activeToken, dispatch],
+  );
+
+  const handleCityChangeInEditModal = useCallback(
+    (cityId: number) => {
+      if (!activeToken) return;
+      setEditModalCityId(cityId);
+      dispatch(
+        fetchLeaguesByCityId({ cityId: String(cityId), token: activeToken }),
+      );
+    },
+    [activeToken, dispatch],
   );
 
   // Если идет загрузка - показываем loader на весь экран
@@ -253,6 +337,26 @@ const SeasonsManagementPage: FC = () => {
         leagues={modalLeagues}
         onSubmit={handleCreateSeason}
         onCityChange={handleCityChangeInModal}
+      />
+
+      <EditSeasonModal
+        open={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        cities={cities}
+        leagues={editModalLeagues}
+        onSubmit={handleUpdateSeason}
+        onCityChange={handleCityChangeInEditModal}
+        season={
+          editSeason
+            ? {
+                id: String(editSeason.id),
+                name: editSeason.name,
+                date: editSeason.date,
+                leagueId: editSeason.leagueId,
+                cityId: editSeason.cityId,
+              }
+            : null
+        }
       />
     </Box>
   );
