@@ -51,8 +51,10 @@ const seasonSlice = createSlice({
       })
       .addCase(fetchSeasonsByCityId.fulfilled, (state, action) => {
         const { cityId, seasons } = action.payload;
-        // Сортируем сезоны по полю order
-        state.itemsByCityId[cityId] = seasons.sort((a, b) => a.order - b.order);
+        // Сортируем сезоны по дате (от новых к старым)
+        state.itemsByCityId[cityId] = seasons.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
         state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
         delete state.errorByCityId[cityId];
       })

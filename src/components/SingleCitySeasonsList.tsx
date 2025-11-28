@@ -2,6 +2,7 @@ import { type FC } from "react";
 import { Box, Typography } from "@mui/material";
 import ManagementItemCard from "./ManagementItemCard";
 import type { Season } from "../types/season";
+import { formatDate } from "../utils/dateFormat";
 
 interface SingleCitySeasonsListProps {
   cityName: string;
@@ -33,9 +34,9 @@ const SingleCitySeasonsList: FC<SingleCitySeasonsListProps> = ({
             <ManagementItemCard
               key={season.id}
               title={season.name}
-              subtitle={`Порядок: ${season.order}`}
-              onEdit={() => onEdit(season.id)}
-              onDelete={() => onDelete(season.id, season.name)}
+              subtitle={formatDate(season.date)}
+              onEdit={() => onEdit(String(season.id))}
+              onDelete={() => onDelete(String(season.id), season.name)}
             />
           ))
         ) : (

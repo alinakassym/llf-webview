@@ -1,9 +1,11 @@
 export interface Season {
-  id: string;
+  id: number;
   name: string;
-  cityId: string;
+  date: string;
+  leagueId: number;
+  leagueName: string;
+  cityId: number;
   cityName: string;
-  order: number;
-  startDate?: string;
-  endDate?: string;
+  leagueGroupId: number;
+  leagueGroupName: string;
 }
