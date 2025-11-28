@@ -5,7 +5,6 @@ import { Box, Fab, Container, CircularProgress, Alert } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
-import SingleCitySeasonsList from "../components/SingleCitySeasonsList";
 import AllCitiesSeasonsList from "../components/AllCitiesSeasonsList";
 import CreateSeasonModal, {
   type CreateSeasonData,
@@ -131,19 +130,18 @@ const SeasonsManagementPage: FC = () => {
     });
   }, [seasons, searchQuery]);
 
-  // Группировка сезонов по городам для "Все города"
-  const seasonsByCity = useMemo(() => {
-    if (selectedCity !== ALL_CITIES) {
-      return null;
-    }
-
+  // Группировка сезонов по городу и лиге
+  const seasonsByGroup = useMemo(() => {
     const grouped: Record<string, Season[]> = {};
     filteredSeasons.forEach((season) => {
-      const cityName = season.cityName;
-      if (!grouped[cityName]) {
-        grouped[cityName] = [];
+      const groupKey =
+        selectedCity === ALL_CITIES
+          ? `${season.cityName} - ${season.leagueName}`
+          : season.leagueName;
+      if (!grouped[groupKey]) {
+        grouped[groupKey] = [];
       }
-      grouped[cityName].push(season);
+      grouped[groupKey].push(season);
     });
 
     return grouped;
@@ -226,20 +224,11 @@ const SeasonsManagementPage: FC = () => {
           </Box>
 
           <Box>
-            {selectedCity === ALL_CITIES && seasonsByCity ? (
-              <AllCitiesSeasonsList
-                seasonsByCity={seasonsByCity}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            ) : (
-              <SingleCitySeasonsList
-                cityName={selectedCity}
-                seasons={filteredSeasons}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            )}
+            <AllCitiesSeasonsList
+              seasonsByCity={seasonsByGroup}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </Box>
         </Box>
       </Container>
