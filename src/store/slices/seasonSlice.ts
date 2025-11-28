@@ -45,6 +45,15 @@ export const updateSeason = createAsyncThunk<
   return season;
 });
 
+// Thunk для удаления сезона
+export const deleteSeason = createAsyncThunk<
+  void,
+  { seasonId: string; cityId: string; token: string }
+>("seasons/deleteSeason", async ({ seasonId, token }) => {
+  await seasonService.deleteSeason(seasonId, token);
+  return;
+});
+
 const seasonSlice = createSlice({
   name: "seasons",
   initialState,
@@ -156,6 +165,21 @@ const seasonSlice = createSlice({
           );
         } else {
           state.itemsByCityId[newCityId] = [updatedSeason];
+        }
+      })
+      .addCase(deleteSeason.fulfilled, (state, action) => {
+        const { seasonId, cityId } = action.meta.arg;
+
+        // Удаляем сезон из списка сезонов города
+        if (state.itemsByCityId[cityId]) {
+          state.itemsByCityId[cityId] = state.itemsByCityId[cityId].filter(
+            (season) => String(season.id) !== String(seasonId),
+          );
+
+          // Удаляем пустые массивы для чистоты state
+          if (state.itemsByCityId[cityId].length === 0) {
+            delete state.itemsByCityId[cityId];
+          }
         }
       });
   },

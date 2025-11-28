@@ -56,4 +56,11 @@ export const seasonService = {
     });
     return response;
   },
+
+  deleteSeason: async (seasonId: string, token: string): Promise<void> => {
+    await apiRequest<void>(`/seasons/${seasonId}`, {
+      method: "DELETE",
+      token,
+    });
+  },
 };

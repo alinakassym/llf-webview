@@ -12,6 +12,7 @@ import CreateSeasonModal, {
 import EditSeasonModal, {
   type EditSeasonData,
 } from "../components/EditSeasonModal";
+import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import type { Season } from "../types/season";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
@@ -21,6 +22,7 @@ import {
   selectAllSeasons,
   createSeason,
   updateSeason,
+  deleteSeason,
 } from "../store/slices/seasonSlice";
 import {
   fetchLeaguesByCityId,
@@ -47,6 +49,13 @@ const SeasonsManagementPage: FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editSeason, setEditSeason] = useState<Season | null>(null);
   const [editModalCityId, setEditModalCityId] = useState<number>(0);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [seasonToDelete, setSeasonToDelete] = useState<{
+    id: string;
+    name: string;
+    cityId: string;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -177,8 +186,16 @@ const SeasonsManagementPage: FC = () => {
   };
 
   const handleDelete = (seasonId: string, seasonName: string) => {
-    console.log("Delete season:", seasonId, seasonName);
-    // TODO: Показать диалог подтверждения и удалить сезон
+    // Находим сезон чтобы получить его cityId
+    const season = seasons.find((s) => String(s.id) === String(seasonId));
+    if (season) {
+      setSeasonToDelete({
+        id: seasonId,
+        name: seasonName,
+        cityId: String(season.cityId),
+      });
+      setDeleteDialogOpen(true);
+    }
   };
 
   const handleAdd = () => {
@@ -265,6 +282,35 @@ const SeasonsManagementPage: FC = () => {
     },
     [activeToken, dispatch],
   );
+
+  const handleCloseDeleteDialog = () => {
+    if (!isDeleting) {
+      setDeleteDialogOpen(false);
+      setSeasonToDelete(null);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!seasonToDelete || !activeToken) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await dispatch(
+        deleteSeason({
+          seasonId: seasonToDelete.id,
+          cityId: seasonToDelete.cityId,
+          token: activeToken,
+        }),
+      ).unwrap();
+      handleCloseDeleteDialog();
+    } catch (error) {
+      console.error("Error deleting season:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Если идет загрузка - показываем loader на весь экран
   if (isLoading) {
@@ -357,6 +403,19 @@ const SeasonsManagementPage: FC = () => {
               }
             : null
         }
+      />
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
+        title="Удалить сезон?"
+        message={
+          seasonToDelete
+            ? `Вы уверены, что хотите удалить сезон "${seasonToDelete.name}"? Это действие нельзя отменить.`
+            : ""
+        }
+        loading={isDeleting}
       />
     </Box>
   );
