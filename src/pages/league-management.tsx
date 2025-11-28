@@ -60,11 +60,10 @@ const LeagueManagementPage: FC = () => {
     );
   }, [authLoading, webViewLoading, citiesLoading, leagueGroupsLoading]);
 
-  // Загружаем города и группы лиг при монтировании
+  // Загружаем города при монтировании
   useEffect(() => {
     if (activeToken && !authLoading && !webViewLoading) {
       dispatch(fetchCities(activeToken));
-      dispatch(fetchLeagueGroups(activeToken));
     }
   }, [activeToken, authLoading, webViewLoading, dispatch]);
 
@@ -84,6 +83,35 @@ const LeagueManagementPage: FC = () => {
     () => cities.find((city) => city.name === selectedCity),
     [cities, selectedCity],
   );
+
+  // Загружаем группы лиг в зависимости от выбранного города
+  useEffect(() => {
+    if (!activeToken || authLoading || webViewLoading) {
+      return;
+    }
+
+    if (selectedCity === ALL_CITIES) {
+      // Загружаем все группы лиг без фильтрации
+      dispatch(fetchLeagueGroups({ token: activeToken }));
+    } else {
+      // Загружаем группы лиг для конкретного города
+      if (selectedCityData) {
+        dispatch(
+          fetchLeagueGroups({
+            token: activeToken,
+            cityId: String(selectedCityData.id),
+          }),
+        );
+      }
+    }
+  }, [
+    selectedCity,
+    selectedCityData,
+    activeToken,
+    authLoading,
+    webViewLoading,
+    dispatch,
+  ]);
 
   // Загружаем лиги при выборе города
   useEffect(() => {

@@ -1,3 +1,5 @@
+// llf-webview/src/store/slices/leagueGroupSlice.ts
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apiRequest } from "../../services/api";
 
@@ -24,19 +26,19 @@ const initialState: LeagueGroupsState = {
   error: null,
 };
 
-export const fetchLeagueGroups = createAsyncThunk<LeagueGroup[], string>(
-  "leagueGroups/fetchLeagueGroups",
-  async (token: string) => {
-    const response = await apiRequest<LeagueGroupsResponse>(
-      "/leagues/groups",
-      {
-        method: "GET",
-        token,
-      }
-    );
-    return response.leagueGroups;
-  }
-);
+export const fetchLeagueGroups = createAsyncThunk<
+  LeagueGroup[],
+  { token: string; cityId?: string }
+>("leagueGroups/fetchLeagueGroups", async ({ token, cityId }) => {
+  const endpoint = cityId
+    ? `/leagues/groups?cityId=${cityId}`
+    : "/leagues/groups";
+  const response = await apiRequest<LeagueGroupsResponse>(endpoint, {
+    method: "GET",
+    token,
+  });
+  return response.leagueGroups;
+});
 
 const leagueGroupSlice = createSlice({
   name: "leagueGroups",
