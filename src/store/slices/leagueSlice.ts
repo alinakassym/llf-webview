@@ -60,7 +60,8 @@ const leagueSlice = createSlice({
       })
       .addCase(fetchLeaguesByCityId.fulfilled, (state, action) => {
         const { cityId, leagues } = action.payload;
-        state.itemsByCityId[cityId] = leagues;
+        // Сортируем лиги по полю order
+        state.itemsByCityId[cityId] = leagues.sort((a, b) => a.order - b.order);
         state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
         delete state.errorByCityId[cityId];
       })
@@ -76,6 +77,8 @@ const leagueSlice = createSlice({
         // Добавляем новую лигу в список лиг города
         if (state.itemsByCityId[cityId]) {
           state.itemsByCityId[cityId].push(newLeague);
+          // Сортируем лиги по полю order
+          state.itemsByCityId[cityId].sort((a, b) => a.order - b.order);
         } else {
           state.itemsByCityId[cityId] = [newLeague];
         }
