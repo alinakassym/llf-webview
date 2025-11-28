@@ -8,6 +8,7 @@ const HomePage: FC = () => {
 
       <nav style={{ display: "grid", gap: 12 }}>
         <Link to="/league-management">Управление лигами</Link>
+        <Link to="/seasons-management">Управление сезонами</Link>
         <Link to="/competition-plan">План соревнований</Link>
         <Link to="/regulations">Регламент</Link>
         <Link to="/rules">Правила</Link>
