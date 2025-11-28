@@ -1,12 +1,6 @@
 // llf-webview/src/pages/league-management.tsx
-import { type FC, useState, useMemo, useEffect } from "react";
-import {
-  Box,
-  Fab,
-  Container,
-  CircularProgress,
-  Alert,
-} from "@mui/material";
+import { type FC, useState, useMemo, useEffect, useCallback } from "react";
+import { Box, Fab, Container, CircularProgress, Alert } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
@@ -60,10 +54,8 @@ const LeagueManagementPage: FC = () => {
 
   // Общий флаг загрузки: true если хотя бы один из флагов true
   const isLoading = useMemo(() => {
-    return (
-      authLoading || webViewLoading || citiesLoading || leagueGroupsLoading
-    );
-  }, [authLoading, webViewLoading, citiesLoading, leagueGroupsLoading]);
+    return authLoading || webViewLoading || citiesLoading;
+  }, [authLoading, webViewLoading, citiesLoading]);
 
   // Загружаем города при монтировании
   useEffect(() => {
@@ -220,10 +212,13 @@ const LeagueManagementPage: FC = () => {
     await dispatch(createLeague({ data, token: activeToken })).unwrap();
   };
 
-  const handleCityChangeInModal = (cityId: number) => {
-    if (!activeToken) return;
-    dispatch(fetchLeagueGroups({ token: activeToken, cityId: String(cityId) }));
-  };
+  const handleCityChangeInModal = useCallback(
+    (cityId: number) => {
+      if (!activeToken) return;
+      dispatch(fetchLeagueGroups({ token: activeToken, cityId: String(cityId) }));
+    },
+    [activeToken, dispatch]
+  );
 
   // Если идет загрузка - показываем loader на весь экран
   if (isLoading) {
@@ -270,7 +265,12 @@ const LeagueManagementPage: FC = () => {
               onSelect={setSelectedCity}
             />
             {/* Показываем фильтр по группам только если выбран конкретный город */}
-            {selectedCity !== ALL_CITIES && (
+            {leagueGroupsLoading && (
+              <Box sx={{ display: "flex", justifyContent: "center", py: 1 }}>
+                <CircularProgress size={24} />
+              </Box>
+            )}
+            {!leagueGroupsLoading && selectedCity !== ALL_CITIES && (
               <FilterChips
                 options={groupOptions}
                 selected={selectedGroup}

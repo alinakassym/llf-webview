@@ -1,6 +1,6 @@
 // llf-webview/src/components/CreateLeagueModal.tsx
 
-import { type FC, useState, useEffect } from "react";
+import { type FC, useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -49,21 +49,30 @@ const CreateLeagueModal: FC<CreateLeagueModalProps> = ({
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof CreateLeagueData, string>>>({});
+  const prevCityIdRef = useRef<number>(0);
 
   // Загружаем группы лиг при изменении города
   useEffect(() => {
-    if (formData.cityId > 0) {
+    if (formData.cityId > 0 && formData.cityId !== prevCityIdRef.current) {
+      prevCityIdRef.current = formData.cityId;
       onCityChange(formData.cityId);
-      // Сбрасываем выбранную группу лиги при смене города
-      setFormData((prev) => ({ ...prev, leagueGroupId: 0 }));
     }
   }, [formData.cityId, onCityChange]);
 
   const handleChange = (field: keyof CreateLeagueData) => (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const value = field === "name" ? e.target.value : Number(e.target.value);
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    // При изменении города сбрасываем выбранную группу лиги
+    if (field === "cityId") {
+      const cityId = Number(e.target.value);
+      setFormData((prev) => ({ ...prev, cityId, leagueGroupId: 0 }));
+    } else if (field === "name") {
+      setFormData((prev) => ({ ...prev, name: e.target.value }));
+    } else {
+      const numValue = Number(e.target.value);
+      setFormData((prev) => ({ ...prev, [field]: numValue }));
+    }
+
     // Очищаем ошибку при изменении поля
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -112,6 +121,7 @@ const CreateLeagueModal: FC<CreateLeagueModalProps> = ({
     });
     setErrors({});
     setLoading(false);
+    prevCityIdRef.current = 0;
     onClose();
   };
 
