@@ -90,29 +90,30 @@ const EditSeasonModal: FC<EditSeasonModalProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCityId]);
 
-  const handleChange = (
-    field: keyof EditSeasonData | "cityId"
-  ) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (field === "cityId") {
-      const cityId = Number(e.target.value);
-      setSelectedCityId(cityId);
-      // Сбрасываем выбранную лигу при смене города
-      setFormData((prev) => ({ ...prev, leagueId: 0 }));
-    } else if (field === "name" || field === "date") {
-      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    } else {
-      const numValue = Number(e.target.value);
-      setFormData((prev) => ({ ...prev, [field]: numValue }));
-    }
+  const handleChange =
+    (field: keyof EditSeasonData | "cityId") =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (field === "cityId") {
+        const cityId = Number(e.target.value);
+        setSelectedCityId(cityId);
+        // Сбрасываем выбранную лигу при смене города
+        setFormData((prev) => ({ ...prev, leagueId: 0 }));
+      } else if (field === "name" || field === "date") {
+        setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      } else {
+        const numValue = Number(e.target.value);
+        setFormData((prev) => ({ ...prev, [field]: numValue }));
+      }
 
-    // Очищаем ошибку при изменении поля
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+      // Очищаем ошибку при изменении поля
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
 
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof EditSeasonData | "cityId", string>> = {};
+    const newErrors: Partial<Record<keyof EditSeasonData | "cityId", string>> =
+      {};
 
     if (!formData.name.trim()) {
       newErrors.name = "Название обязательно";
@@ -226,6 +227,11 @@ const EditSeasonModal: FC<EditSeasonModalProps> = ({
             required
             slotProps={{
               inputLabel: { shrink: true },
+            }}
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "56px",
+              },
             }}
           />
 

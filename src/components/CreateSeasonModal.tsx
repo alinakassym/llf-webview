@@ -198,6 +198,11 @@ const CreateSeasonModal: FC<CreateSeasonModalProps> = ({
             slotProps={{
               inputLabel: { shrink: true },
             }}
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "56px",
+              },
+            }}
           />
 
           <TextField
