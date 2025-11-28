@@ -5,6 +5,12 @@ interface SeasonsResponse {
   seasons: Season[];
 }
 
+export interface CreateSeasonPayload {
+  name: string;
+  date: string;
+  leagueId: number;
+}
+
 export const seasonService = {
   getSeasonsByCityId: async (
     cityId: string,
@@ -18,5 +24,17 @@ export const seasonService = {
       }
     );
     return response.seasons;
+  },
+
+  createSeason: async (
+    data: CreateSeasonPayload,
+    token: string
+  ): Promise<Season> => {
+    const response = await apiRequest<Season>("/seasons", {
+      method: "POST",
+      token,
+      body: JSON.stringify(data),
+    });
+    return response;
   },
 };

@@ -1,6 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { Season } from "../../types/season";
-import { seasonService } from "../../services/seasonService";
+import {
+  seasonService,
+  type CreateSeasonPayload,
+} from "../../services/seasonService";
 
 interface SeasonState {
   itemsByCityId: Record<string, Season[]>;
@@ -21,6 +24,15 @@ export const fetchSeasonsByCityId = createAsyncThunk<
 >("seasons/fetchSeasonsByCityId", async ({ cityId, token }) => {
   const seasons = await seasonService.getSeasonsByCityId(cityId, token);
   return { cityId, seasons };
+});
+
+// Thunk для создания сезона
+export const createSeason = createAsyncThunk<
+  Season,
+  { data: CreateSeasonPayload; token: string }
+>("seasons/createSeason", async ({ data, token }) => {
+  const season = await seasonService.createSeason(data, token);
+  return season;
 });
 
 const seasonSlice = createSlice({
@@ -63,6 +75,20 @@ const seasonSlice = createSlice({
         state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
         state.errorByCityId[cityId] =
           action.error.message || "Failed to load seasons";
+      })
+      .addCase(createSeason.fulfilled, (state, action) => {
+        const newSeason = action.payload;
+        const cityId = String(newSeason.cityId);
+        // Добавляем новый сезон в список сезонов города
+        if (state.itemsByCityId[cityId]) {
+          state.itemsByCityId[cityId].push(newSeason);
+          // Сортируем сезоны по дате (от новых к старым)
+          state.itemsByCityId[cityId].sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          );
+        } else {
+          state.itemsByCityId[cityId] = [newSeason];
+        }
       });
   },
 });

@@ -1,11 +1,15 @@
 // llf-webview/src/pages/seasons-management.tsx
-import { type FC, useState, useMemo, useEffect } from "react";
+
+import { type FC, useState, useMemo, useEffect, useCallback } from "react";
 import { Box, Fab, Container, CircularProgress, Alert } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import SingleCitySeasonsList from "../components/SingleCitySeasonsList";
 import AllCitiesSeasonsList from "../components/AllCitiesSeasonsList";
+import CreateSeasonModal, {
+  type CreateSeasonData,
+} from "../components/CreateSeasonModal";
 import type { Season } from "../types/season";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
@@ -13,7 +17,12 @@ import {
   fetchSeasonsByCityId,
   selectSeasonsByCity,
   selectAllSeasons,
+  createSeason,
 } from "../store/slices/seasonSlice";
+import {
+  fetchLeaguesByCityId,
+  selectLeaguesByCity,
+} from "../store/slices/leagueSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import { ALL_CITIES } from "../constants/leagueManagement";
@@ -30,6 +39,8 @@ const SeasonsManagementPage: FC = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [modalCityId, setModalCityId] = useState<number>(0);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -106,6 +117,11 @@ const SeasonsManagementPage: FC = () => {
       : [],
   );
 
+  // Получаем лиги для модала создания
+  const modalLeagues = useAppSelector((state) =>
+    modalCityId > 0 ? selectLeaguesByCity(String(modalCityId))(state) : [],
+  );
+
   const filteredSeasons = useMemo(() => {
     return seasons.filter((season: Season) => {
       const matchesSearch = season.name
@@ -144,9 +160,29 @@ const SeasonsManagementPage: FC = () => {
   };
 
   const handleAdd = () => {
-    console.log("Add season");
-    // TODO: Открыть модальное окно создания сезона
+    setIsCreateModalOpen(true);
   };
+
+  const handleCloseModal = () => {
+    setIsCreateModalOpen(false);
+    setModalCityId(0);
+  };
+
+  const handleCreateSeason = async (data: CreateSeasonData) => {
+    if (!activeToken) {
+      throw new Error("No auth token available");
+    }
+    await dispatch(createSeason({ data, token: activeToken })).unwrap();
+  };
+
+  const handleCityChangeInModal = useCallback(
+    (cityId: number) => {
+      if (!activeToken) return;
+      setModalCityId(cityId);
+      dispatch(fetchLeaguesByCityId({ cityId: String(cityId), token: activeToken }));
+    },
+    [activeToken, dispatch]
+  );
 
   // Если идет загрузка - показываем loader на весь экран
   if (isLoading) {
@@ -220,6 +256,15 @@ const SeasonsManagementPage: FC = () => {
       >
         <AddIcon />
       </Fab>
+
+      <CreateSeasonModal
+        open={isCreateModalOpen}
+        onClose={handleCloseModal}
+        cities={cities}
+        leagues={modalLeagues}
+        onSubmit={handleCreateSeason}
+        onCityChange={handleCityChangeInModal}
+      />
     </Box>
   );
 };
