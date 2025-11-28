@@ -12,6 +12,13 @@ export interface CreateLeaguePayload {
   leagueGroupId: number;
 }
 
+export interface UpdateLeaguePayload {
+  name: string;
+  order: number;
+  cityId: number;
+  leagueGroupId: number;
+}
+
 export const leagueService = {
   getLeaguesByCityId: async (
     cityId: string,
@@ -37,6 +44,18 @@ export const leagueService = {
       body: JSON.stringify(data),
     });
     return response;
+  },
+
+  updateLeague: async (
+    leagueId: string,
+    data: UpdateLeaguePayload,
+    token: string
+  ): Promise<void> => {
+    await apiRequest<void>(`/leagues/${leagueId}`, {
+      method: "PUT",
+      token,
+      body: JSON.stringify(data),
+    });
   },
 
   deleteLeague: async (

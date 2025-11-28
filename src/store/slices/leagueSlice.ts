@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { League } from "../../types/league";
-import { leagueService, type CreateLeaguePayload } from "../../services/leagueService";
+import {
+  leagueService,
+  type CreateLeaguePayload,
+  type UpdateLeaguePayload,
+} from "../../services/leagueService";
 
 interface LeagueState {
   itemsByCityId: Record<string, League[]>; // Лиги по городам
@@ -30,6 +34,15 @@ export const createLeague = createAsyncThunk<
 >("leagues/createLeague", async ({ data, token }) => {
   const league = await leagueService.createLeague(data, token);
   return league;
+});
+
+// Thunk для обновления лиги
+export const updateLeague = createAsyncThunk<
+  { leagueId: string; cityId: string; data: UpdateLeaguePayload },
+  { leagueId: string; cityId: string; data: UpdateLeaguePayload; token: string }
+>("leagues/updateLeague", async ({ leagueId, cityId, data, token }) => {
+  await leagueService.updateLeague(leagueId, data, token);
+  return { leagueId, cityId, data };
 });
 
 // Thunk для удаления лиги
@@ -90,6 +103,22 @@ const leagueSlice = createSlice({
           state.itemsByCityId[cityId].sort((a, b) => a.order - b.order);
         } else {
           state.itemsByCityId[cityId] = [newLeague];
+        }
+      })
+      .addCase(updateLeague.fulfilled, (state, action) => {
+        const { leagueId, cityId, data } = action.payload;
+        // Обновляем данные лиги в списке лиг города
+        if (state.itemsByCityId[cityId]) {
+          const index = state.itemsByCityId[cityId].findIndex(
+            (league) => String(league.id) === leagueId,
+          );
+          if (index !== -1) {
+            // Обновляем только изменяемые поля
+            state.itemsByCityId[cityId][index].name = data.name;
+            state.itemsByCityId[cityId][index].order = data.order;
+            // Сортируем лиги по полю order после обновления
+            state.itemsByCityId[cityId].sort((a, b) => a.order - b.order);
+          }
         }
       })
       .addCase(deleteLeague.fulfilled, (state, action) => {

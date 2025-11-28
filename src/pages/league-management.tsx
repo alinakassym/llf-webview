@@ -9,6 +9,9 @@ import AllCitiesLeaguesList from "../components/AllCitiesLeaguesList";
 import CreateLeagueModal, {
   type CreateLeagueData,
 } from "../components/CreateLeagueModal";
+import EditLeagueModal, {
+  type EditLeagueData,
+} from "../components/EditLeagueModal";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import type { League, LeagueGroup } from "../types/league";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -18,6 +21,7 @@ import {
   selectLeaguesByCity,
   selectAllLeagues,
   createLeague,
+  updateLeague,
   deleteLeague,
 } from "../store/slices/leagueSlice";
 import {
@@ -47,6 +51,14 @@ const LeagueManagementPage: FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
   const [selectedGroup, setSelectedGroup] = useState<LeagueGroup>(ALL_GROUPS);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [leagueToEdit, setLeagueToEdit] = useState<{
+    id: string;
+    name: string;
+    order: number;
+    cityId: number;
+    leagueGroupId: number;
+  } | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [leagueToDelete, setLeagueToDelete] = useState<{
     id: string;
@@ -197,8 +209,18 @@ const LeagueManagementPage: FC = () => {
   }, [selectedCity, filteredLeagues]);
 
   const handleEdit = (leagueId: string) => {
-    console.log("Edit league:", leagueId);
-    // TODO: Открыть модальное окно редактирования или перейти на страницу редактирования
+    // Находим лигу по ID
+    const league = leagues.find((l) => String(l.id) === String(leagueId));
+    if (league) {
+      setLeagueToEdit({
+        id: String(league.id),
+        name: league.name,
+        order: league.order,
+        cityId: Number(league.cityId),
+        leagueGroupId: league.leagueGroupId,
+      });
+      setIsEditModalOpen(true);
+    }
   };
 
   const handleDelete = (leagueId: string, leagueName: string) => {
@@ -220,6 +242,31 @@ const LeagueManagementPage: FC = () => {
 
   const handleCloseModal = () => {
     setIsCreateModalOpen(false);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setLeagueToEdit(null);
+  };
+
+  const handleUpdateLeague = async (data: EditLeagueData) => {
+    if (!leagueToEdit || !activeToken) {
+      throw new Error("No league or token available");
+    }
+
+    await dispatch(
+      updateLeague({
+        leagueId: leagueToEdit.id,
+        cityId: String(leagueToEdit.cityId),
+        data: {
+          name: data.name,
+          order: data.order,
+          cityId: leagueToEdit.cityId,
+          leagueGroupId: leagueToEdit.leagueGroupId,
+        },
+        token: activeToken,
+      })
+    ).unwrap();
   };
 
   const handleCloseDeleteDialog = () => {
@@ -366,6 +413,13 @@ const LeagueManagementPage: FC = () => {
         leagueGroups={leagueGroups}
         onSubmit={handleCreateLeague}
         onCityChange={handleCityChangeInModal}
+      />
+
+      <EditLeagueModal
+        open={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onSubmit={handleUpdateLeague}
+        league={leagueToEdit}
       />
 
       <DeleteConfirmDialog
