@@ -12,6 +12,7 @@ import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import SingleCityLeaguesList from "../components/SingleCityLeaguesList";
 import AllCitiesLeaguesList from "../components/AllCitiesLeaguesList";
+import CreateLeagueModal from "../components/CreateLeagueModal";
 import type { League, LeagueGroup } from "../types/league";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
@@ -46,6 +47,7 @@ const LeagueManagementPage: FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
   const [selectedGroup, setSelectedGroup] = useState<LeagueGroup>(ALL_GROUPS);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -201,8 +203,11 @@ const LeagueManagementPage: FC = () => {
   };
 
   const handleAdd = () => {
-    console.log("Add new league");
-    // TODO: Открыть модальное окно создания новой лиги
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsCreateModalOpen(false);
   };
 
   // Если идет загрузка - показываем loader на весь экран
@@ -290,6 +295,8 @@ const LeagueManagementPage: FC = () => {
       >
         <AddIcon />
       </Fab>
+
+      <CreateLeagueModal open={isCreateModalOpen} onClose={handleCloseModal} />
     </Box>
   );
 };
