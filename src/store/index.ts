@@ -4,6 +4,7 @@ import leagueReducer from "./slices/leagueSlice";
 import leagueGroupReducer from "./slices/leagueGroupSlice";
 import seasonReducer from "./slices/seasonSlice";
 import userReducer from "./slices/userSlice";
+import teamReducer from "./slices/teamSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     leagueGroups: leagueGroupReducer,
     seasons: seasonReducer,
     users: userReducer,
+    teams: teamReducer,
   },
 });
 
