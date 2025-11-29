@@ -8,6 +8,7 @@ import ContactsPage from './pages/contacts'
 import LoginPage from "./pages/login";
 import LeagueManagementPage from "./pages/league-management";
 import SeasonsManagementPage from "./pages/seasons-management";
+import CitiesManagementPage from "./pages/cities-management";
 
 const App: FC = () => {
   return (
@@ -16,6 +17,7 @@ const App: FC = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/league-management" element={<LeagueManagementPage />} />
       <Route path="/seasons-management" element={<SeasonsManagementPage />} />
+      <Route path="/cities-management" element={<CitiesManagementPage />} />
       <Route path="/competition-plan" element={<CompetitionPlanPage />} />
       <Route path="/regulations" element={<RegulationsPage />} />
       <Route path="/rules" element={<RulesPage />} />
