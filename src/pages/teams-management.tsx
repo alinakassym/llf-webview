@@ -6,6 +6,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import ManagementItemCard from "../components/ManagementItemCard";
+import CreateTeamModal from "../components/CreateTeamModal";
 import type { Team } from "../types/team";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
@@ -53,6 +54,7 @@ const TeamsManagementPage: FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -169,8 +171,11 @@ const TeamsManagementPage: FC = () => {
   };
 
   const handleAdd = () => {
-    // TODO: Open create team modal
-    console.log("Add team");
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsCreateModalOpen(false);
   };
 
   // Если идет загрузка - показываем loader на весь экран
@@ -329,6 +334,8 @@ const TeamsManagementPage: FC = () => {
       >
         <AddIcon />
       </Fab>
+
+      <CreateTeamModal open={isCreateModalOpen} onClose={handleCloseModal} />
     </Box>
   );
 };
