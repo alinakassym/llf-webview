@@ -339,6 +339,7 @@ const TeamsManagementPage: FC = () => {
         open={isCreateModalOpen}
         onClose={handleCloseModal}
         cities={cities}
+        token={activeToken || ""}
       />
     </Box>
   );

@@ -1,6 +1,6 @@
 // llf-webview/src/components/CreateTeamModal.tsx
 
-import { type FC, useState } from "react";
+import { type FC, useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -11,37 +11,77 @@ import {
   TextField,
   Box,
   MenuItem,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { City } from "../types/city";
+import type { League } from "../types/league";
+import { leagueService } from "../services/leagueService";
 
 interface CreateTeamModalProps {
   open: boolean;
   onClose: () => void;
   cities: City[];
+  token: string;
 }
 
 interface CreateTeamData {
   name: string;
   cityId: number;
+  leagueId: string;
 }
 
 const CreateTeamModal: FC<CreateTeamModalProps> = ({
   open,
   onClose,
   cities,
+  token,
 }) => {
   const [formData, setFormData] = useState<CreateTeamData>({
     name: "",
     cityId: 0,
+    leagueId: "",
   });
   const [errors, setErrors] = useState<Partial<Record<keyof CreateTeamData, string>>>({});
+  const [leagues, setLeagues] = useState<League[]>([]);
+  const [leaguesLoading, setLeaguesLoading] = useState(false);
+
+  // Загружаем лиги при изменении города
+  useEffect(() => {
+    const loadLeagues = async () => {
+      if (formData.cityId > 0 && token) {
+        setLeaguesLoading(true);
+        try {
+          const loadedLeagues = await leagueService.getLeaguesByCityId(
+            String(formData.cityId),
+            token
+          );
+          setLeagues(loadedLeagues);
+        } catch (error) {
+          console.error("Error loading leagues:", error);
+          setLeagues([]);
+        } finally {
+          setLeaguesLoading(false);
+        }
+      } else {
+        setLeagues([]);
+      }
+    };
+
+    loadLeagues();
+  }, [formData.cityId, token]);
 
   const handleChange = (field: keyof CreateTeamData) => (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    if (field === "name") {
+    // При изменении города сбрасываем выбранную лигу
+    if (field === "cityId") {
+      const cityId = Number(e.target.value);
+      setFormData((prev) => ({ ...prev, cityId, leagueId: "" }));
+    } else if (field === "name") {
       setFormData((prev) => ({ ...prev, name: e.target.value }));
+    } else if (field === "leagueId") {
+      setFormData((prev) => ({ ...prev, leagueId: e.target.value }));
     } else {
       const numValue = Number(e.target.value);
       setFormData((prev) => ({ ...prev, [field]: numValue }));
@@ -62,6 +102,9 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
     if (formData.cityId === 0) {
       newErrors.cityId = "Выберите город";
     }
+    if (!formData.leagueId) {
+      newErrors.leagueId = "Выберите лигу";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -71,8 +114,10 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
     setFormData({
       name: "",
       cityId: 0,
+      leagueId: "",
     });
     setErrors({});
+    setLeagues([]);
     onClose();
   };
 
@@ -149,6 +194,42 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
                 {city.name}
               </MenuItem>
             ))}
+          </TextField>
+
+          <TextField
+            label="Лига"
+            select
+            value={formData.leagueId}
+            onChange={handleChange("leagueId")}
+            error={Boolean(errors.leagueId)}
+            helperText={errors.leagueId}
+            disabled={formData.cityId === 0 || leaguesLoading}
+            fullWidth
+            required
+          >
+            {leaguesLoading ? (
+              <MenuItem disabled>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <CircularProgress size={20} />
+                  <span>Загрузка...</span>
+                </Box>
+              </MenuItem>
+            ) : leagues.length === 0 ? (
+              <MenuItem value="" disabled>
+                Список лиг пустой
+              </MenuItem>
+            ) : (
+              <>
+                <MenuItem value="" disabled>
+                  Выберите лигу
+                </MenuItem>
+                {leagues.map((league) => (
+                  <MenuItem key={league.id} value={league.id}>
+                    {league.name}
+                  </MenuItem>
+                ))}
+              </>
+            )}
           </TextField>
         </Box>
       </DialogContent>
