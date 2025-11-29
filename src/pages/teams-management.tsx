@@ -185,7 +185,16 @@ const TeamsManagementPage: FC = () => {
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
+    <Box
+      sx={{
+        position: "fixed",
+        left: 0,
+        top: 0,
+        right: 0,
+        minHeight: "100vh",
+        backgroundColor: "background.default",
+      }}
+    >
       <Container maxWidth="md" sx={{ py: 2, pb: 10 }}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs
@@ -228,7 +237,14 @@ const TeamsManagementPage: FC = () => {
               onSelect={setSelectedCity}
             />
 
-            <Box sx={{ mt: 1 }}>
+            <Box
+              sx={{
+                mt: 0,
+                pb: 8,
+                height: "calc(100vh - 190px)",
+                overflowY: "auto",
+              }}
+            >
               {filteredTeams.length === 0 ? (
                 <Box
                   sx={{

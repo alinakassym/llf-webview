@@ -353,7 +353,7 @@ const LeagueManagementPage: FC = () => {
             placeholder="Поиск лиги..."
           />
 
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 0 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             <FilterChips
               options={cityOptions as readonly string[]}
               selected={selectedCity}

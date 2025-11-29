@@ -18,7 +18,6 @@ const FilterChips = <T extends string>({
         display: "flex",
         gap: 1,
         overflowX: "auto",
-        pb: 1,
         "&::-webkit-scrollbar": {
           display: "none",
         },
