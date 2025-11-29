@@ -7,6 +7,7 @@ const HomePage: FC = () => {
       <h1 style={{ marginBottom: 16 }}>Главная</h1>
 
       <nav style={{ display: "grid", gap: 12 }}>
+        <Link to="/users-management">Управление пользователями</Link>
         <Link to="/cities-management">Управление городами</Link>
         <Link to="/league-management">Управление лигами</Link>
         <Link to="/seasons-management">Управление сезонами</Link>
