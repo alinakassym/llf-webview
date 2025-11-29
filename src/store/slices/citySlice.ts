@@ -79,9 +79,13 @@ const citySlice = createSlice({
         state.cities.sort((a, b) => a.name.localeCompare(b.name));
       })
       .addCase(updateCity.fulfilled, (state, action) => {
-        const index = state.cities.findIndex((c) => c.id === action.payload.id);
+        const { cityId, data } = action.meta.arg;
+        const index = state.cities.findIndex((c) => String(c.id) === String(cityId));
         if (index !== -1) {
-          state.cities[index] = action.payload;
+          state.cities[index] = {
+            ...state.cities[index],
+            name: data.name,
+          };
           // Пересортировываем
           state.cities.sort((a, b) => a.name.localeCompare(b.name));
         }

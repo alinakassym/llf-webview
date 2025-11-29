@@ -7,6 +7,7 @@ export interface CreateCityPayload {
 
 export interface UpdateCityPayload {
   name: string;
+  id: string;
 }
 
 export const cityService = {

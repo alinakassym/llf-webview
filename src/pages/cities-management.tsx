@@ -115,7 +115,10 @@ const CitiesManagementPage: FC = () => {
     await dispatch(
       updateCity({
         cityId: String(cityToEdit.id),
-        data,
+        data: {
+          ...data,
+          id: String(cityToEdit.id),
+        },
         token: activeToken,
       }),
     ).unwrap();
