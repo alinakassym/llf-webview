@@ -10,37 +10,69 @@ import {
   Button,
   TextField,
   Box,
+  MenuItem,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import type { City } from "../types/city";
 
 interface CreateTeamModalProps {
   open: boolean;
   onClose: () => void;
+  cities: City[];
 }
 
-const CreateTeamModal: FC<CreateTeamModalProps> = ({ open, onClose }) => {
-  const [name, setName] = useState("");
-  const [nameError, setNameError] = useState("");
+interface CreateTeamData {
+  name: string;
+  cityId: number;
+}
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-    // Очищаем ошибку при изменении
-    if (nameError) {
-      setNameError("");
+const CreateTeamModal: FC<CreateTeamModalProps> = ({
+  open,
+  onClose,
+  cities,
+}) => {
+  const [formData, setFormData] = useState<CreateTeamData>({
+    name: "",
+    cityId: 0,
+  });
+  const [errors, setErrors] = useState<Partial<Record<keyof CreateTeamData, string>>>({});
+
+  const handleChange = (field: keyof CreateTeamData) => (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (field === "name") {
+      setFormData((prev) => ({ ...prev, name: e.target.value }));
+    } else {
+      const numValue = Number(e.target.value);
+      setFormData((prev) => ({ ...prev, [field]: numValue }));
+    }
+
+    // Очищаем ошибку при изменении поля
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
   const validate = (): boolean => {
-    if (!name.trim()) {
-      setNameError("Название обязательно");
-      return false;
+    const newErrors: Partial<Record<keyof CreateTeamData, string>> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Название обязательно";
     }
-    return true;
+    if (formData.cityId === 0) {
+      newErrors.cityId = "Выберите город";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleClose = () => {
-    setName("");
-    setNameError("");
+    setFormData({
+      name: "",
+      cityId: 0,
+    });
+    setErrors({});
     onClose();
   };
 
@@ -49,7 +81,7 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({ open, onClose }) => {
       return;
     }
     // TODO: Implement submit functionality
-    console.log("Submit team:", { name });
+    console.log("Submit team:", formData);
     handleClose();
   };
 
@@ -90,14 +122,34 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({ open, onClose }) => {
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
           <TextField
             label="Название команды"
-            value={name}
-            onChange={handleChange}
-            error={Boolean(nameError)}
-            helperText={nameError}
+            value={formData.name}
+            onChange={handleChange("name")}
+            error={Boolean(errors.name)}
+            helperText={errors.name}
             fullWidth
             required
             autoFocus
           />
+
+          <TextField
+            label="Город"
+            select
+            value={formData.cityId}
+            onChange={handleChange("cityId")}
+            error={Boolean(errors.cityId)}
+            helperText={errors.cityId}
+            fullWidth
+            required
+          >
+            <MenuItem value={0} disabled>
+              Выберите город
+            </MenuItem>
+            {cities.map((city) => (
+              <MenuItem key={city.id} value={city.id}>
+                {city.name}
+              </MenuItem>
+            ))}
+          </TextField>
         </Box>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>

@@ -335,7 +335,11 @@ const TeamsManagementPage: FC = () => {
         <AddIcon />
       </Fab>
 
-      <CreateTeamModal open={isCreateModalOpen} onClose={handleCloseModal} />
+      <CreateTeamModal
+        open={isCreateModalOpen}
+        onClose={handleCloseModal}
+        cities={cities}
+      />
     </Box>
   );
 };
