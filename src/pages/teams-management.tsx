@@ -5,7 +5,7 @@ import { Box, Container, Tabs, Tab, CircularProgress, Typography, Fab } from "@m
 import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
-import ManagementItemCard from "../components/ManagementItemCard";
+import ManagementTeamCard from "../components/ManagementTeamCard";
 import CreateTeamModal, {
   type CreateTeamData,
 } from "../components/CreateTeamModal";
@@ -193,7 +193,7 @@ const TeamsManagementPage: FC = () => {
           leagueId: Number(data.leagueId),
         },
         token: activeToken,
-      })
+      }),
     ).unwrap();
   };
 
@@ -302,7 +302,7 @@ const TeamsManagementPage: FC = () => {
                       {cityName}
                     </Typography>
                     {cityTeams.map((team) => (
-                      <ManagementItemCard
+                      <ManagementTeamCard
                         key={team.id}
                         title={team.name}
                         subtitle={team.leagueName}
@@ -315,7 +315,7 @@ const TeamsManagementPage: FC = () => {
               ) : (
                 // Отображаем команды одного города без группировки
                 filteredTeams.map((team) => (
-                  <ManagementItemCard
+                  <ManagementTeamCard
                     key={team.id}
                     title={team.name}
                     subtitle={team.leagueName}

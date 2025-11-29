@@ -225,24 +225,14 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
             fullWidth
             required
           >
-            {leaguesLoading ? (
-              <MenuItem disabled>Загрузка...</MenuItem>
-            ) : leagues.length === 0 ? (
-              <MenuItem value="" disabled>
-                Список лиг пустой
+            <MenuItem value="" disabled>
+              Выберите лигу
+            </MenuItem>
+            {leagues.map((league) => (
+              <MenuItem key={league.id} value={league.id}>
+                {league.name}
               </MenuItem>
-            ) : (
-              <>
-                <MenuItem value="" disabled>
-                  Выберите лигу
-                </MenuItem>
-                {leagues.map((league) => (
-                  <MenuItem key={league.id} value={league.id}>
-                    {league.name}
-                  </MenuItem>
-                ))}
-              </>
-            )}
+            ))}
           </TextField>
         </Box>
       </DialogContent>
