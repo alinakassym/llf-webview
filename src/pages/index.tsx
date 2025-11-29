@@ -11,6 +11,7 @@ const HomePage: FC = () => {
         <Link to="/cities-management">Управление городами</Link>
         <Link to="/league-management">Управление лигами</Link>
         <Link to="/seasons-management">Управление сезонами</Link>
+        <Link to="/teams-management">Управление командами и игроками</Link>
         <Link to="/competition-plan">План соревнований</Link>
         <Link to="/regulations">Регламент</Link>
         <Link to="/rules">Правила</Link>

@@ -71,11 +71,13 @@ const UsersManagementPage: FC = () => {
   const handleEdit = (userId: string) => {
     // TODO: Implement edit functionality
     console.log("Edit user:", userId);
+    alert(`Редактировние в разработке`);
   };
 
   const handleDelete = (userId: string) => {
     // TODO: Implement delete functionality
     console.log("Delete user:", userId);
+    alert(`Удаление в разработке`);
   };
 
   // Если идет загрузка - показываем loader на весь экран
