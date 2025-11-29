@@ -1,6 +1,12 @@
 import { apiRequest } from "./api";
 import type { Team } from "../types/team";
 
+export interface CreateTeamPayload {
+  name: string;
+  leagueId: number;
+  cityId: number;
+}
+
 export const teamService = {
   getTeams: async (
     token: string,
@@ -19,5 +25,17 @@ export const teamService = {
       token,
     });
     return response.teams;
+  },
+
+  createTeam: async (
+    data: CreateTeamPayload,
+    token: string
+  ): Promise<Team> => {
+    const response = await apiRequest<Team>("/teams", {
+      method: "POST",
+      token,
+      body: JSON.stringify(data),
+    });
+    return response;
   },
 };

@@ -6,7 +6,9 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import ManagementItemCard from "../components/ManagementItemCard";
-import CreateTeamModal from "../components/CreateTeamModal";
+import CreateTeamModal, {
+  type CreateTeamData,
+} from "../components/CreateTeamModal";
 import type { Team } from "../types/team";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
@@ -14,6 +16,7 @@ import {
   fetchTeamsByCityId,
   selectTeamsByCity,
   selectAllTeams,
+  createTeam,
 } from "../store/slices/teamSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
@@ -178,6 +181,22 @@ const TeamsManagementPage: FC = () => {
     setIsCreateModalOpen(false);
   };
 
+  const handleCreateTeam = async (data: CreateTeamData) => {
+    if (!activeToken) {
+      throw new Error("No auth token available");
+    }
+    await dispatch(
+      createTeam({
+        data: {
+          name: data.name,
+          cityId: data.cityId,
+          leagueId: Number(data.leagueId),
+        },
+        token: activeToken,
+      })
+    ).unwrap();
+  };
+
   // Если идет загрузка - показываем loader на весь экран
   if (isLoading) {
     return (
@@ -340,6 +359,7 @@ const TeamsManagementPage: FC = () => {
         onClose={handleCloseModal}
         cities={cities}
         token={activeToken || ""}
+        onSubmit={handleCreateTeam}
       />
     </Box>
   );

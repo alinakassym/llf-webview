@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState } from "../index";
 import type { Team } from "../../types/team";
-import { teamService } from "../../services/teamService";
+import { teamService, type CreateTeamPayload } from "../../services/teamService";
 
 interface TeamState {
   itemsByCityId: Record<string, Team[]>; // Команды по городам
@@ -22,6 +22,15 @@ export const fetchTeamsByCityId = createAsyncThunk<
 >("teams/fetchTeamsByCityId", async ({ cityId, token, leagueId }) => {
   const teams = await teamService.getTeams(token, cityId, leagueId);
   return { cityId, teams };
+});
+
+// Thunk для создания команды
+export const createTeam = createAsyncThunk<
+  Team,
+  { data: CreateTeamPayload; token: string }
+>("teams/createTeam", async ({ data, token }) => {
+  const team = await teamService.createTeam(data, token);
+  return team;
 });
 
 const teamSlice = createSlice({
@@ -62,6 +71,20 @@ const teamSlice = createSlice({
         state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
         state.errorByCityId[cityId] =
           action.error.message || "Failed to fetch teams";
+      })
+      .addCase(createTeam.fulfilled, (state, action) => {
+        const team = action.payload;
+        const cityId = String(team.cityId);
+
+        // Добавляем команду в список команд для этого города
+        if (state.itemsByCityId[cityId]) {
+          state.itemsByCityId[cityId] = [
+            ...state.itemsByCityId[cityId],
+            team,
+          ].sort((a, b) => a.leagueName.localeCompare(b.leagueName));
+        } else {
+          state.itemsByCityId[cityId] = [team];
+        }
       });
   },
 });

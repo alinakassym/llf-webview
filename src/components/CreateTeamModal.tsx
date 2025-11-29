@@ -23,9 +23,10 @@ interface CreateTeamModalProps {
   onClose: () => void;
   cities: City[];
   token: string;
+  onSubmit: (data: CreateTeamData) => Promise<void>;
 }
 
-interface CreateTeamData {
+export interface CreateTeamData {
   name: string;
   cityId: number;
   leagueId: string;
@@ -36,15 +37,19 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
   onClose,
   cities,
   token,
+  onSubmit,
 }) => {
   const [formData, setFormData] = useState<CreateTeamData>({
     name: "",
     cityId: 0,
     leagueId: "",
   });
-  const [errors, setErrors] = useState<Partial<Record<keyof CreateTeamData, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CreateTeamData, string>>
+  >({});
   const [leagues, setLeagues] = useState<League[]>([]);
   const [leaguesLoading, setLeaguesLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Загружаем лиги при изменении города
   useEffect(() => {
@@ -54,7 +59,7 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
         try {
           const loadedLeagues = await leagueService.getLeaguesByCityId(
             String(formData.cityId),
-            token
+            token,
           );
           setLeagues(loadedLeagues);
         } catch (error) {
@@ -71,27 +76,27 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
     loadLeagues();
   }, [formData.cityId, token]);
 
-  const handleChange = (field: keyof CreateTeamData) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // При изменении города сбрасываем выбранную лигу
-    if (field === "cityId") {
-      const cityId = Number(e.target.value);
-      setFormData((prev) => ({ ...prev, cityId, leagueId: "" }));
-    } else if (field === "name") {
-      setFormData((prev) => ({ ...prev, name: e.target.value }));
-    } else if (field === "leagueId") {
-      setFormData((prev) => ({ ...prev, leagueId: e.target.value }));
-    } else {
-      const numValue = Number(e.target.value);
-      setFormData((prev) => ({ ...prev, [field]: numValue }));
-    }
+  const handleChange =
+    (field: keyof CreateTeamData) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      // При изменении города сбрасываем выбранную лигу
+      if (field === "cityId") {
+        const cityId = Number(e.target.value);
+        setFormData((prev) => ({ ...prev, cityId, leagueId: "" }));
+      } else if (field === "name") {
+        setFormData((prev) => ({ ...prev, name: e.target.value }));
+      } else if (field === "leagueId") {
+        setFormData((prev) => ({ ...prev, leagueId: e.target.value }));
+      } else {
+        const numValue = Number(e.target.value);
+        setFormData((prev) => ({ ...prev, [field]: numValue }));
+      }
 
-    // Очищаем ошибку при изменении поля
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+      // Очищаем ошибку при изменении поля
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof CreateTeamData, string>> = {};
@@ -111,23 +116,33 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
   };
 
   const handleClose = () => {
-    setFormData({
-      name: "",
-      cityId: 0,
-      leagueId: "",
-    });
-    setErrors({});
-    setLeagues([]);
-    onClose();
+    if (!loading) {
+      setFormData({
+        name: "",
+        cityId: 0,
+        leagueId: "",
+      });
+      setErrors({});
+      setLeagues([]);
+      setLoading(false);
+      onClose();
+    }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) {
       return;
     }
-    // TODO: Implement submit functionality
-    console.log("Submit team:", formData);
-    handleClose();
+
+    setLoading(true);
+    try {
+      await onSubmit(formData);
+      handleClose();
+    } catch (error) {
+      console.error("Error creating team:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -156,6 +171,7 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
         Создать команду
         <IconButton
           onClick={handleClose}
+          disabled={loading}
           sx={{
             color: "text.secondary",
           }}
@@ -171,6 +187,7 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
             onChange={handleChange("name")}
             error={Boolean(errors.name)}
             helperText={errors.name}
+            disabled={loading}
             fullWidth
             required
             autoFocus
@@ -183,6 +200,7 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
             onChange={handleChange("cityId")}
             error={Boolean(errors.cityId)}
             helperText={errors.cityId}
+            disabled={loading}
             fullWidth
             required
           >
@@ -203,17 +221,12 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
             onChange={handleChange("leagueId")}
             error={Boolean(errors.leagueId)}
             helperText={errors.leagueId}
-            disabled={formData.cityId === 0 || leaguesLoading}
+            disabled={formData.cityId === 0 || leaguesLoading || loading}
             fullWidth
             required
           >
             {leaguesLoading ? (
-              <MenuItem disabled>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <CircularProgress size={20} />
-                  <span>Загрузка...</span>
-                </Box>
-              </MenuItem>
+              <MenuItem disabled>Загрузка...</MenuItem>
             ) : leagues.length === 0 ? (
               <MenuItem value="" disabled>
                 Список лиг пустой
@@ -234,11 +247,16 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
         </Box>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={handleClose} color="inherit">
+        <Button onClick={handleClose} disabled={loading} color="inherit">
           Отмена
         </Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary">
-          Создать
+        <Button
+          onClick={handleSubmit}
+          disabled={loading}
+          variant="contained"
+          color="primary"
+        >
+          {loading ? <CircularProgress size={24} /> : "Создать"}
         </Button>
       </DialogActions>
     </Dialog>
