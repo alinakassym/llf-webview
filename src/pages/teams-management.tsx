@@ -1,7 +1,8 @@
 // llf-webview/src/pages/teams-management.tsx
 
 import { type FC, useState, useMemo, useEffect } from "react";
-import { Box, Container, Tabs, Tab, CircularProgress, Typography } from "@mui/material";
+import { Box, Container, Tabs, Tab, CircularProgress, Typography, Fab } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import ManagementItemCard from "../components/ManagementItemCard";
@@ -167,6 +168,11 @@ const TeamsManagementPage: FC = () => {
     console.log("Delete team:", teamId);
   };
 
+  const handleAdd = () => {
+    // TODO: Open create team modal
+    console.log("Add team");
+  };
+
   // Если идет загрузка - показываем loader на весь экран
   if (isLoading) {
     return (
@@ -310,6 +316,19 @@ const TeamsManagementPage: FC = () => {
           </Box>
         </TabPanel>
       </Container>
+
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={handleAdd}
+        sx={{
+          position: "fixed",
+          bottom: 24,
+          right: 24,
+        }}
+      >
+        <AddIcon />
+      </Fab>
     </Box>
   );
 };
