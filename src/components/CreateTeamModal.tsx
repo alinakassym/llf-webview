@@ -1,6 +1,6 @@
 // llf-webview/src/components/CreateTeamModal.tsx
 
-import { type FC } from "react";
+import { type FC, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -8,6 +8,8 @@ import {
   DialogActions,
   IconButton,
   Button,
+  TextField,
+  Box,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -17,13 +19,37 @@ interface CreateTeamModalProps {
 }
 
 const CreateTeamModal: FC<CreateTeamModalProps> = ({ open, onClose }) => {
+  const [name, setName] = useState("");
+  const [nameError, setNameError] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+    // Очищаем ошибку при изменении
+    if (nameError) {
+      setNameError("");
+    }
+  };
+
+  const validate = (): boolean => {
+    if (!name.trim()) {
+      setNameError("Название обязательно");
+      return false;
+    }
+    return true;
+  };
+
   const handleClose = () => {
+    setName("");
+    setNameError("");
     onClose();
   };
 
   const handleSubmit = () => {
+    if (!validate()) {
+      return;
+    }
     // TODO: Implement submit functionality
-    console.log("Submit team");
+    console.log("Submit team:", { name });
     handleClose();
   };
 
@@ -61,7 +87,18 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({ open, onClose }) => {
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        {/* TODO: Add form fields */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
+          <TextField
+            label="Название команды"
+            value={name}
+            onChange={handleChange}
+            error={Boolean(nameError)}
+            helperText={nameError}
+            fullWidth
+            required
+            autoFocus
+          />
+        </Box>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={handleClose} color="inherit">
