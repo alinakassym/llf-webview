@@ -247,7 +247,7 @@ const TeamsManagementPage: FC = () => {
         top: 0,
         right: 0,
         minHeight: "100vh",
-        backgroundColor: "background.default",
+        backgroundColor: "surface",
       }}
     >
       <Container maxWidth="md" sx={{ px: 0, pt: 0, pb: 10 }}>
@@ -263,6 +263,7 @@ const TeamsManagementPage: FC = () => {
                 fontSize: "14px",
                 fontWeight: 600,
                 minHeight: 48,
+                backgroundColor: "background.paper",
               },
             }}
           >

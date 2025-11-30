@@ -8,12 +8,14 @@ declare module "@mui/material/styles" {
     gradient: string[];
     cardBorder: string;
     surface: string;
+    customBackground: string;
   }
   interface PaletteOptions {
     tertiary?: PaletteOptions["primary"];
     gradient?: string[];
     cardBorder?: string;
     surface?: string;
+    customBackground?: string;
   }
 }
 
@@ -36,6 +38,7 @@ export const createAppTheme = (mode: PaletteMode) =>
       },
       cardBorder: mode === "light" ? "#EDF2F8" : "#1D1527",
       surface: mode === "light" ? "#EAECFA" : "#1D1527",
+      customBackground: mode === "light" ? "#F9FAFE" : "rgba(39, 27, 56, 1)",
     },
     shape: {
       borderRadius: 8,
