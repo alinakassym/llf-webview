@@ -18,10 +18,7 @@ import {
   selectAllTeams,
   createTeam,
 } from "../store/slices/teamSlice";
-import {
-  fetchPlayers,
-  selectPlayersByTeam,
-} from "../store/slices/playerSlice";
+import { fetchPlayers } from "../store/slices/playerSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import { ALL_CITIES } from "../constants/leagueManagement";
@@ -52,11 +49,9 @@ const TeamsManagementPage: FC = () => {
   const dispatch = useAppDispatch();
   const { token, loading: authLoading } = useAuth();
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
-  const {
-    cities,
-    loading: citiesLoading,
-    error: citiesError,
-  } = useAppSelector((state) => state.cities);
+  const { cities, loading: citiesLoading } = useAppSelector(
+    (state) => state.cities,
+  );
 
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -156,7 +151,10 @@ const TeamsManagementPage: FC = () => {
 
   // Создаем стабильный ключ из ID команд для предотвращения бесконечного цикла
   const teamIdsKey = useMemo(() => {
-    return teams.map((team) => team.id).sort().join(",");
+    return teams
+      .map((team) => team.id)
+      .sort()
+      .join(",");
   }, [teams]);
 
   // Загружаем игроков для команд
@@ -171,7 +169,7 @@ const TeamsManagementPage: FC = () => {
         fetchPlayers({
           teamId: String(team.id),
           token: activeToken,
-        })
+        }),
       );
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
