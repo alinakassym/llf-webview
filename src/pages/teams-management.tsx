@@ -282,10 +282,10 @@ const TeamsManagementPage: FC = () => {
         <TabPanel value={tabValue} index={0}>
           <Box
             sx={{
-              pb: 1,
+              pb: 2,
               display: "flex",
               flexDirection: "column",
-              gap: 1,
+              gap: 2,
             }}
           >
             <div style={{ paddingLeft: 16, paddingRight: 16, width: "100%" }}>
@@ -306,6 +306,7 @@ const TeamsManagementPage: FC = () => {
           <Box
             sx={{
               mt: 0,
+              px: 2,
               pb: 8,
               height: "calc(100vh - 190px)",
               overflowY: "auto",
