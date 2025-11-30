@@ -1,13 +1,17 @@
+// llf-webview/src/theme.ts
+
 import { createTheme, type PaletteMode } from "@mui/material/styles";
 
 declare module "@mui/material/styles" {
   interface Palette {
     tertiary: Palette["primary"];
+    gradient: string[];
     cardBorder: string;
     surface: string;
   }
   interface PaletteOptions {
     tertiary?: PaletteOptions["primary"];
+    gradient?: string[];
     cardBorder?: string;
     surface?: string;
   }
@@ -26,6 +30,7 @@ export const createAppTheme = (mode: PaletteMode) =>
       tertiary: {
         main: "#50A4D8",
       },
+      gradient: ["#5060D8", "#5060D8", "#8450D8", "#50A4D8"],
       success: {
         main: mode === "light" ? "#16A34A" : "#34D399",
       },
