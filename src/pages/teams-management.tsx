@@ -18,6 +18,10 @@ import {
   selectAllTeams,
   createTeam,
 } from "../store/slices/teamSlice";
+import {
+  fetchPlayers,
+  selectPlayersByTeam,
+} from "../store/slices/playerSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import { ALL_CITIES } from "../constants/leagueManagement";
@@ -149,6 +153,23 @@ const TeamsManagementPage: FC = () => {
       return matchesSearch;
     });
   }, [teams, searchQuery]);
+
+  // Загружаем игроков для отображаемых команд
+  useEffect(() => {
+    if (!activeToken || authLoading || webViewLoading || filteredTeams.length === 0) {
+      return;
+    }
+
+    // Загружаем игроков для каждой команды
+    filteredTeams.forEach((team) => {
+      dispatch(
+        fetchPlayers({
+          teamId: String(team.id),
+          token: activeToken,
+        })
+      );
+    });
+  }, [filteredTeams, activeToken, authLoading, webViewLoading, dispatch]);
 
   // Группируем команды по городам для отображения
   const teamsByCity = useMemo(() => {
@@ -304,6 +325,7 @@ const TeamsManagementPage: FC = () => {
                     {cityTeams.map((team) => (
                       <ManagementTeamCard
                         key={team.id}
+                        teamId={String(team.id)}
                         title={team.name}
                         subtitle={team.leagueName}
                         onEdit={() => handleEdit(String(team.id))}
@@ -317,6 +339,7 @@ const TeamsManagementPage: FC = () => {
                 filteredTeams.map((team) => (
                   <ManagementTeamCard
                     key={team.id}
+                    teamId={String(team.id)}
                     title={team.name}
                     subtitle={team.leagueName}
                     onEdit={() => handleEdit(String(team.id))}

@@ -5,10 +5,13 @@ import { Box, Typography, IconButton, Divider, Button } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import { useAppSelector } from "../store/hooks";
+import { selectPlayersByTeam } from "../store/slices/playerSlice";
 
 interface ManagementTeamCardProps {
   title: string;
   subtitle?: string;
+  teamId: string;
   onEdit: () => void;
   onDelete: () => void;
   onAddPlayer?: () => void;
@@ -17,10 +20,14 @@ interface ManagementTeamCardProps {
 const ManagementTeamCard: FC<ManagementTeamCardProps> = ({
   title,
   subtitle,
+  teamId,
   onEdit,
   onDelete,
   onAddPlayer,
 }) => {
+  // Получаем игроков для этой команды
+  const players = useAppSelector((state) => selectPlayersByTeam(state, teamId));
+
   return (
     <Box
       sx={{
@@ -105,37 +112,77 @@ const ManagementTeamCard: FC<ManagementTeamCardProps> = ({
       <Divider sx={{ marginBottom: 2 }} />
 
       {/* Нижняя часть: Состав команды */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Typography
-          variant="body2"
-          fontWeight={600}
-          sx={{ fontSize: "12px", color: "text.secondary" }}
-        >
-          Состав команды
-        </Typography>
-
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<AddIcon sx={{ fontSize: 14 }} />}
-          onClick={onAddPlayer}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+        <Box
           sx={{
-            fontSize: "11px",
-            textTransform: "none",
-            paddingX: 1.5,
-            paddingY: 0.5,
-            borderRadius: "8px",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          Добавить игрока
-        </Button>
+          <Typography
+            variant="body2"
+            fontWeight={600}
+            sx={{ fontSize: "12px", color: "text.secondary" }}
+          >
+            Состав команды ({players.length})
+          </Typography>
+
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<AddIcon sx={{ fontSize: 14 }} />}
+            onClick={onAddPlayer}
+            sx={{
+              fontSize: "11px",
+              textTransform: "none",
+              paddingX: 1.5,
+              paddingY: 0.5,
+              borderRadius: "8px",
+            }}
+          >
+            Добавить игрока
+          </Button>
+        </Box>
+
+        {/* Список игроков */}
+        {players.length > 0 && (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+            {players.map((player) => (
+              <Box
+                key={player.id}
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  paddingY: 0.75,
+                  paddingX: 1,
+                  borderRadius: "8px",
+                  backgroundColor: "surface",
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    minWidth: "24px",
+                    color: "text.secondary",
+                  }}
+                >
+                  #{player.number}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ fontSize: "11px", flex: 1, marginLeft: 1 }}
+                >
+                  {player.fullName}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        )}
       </Box>
     </Box>
   );
