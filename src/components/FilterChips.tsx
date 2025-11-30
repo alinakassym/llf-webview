@@ -15,6 +15,7 @@ const FilterChips = <T extends string>({
   return (
     <Box
       sx={{
+        px: 2,
         display: "flex",
         gap: 1,
         overflowX: "auto",

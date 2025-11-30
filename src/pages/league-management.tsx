@@ -334,8 +334,8 @@ const LeagueManagementPage: FC = () => {
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
-      <Container maxWidth="md" sx={{ py: 2, pb: 10 }}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+      <Container maxWidth="md" sx={{ pt: 2, px: 0, pb: 10 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {/* Отображение ошибок */}
           {citiesError && (
             <Alert severity="error" sx={{ mb: 1 }}>
@@ -347,12 +347,13 @@ const LeagueManagementPage: FC = () => {
               Ошибка загрузки групп лиг: {leagueGroupsError}
             </Alert>
           )}
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Поиск лиги..."
-          />
-
+          <div style={{ paddingLeft: 16, paddingRight: 16, width: "100%" }}>
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Поиск лиги..."
+            />
+          </div>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             <FilterChips
               options={cityOptions as readonly string[]}
@@ -374,7 +375,7 @@ const LeagueManagementPage: FC = () => {
             )}
           </Box>
 
-          <Box>
+          <Box sx={{ px: 2 }}>
             {selectedCity === ALL_CITIES && leaguesByCity ? (
               <AllCitiesLeaguesList
                 leaguesByCity={leaguesByCity}

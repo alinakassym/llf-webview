@@ -250,7 +250,7 @@ const TeamsManagementPage: FC = () => {
         backgroundColor: "background.default",
       }}
     >
-      <Container maxWidth="md" sx={{ py: 2, pb: 10 }}>
+      <Container maxWidth="md" sx={{ px: 0, pt: 0, pb: 10 }}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs
             value={tabValue}
@@ -280,78 +280,88 @@ const TeamsManagementPage: FC = () => {
         </Box>
 
         <TabPanel value={tabValue} index={0}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Поиск команды..."
-            />
-            <FilterChips
-              options={cityOptions}
-              selected={selectedCity}
-              onSelect={setSelectedCity}
-            />
-
-            <Box
-              sx={{
-                mt: 0,
-                pb: 8,
-                height: "calc(100vh - 190px)",
-                overflowY: "auto",
-              }}
-            >
-              {filteredTeams.length === 0 ? (
-                <Box
-                  sx={{
-                    textAlign: "center",
-                    py: 8,
-                    color: "text.secondary",
-                  }}
-                >
-                  Команды не найдены
+          <Box
+            sx={{
+              pb: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+            }}
+          >
+            <div style={{ paddingLeft: 16, paddingRight: 16, width: "100%" }}>
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Поиск команды..."
+              />
+            </div>
+            <div style={{ width: "100%" }}>
+              <FilterChips
+                options={cityOptions}
+                selected={selectedCity}
+                onSelect={setSelectedCity}
+              />
+            </div>
+          </Box>
+          <Box
+            sx={{
+              mt: 0,
+              pb: 8,
+              height: "calc(100vh - 190px)",
+              overflowY: "auto",
+            }}
+          >
+            {filteredTeams.length === 0 ? (
+              <Box
+                sx={{
+                  textAlign: "center",
+                  py: 8,
+                  color: "text.secondary",
+                }}
+              >
+                Команды не найдены
+              </Box>
+            ) : selectedCity === ALL_CITIES ? (
+              // Отображаем команды сгруппированные по городам
+              Object.entries(teamsByCity).map(([cityName, cityTeams]) => (
+                <Box key={cityName} sx={{ mb: 3 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      color: "text.secondary",
+                      mb: 1,
+                      fontSize: "12px",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {cityName}
+                  </Typography>
+                  {cityTeams.map((team) => (
+                    <ManagementTeamCard
+                      key={team.id}
+                      teamId={String(team.id)}
+                      title={team.name}
+                      subtitle={team.leagueName}
+                      onEdit={() => handleEdit(String(team.id))}
+                      onDelete={() => handleDelete(String(team.id))}
+                    />
+                  ))}
                 </Box>
-              ) : selectedCity === ALL_CITIES ? (
-                // Отображаем команды сгруппированные по городам
-                Object.entries(teamsByCity).map(([cityName, cityTeams]) => (
-                  <Box key={cityName} sx={{ mb: 3 }}>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontWeight: 600,
-                        color: "text.secondary",
-                        mb: 1,
-                        fontSize: "12px",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {cityName}
-                    </Typography>
-                    {cityTeams.map((team) => (
-                      <ManagementTeamCard
-                        key={team.id}
-                        teamId={String(team.id)}
-                        title={team.name}
-                        subtitle={team.leagueName}
-                        onEdit={() => handleEdit(String(team.id))}
-                        onDelete={() => handleDelete(String(team.id))}
-                      />
-                    ))}
-                  </Box>
-                ))
-              ) : (
-                // Отображаем команды одного города без группировки
-                filteredTeams.map((team) => (
-                  <ManagementTeamCard
-                    key={team.id}
-                    teamId={String(team.id)}
-                    title={team.name}
-                    subtitle={team.leagueName}
-                    onEdit={() => handleEdit(String(team.id))}
-                    onDelete={() => handleDelete(String(team.id))}
-                  />
-                ))
-              )}
-            </Box>
+              ))
+            ) : (
+              // Отображаем команды одного города без группировки
+              filteredTeams.map((team) => (
+                <ManagementTeamCard
+                  key={team.id}
+                  teamId={String(team.id)}
+                  title={team.name}
+                  subtitle={team.leagueName}
+                  onEdit={() => handleEdit(String(team.id))}
+                  onDelete={() => handleDelete(String(team.id))}
+                />
+              ))
+            )}
           </Box>
         </TabPanel>
 
