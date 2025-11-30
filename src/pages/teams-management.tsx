@@ -154,14 +154,19 @@ const TeamsManagementPage: FC = () => {
     });
   }, [teams, searchQuery]);
 
-  // Загружаем игроков для отображаемых команд
+  // Создаем стабильный ключ из ID команд для предотвращения бесконечного цикла
+  const teamIdsKey = useMemo(() => {
+    return teams.map((team) => team.id).sort().join(",");
+  }, [teams]);
+
+  // Загружаем игроков для команд
   useEffect(() => {
-    if (!activeToken || authLoading || webViewLoading || filteredTeams.length === 0) {
+    if (!activeToken || authLoading || webViewLoading || teams.length === 0) {
       return;
     }
 
     // Загружаем игроков для каждой команды
-    filteredTeams.forEach((team) => {
+    teams.forEach((team) => {
       dispatch(
         fetchPlayers({
           teamId: String(team.id),
@@ -169,7 +174,8 @@ const TeamsManagementPage: FC = () => {
         })
       );
     });
-  }, [filteredTeams, activeToken, authLoading, webViewLoading, dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teamIdsKey, activeToken]);
 
   // Группируем команды по городам для отображения
   const teamsByCity = useMemo(() => {
