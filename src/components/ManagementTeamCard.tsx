@@ -6,6 +6,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useAppSelector } from "../store/hooks";
 import { selectPlayersByTeam } from "../store/slices/playerSlice";
+import { ShirtIcon } from "./icons";
 
 interface ManagementTeamCardProps {
   title: string;
@@ -50,6 +51,19 @@ const ManagementTeamCard: FC<ManagementTeamCardProps> = ({
           marginBottom: 2,
         }}
       >
+        <Box
+          sx={{
+            width: 48,
+            height: 48,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: 1.5,
+          }}
+        >
+          <ShirtIcon size={40} color1="#FFD700" color2="#000000" strokeColor="#000000" />
+        </Box>
+
         <Box sx={{ flex: 1 }}>
           <Typography
             variant="body2"
