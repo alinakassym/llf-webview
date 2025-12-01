@@ -6,6 +6,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import ManagementTeamCard from "../components/ManagementTeamCard";
+import PlayersList from "../components/PlayersList";
 import CreateTeamModal, {
   type CreateTeamData,
 } from "../components/CreateTeamModal";
@@ -18,7 +19,11 @@ import {
   selectAllTeams,
   createTeam,
 } from "../store/slices/teamSlice";
-import { fetchPlayers } from "../store/slices/playerSlice";
+import {
+  fetchPlayers,
+  fetchAllPlayers,
+  selectAllPlayers,
+} from "../store/slices/playerSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import { ALL_CITIES } from "../constants/leagueManagement";
@@ -52,6 +57,7 @@ const TeamsManagementPage: FC = () => {
   const { cities, loading: citiesLoading } = useAppSelector(
     (state) => state.cities,
   );
+  const players = useAppSelector(selectAllPlayers);
 
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -70,7 +76,7 @@ const TeamsManagementPage: FC = () => {
     return authLoading || webViewLoading || citiesLoading;
   }, [authLoading, webViewLoading, citiesLoading]);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
@@ -78,6 +84,13 @@ const TeamsManagementPage: FC = () => {
   useEffect(() => {
     if (activeToken && !authLoading && !webViewLoading) {
       dispatch(fetchCities(activeToken));
+    }
+  }, [activeToken, authLoading, webViewLoading, dispatch]);
+
+  // Загружаем всех игроков при монтировании
+  useEffect(() => {
+    if (activeToken && !authLoading && !webViewLoading) {
+      dispatch(fetchAllPlayers({ token: activeToken }));
     }
   }, [activeToken, authLoading, webViewLoading, dispatch]);
 
@@ -150,6 +163,16 @@ const TeamsManagementPage: FC = () => {
     });
   }, [teams, searchQuery]);
 
+  // Фильтруем игроков по поисковому запросу
+  const filteredPlayers = useMemo(() => {
+    return (players || []).filter((player) => {
+      const matchesSearch = player.fullName
+        .toLowerCase()
+        .includes(playersSearchQuery.toLowerCase());
+      return matchesSearch;
+    });
+  }, [players, playersSearchQuery]);
+
   // Создаем стабильный ключ из ID команд для предотвращения бесконечного цикла
   const teamIdsKey = useMemo(() => {
     return teams
@@ -197,6 +220,16 @@ const TeamsManagementPage: FC = () => {
   const handleDelete = (teamId: string) => {
     // TODO: Implement delete functionality
     console.log("Delete team:", teamId);
+  };
+
+  const handleEditPlayer = (playerId: string) => {
+    // TODO: Implement edit functionality
+    console.log("Edit player:", playerId);
+  };
+
+  const handleDeletePlayer = (playerId: string) => {
+    // TODO: Implement delete functionality
+    console.log("Delete player:", playerId);
   };
 
   const handleAdd = () => {
@@ -394,15 +427,11 @@ const TeamsManagementPage: FC = () => {
               overflowY: "auto",
             }}
           >
-            <Box
-              sx={{
-                textAlign: "center",
-                py: 8,
-                color: "text.secondary",
-              }}
-            >
-              Управление игроками
-            </Box>
+            <PlayersList
+              players={filteredPlayers}
+              onEdit={handleEditPlayer}
+              onDelete={handleDeletePlayer}
+            />
           </Box>
         </TabPanel>
       </Container>
