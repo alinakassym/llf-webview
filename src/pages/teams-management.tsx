@@ -233,7 +233,13 @@ const TeamsManagementPage: FC = () => {
   };
 
   const handleAdd = () => {
-    setIsCreateModalOpen(true);
+    if (tabValue === 0) {
+      // Вкладка "Команды" - открываем модальное окно создания команды
+      setIsCreateModalOpen(true);
+    } else if (tabValue === 1) {
+      // Вкладка "Игроки" - TODO: реализовать создание игрока
+      console.log("Add player - to be implemented");
+    }
   };
 
   const handleCloseModal = () => {
