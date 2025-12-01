@@ -55,6 +55,7 @@ const TeamsManagementPage: FC = () => {
 
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [playersSearchQuery, setPlayersSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -370,12 +371,38 @@ const TeamsManagementPage: FC = () => {
         <TabPanel value={tabValue} index={1}>
           <Box
             sx={{
-              textAlign: "center",
-              py: 8,
-              color: "text.secondary",
+              pb: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
             }}
           >
-            Управление игроками
+            <div style={{ paddingLeft: 16, paddingRight: 16, width: "100%" }}>
+              <SearchBar
+                value={playersSearchQuery}
+                onChange={setPlayersSearchQuery}
+                placeholder="Поиск игрока..."
+              />
+            </div>
+          </Box>
+          <Box
+            sx={{
+              mt: 0,
+              px: 2,
+              pb: 8,
+              height: "calc(100vh - 190px)",
+              overflowY: "auto",
+            }}
+          >
+            <Box
+              sx={{
+                textAlign: "center",
+                py: 8,
+                color: "text.secondary",
+              }}
+            >
+              Управление игроками
+            </Box>
           </Box>
         </TabPanel>
       </Container>
