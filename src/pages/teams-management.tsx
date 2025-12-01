@@ -1,6 +1,7 @@
 // llf-webview/src/pages/teams-management.tsx
 
 import { type FC, useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box, Container, Tabs, Tab, CircularProgress, Typography, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
@@ -52,6 +53,7 @@ function TabPanel(props: TabPanelProps) {
 
 const TeamsManagementPage: FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { token, loading: authLoading } = useAuth();
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
   const { cities, loading: citiesLoading } = useAppSelector(
@@ -213,13 +215,13 @@ const TeamsManagementPage: FC = () => {
   }, [filteredTeams]);
 
   const handleEdit = (teamId: string) => {
-    // TODO: Implement edit functionality
-    console.log("Edit team:", teamId);
+    navigate(`/team-edit/${teamId}`);
   };
 
   const handleDelete = (teamId: string) => {
     // TODO: Implement delete functionality
     console.log("Delete team:", teamId);
+    alert("Удаление в разработке");
   };
 
   const handleEditPlayer = (playerId: string) => {

@@ -61,7 +61,7 @@ const ManagementTeamCard: FC<ManagementTeamCardProps> = ({
             marginRight: 1.5,
           }}
         >
-          <ShirtIcon size={40} color1="#FFD700" color2="#000000" strokeColor="#000000" />
+          <ShirtIcon size={40} strokeColor="#000000" />
         </Box>
 
         <Box sx={{ flex: 1 }}>
