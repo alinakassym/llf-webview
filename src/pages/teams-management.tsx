@@ -293,6 +293,9 @@ const TeamsManagementPage: FC = () => {
       <Container maxWidth="md" sx={{ px: 0, pt: 0, pb: 10 }}>
         <Box
           sx={{
+            pr: 1,
+            minHeight: 40,
+            maxHeight: 40,
             borderBottom: 1,
             borderColor: "divider",
             background: (theme) =>
@@ -304,18 +307,24 @@ const TeamsManagementPage: FC = () => {
             onChange={handleTabChange}
             aria-label="teams management tabs"
             variant="fullWidth"
-            textColor="inherit"
             sx={{
+              "& .MuiTabs-indicator": {
+                display: "none",
+              },
               "& .MuiTab-root": {
-                textTransform: "none",
-                fontSize: "14px",
-                fontWeight: 600,
-                minHeight: 48,
+                ml: 1,
+                textTransform: "uppercase",
+                fontSize: "12px",
+                fontWeight: 400,
+                minHeight: 32,
+                maxHeight: 32,
                 color: "#FFFFFF",
+                borderRadius: 1,
+                backgroundColor: "rgba(0, 0, 0, 0.2)",
                 "&.Mui-selected": {
+                  backgroundColor: "dark",
                   color: "#FFFFFF",
                 },
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
               },
             }}
           >
