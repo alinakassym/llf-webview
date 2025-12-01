@@ -293,9 +293,10 @@ const TeamsManagementPage: FC = () => {
       <Container maxWidth="md" sx={{ px: 0, pt: 0, pb: 10 }}>
         <Box
           sx={{
+            pt: 1,
             pr: 1,
-            minHeight: 40,
-            maxHeight: 40,
+            minHeight: 48,
+            maxHeight: 48,
             borderBottom: 1,
             borderColor: "divider",
             background: (theme) =>

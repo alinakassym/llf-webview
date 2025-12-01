@@ -4,7 +4,6 @@ import { type FC } from "react";
 import { Box, Typography, IconButton, Divider } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import { useAppSelector } from "../store/hooks";
 import { selectPlayersByTeam } from "../store/slices/playerSlice";
 
@@ -14,7 +13,6 @@ interface ManagementTeamCardProps {
   teamId: string;
   onEdit: () => void;
   onDelete: () => void;
-  onAddPlayer?: () => void;
 }
 
 const ManagementTeamCard: FC<ManagementTeamCardProps> = ({
@@ -23,7 +21,6 @@ const ManagementTeamCard: FC<ManagementTeamCardProps> = ({
   teamId,
   onEdit,
   onDelete,
-  onAddPlayer,
 }) => {
   // Получаем игроков для этой команды
   const players = useAppSelector((state) => selectPlayersByTeam(state, teamId));
@@ -128,23 +125,6 @@ const ManagementTeamCard: FC<ManagementTeamCardProps> = ({
           >
             Состав команды ({players.length})
           </Typography>
-
-          <IconButton
-            onClick={onAddPlayer}
-            sx={{
-              width: 32,
-              height: 32,
-              borderRadius: "8px",
-              backgroundColor: "surface",
-              color: "success.main",
-              "&:hover": {
-                backgroundColor: "surface",
-                opacity: 0.8,
-              },
-            }}
-          >
-            <GroupAddIcon sx={{ fontSize: 16 }} />
-          </IconButton>
         </Box>
 
         {/* Список игроков */}
