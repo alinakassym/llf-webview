@@ -1,11 +1,10 @@
 // llf-webview/src/components/ManagementTeamCard.tsx
 
-import { type FC } from "react";
+import { type FC, useMemo } from "react";
 import { Box, Typography, IconButton, Divider } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useAppSelector } from "../store/hooks";
-import { selectPlayersByTeam } from "../store/slices/playerSlice";
 import { ShirtIcon } from "./icons";
 
 interface ManagementTeamCardProps {
@@ -24,7 +23,8 @@ const ManagementTeamCard: FC<ManagementTeamCardProps> = ({
   onDelete,
 }) => {
   // Получаем игроков для этой команды
-  const players = useAppSelector((state) => selectPlayersByTeam(state, teamId));
+  const playersData = useAppSelector((state) => state.players.itemsByTeamId[teamId]);
+  const players = useMemo(() => playersData || [], [playersData]);
 
   return (
     <Box

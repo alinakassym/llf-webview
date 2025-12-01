@@ -227,11 +227,13 @@ const TeamsManagementPage: FC = () => {
   const handleEditPlayer = (playerId: string) => {
     // TODO: Implement edit functionality
     console.log("Edit player:", playerId);
+    alert("Редактирование в разработке");
   };
 
   const handleDeletePlayer = (playerId: string) => {
     // TODO: Implement delete functionality
     console.log("Delete player:", playerId);
+    alert("Удаление в разработке");
   };
 
   const handleAdd = () => {
@@ -241,6 +243,7 @@ const TeamsManagementPage: FC = () => {
     } else if (tabValue === 1) {
       // Вкладка "Игроки" - TODO: реализовать создание игрока
       console.log("Add player - to be implemented");
+      alert("Добавление нового игрока в разработке");
     }
   };
 

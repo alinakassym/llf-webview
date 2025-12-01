@@ -1,23 +1,91 @@
 // llf-webview/src/pages/team-edit.tsx
 
-import { type FC } from "react";
-import { useNavigate } from "react-router-dom";
-import { Box, Container, Typography, IconButton } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { type FC, useEffect, useState, useMemo } from "react";
+import { useParams } from "react-router-dom";
+import { Box, Container, Typography, CircularProgress } from "@mui/material";
 import { ShirtIcon } from "../components/icons";
+import { teamService } from "../services/teamService";
+import { useAuth } from "../hooks/useAuth";
+import { useWebViewToken } from "../hooks/useWebViewToken";
+import type { Team } from "../types/team";
 
 const TeamEditPage: FC = () => {
-  const navigate = useNavigate();
+  const { teamId } = useParams<{ teamId: string }>();
+  const { token, loading: authLoading } = useAuth();
+  const { webViewToken, loading: webViewLoading } = useWebViewToken();
 
-  // TODO: Получить teamId из URL параметров
-  // TODO: Загрузить данные команды по teamId
+  const [team, setTeam] = useState<Team | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Заглушки для данных
-  const teamName = "RED MACHINE";
+  // Используем webViewToken если доступен, иначе fallback на Firebase token
+  const activeToken = useMemo(
+    () => webViewToken || token,
+    [webViewToken, token],
+  );
 
-  const handleBack = () => {
-    navigate("/teams-management");
-  };
+  // Загружаем данные команды
+  useEffect(() => {
+    const fetchTeam = async () => {
+      if (!teamId) {
+        setLoading(false);
+        setError("ID команды не указан");
+        return;
+      }
+
+      if (!activeToken || authLoading || webViewLoading) {
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        const teamData = await teamService.getTeamById(teamId, activeToken);
+        setTeam(teamData);
+      } catch (err) {
+        console.error("Error fetching team:", err);
+        setError("Не удалось загрузить данные команды");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeam();
+  }, [teamId, activeToken, authLoading, webViewLoading]);
+
+  // Показываем loader пока идет загрузка
+  if (loading || authLoading || webViewLoading) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "background.default",
+        }}
+      >
+        <CircularProgress size={48} />
+      </Box>
+    );
+  }
+
+  // Показываем ошибку если не удалось загрузить
+  if (error || !team) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "background.default",
+        }}
+      >
+        <Typography color="error">{error || "Команда не найдена"}</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -47,22 +115,6 @@ const TeamEditPage: FC = () => {
               gap: 1,
             }}
           >
-            {/* Кнопка назад */}
-            <Box sx={{ marginBottom: 0 }}>
-              <IconButton
-                onClick={handleBack}
-                sx={{
-                  color: "#FFFFFF",
-                  backgroundColor: "rgba(255, 255, 255, 0.2)",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.3)",
-                  },
-                }}
-              >
-                <ArrowBackIcon />
-              </IconButton>
-            </Box>
-
             {/* Блок слева - иконка */}
             <Box
               sx={{
@@ -87,7 +139,17 @@ const TeamEditPage: FC = () => {
                   fontSize: "20px",
                 }}
               >
-                {teamName}
+                {team.name}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "rgba(255, 255, 255, 0.8)",
+                  fontSize: "14px",
+                  marginTop: 0.5,
+                }}
+              >
+                {team.leagueName} • {team.cityName}
               </Typography>
             </Box>
           </Box>

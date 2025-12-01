@@ -27,6 +27,14 @@ export const teamService = {
     return response.teams;
   },
 
+  getTeamById: async (teamId: string, token: string): Promise<Team> => {
+    const response = await apiRequest<Team>(`/teams/${teamId}`, {
+      method: "GET",
+      token,
+    });
+    return response;
+  },
+
   createTeam: async (
     data: CreateTeamPayload,
     token: string
