@@ -291,19 +291,31 @@ const TeamsManagementPage: FC = () => {
       }}
     >
       <Container maxWidth="md" sx={{ px: 0, pt: 0, pb: 10 }}>
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            background: (theme) =>
+              `linear-gradient(to right, ${theme.palette.gradient.join(", ")})`,
+          }}
+        >
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
             aria-label="teams management tabs"
             variant="fullWidth"
+            textColor="inherit"
             sx={{
               "& .MuiTab-root": {
                 textTransform: "none",
                 fontSize: "14px",
                 fontWeight: 600,
                 minHeight: 48,
-                backgroundColor: "background.paper",
+                color: "#FFFFFF",
+                "&.Mui-selected": {
+                  color: "#FFFFFF",
+                },
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
               },
             }}
           >
