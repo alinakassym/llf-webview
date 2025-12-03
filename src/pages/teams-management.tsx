@@ -224,10 +224,10 @@ const TeamsManagementPage: FC = () => {
     alert("Удаление в разработке");
   };
 
-  const handlePlayerClick = (userId: number) => {
+  const handlePlayerClick = (fullName: string) => {
     // TODO: Implement player profile navigation
-    console.log("Player clicked:", userId);
-    alert(`Просмотр профиля игрока в разработке (userId: ${userId})`);
+    console.log("Player clicked:", fullName);
+    alert(`Просмотр профиля игрока в разработке (fullName: ${fullName})`);
   };
 
   const handleAdd = () => {
@@ -450,7 +450,7 @@ const TeamsManagementPage: FC = () => {
               mt: 0,
               px: 2,
               pb: 8,
-              height: "calc(100vh - 190px)",
+              height: "calc(100vh - 125px)",
               overflowY: "auto",
             }}
           >

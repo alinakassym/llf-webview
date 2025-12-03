@@ -1,22 +1,19 @@
+// llf-webview/src/components/PlayersList.tsx
+
 import { type FC } from "react";
 import { Box } from "@mui/material";
 import PlayerPreviewCard from "./PlayerPreviewCard";
 import type { PlayerProfile } from "../types/player";
+import { PlayerRole, PlayerRoleAbbreviation } from "../types/playerRole";
 
 interface PlayersListProps {
   players: PlayerProfile[];
-  onPlayerClick: (userId: number) => void;
+  onPlayerClick: (fullName: string) => void;
 }
 
-// Маппинг позиций для мини-футбола
-const getPositionName = (position: number): string => {
-  const positions: Record<number, string> = {
-    1: "Вратарь",
-    2: "Защитник",
-    3: "Полузащитник",
-    4: "Нападающий",
-  };
-  return positions[position] || "Неизвестно";
+// Получение сокращенного обозначения позиции
+const getPositionAbbreviation = (position: PlayerRole): string => {
+  return PlayerRoleAbbreviation[position] || "—";
 };
 
 const PlayersList: FC<PlayersListProps> = ({ players, onPlayerClick }) => {
@@ -41,8 +38,8 @@ const PlayersList: FC<PlayersListProps> = ({ players, onPlayerClick }) => {
           key={player.userId}
           fullName={player.fullName}
           age={player.age}
-          position={getPositionName(player.position)}
-          onClick={() => onPlayerClick(player.userId)}
+          position={getPositionAbbreviation(player.position)}
+          onClick={() => onPlayerClick(player.fullName)}
         />
       ))}
     </Box>

@@ -1,3 +1,5 @@
+import { PlayerRole } from "./playerRole";
+
 export interface Player {
   id: number;
   userId: number;
@@ -19,7 +21,7 @@ export interface PlayerProfile {
   fullName: string;
   dateOfBirth: string;
   age: number;
-  position: number;
+  position: PlayerRole;
   yellowCards: number;
   redCards: number;
   totalGoals: number;
