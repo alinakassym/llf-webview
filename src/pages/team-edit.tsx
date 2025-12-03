@@ -104,7 +104,8 @@ const TeamEditPage: FC = () => {
           sx={{
             background: (theme) =>
               `linear-gradient(to right, ${theme.palette.gradient.join(", ")})`,
-            padding: 2,
+            px: 2,
+            pb: 2,
           }}
         >
           <Box
@@ -119,7 +120,6 @@ const TeamEditPage: FC = () => {
             <Box
               sx={{
                 width: 80,
-                height: 80,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -155,11 +155,33 @@ const TeamEditPage: FC = () => {
           </Box>
         </Box>
 
-        {/* Контентная область - пока пустая */}
-        <Box sx={{ padding: 3 }}>
-          <Typography variant="body2" color="text.secondary">
-            Содержимое страницы редактирования команды в разработке...
-          </Typography>
+        {/* Контентная область - футбольное поле */}
+        <Box
+          sx={{
+            position: "relative",
+            padding: 3,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Box
+            component="img"
+            src="/images/football-field-2.png"
+            alt="Football field"
+            sx={{
+              position: "absolute",
+              top: 16,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "120%",
+              maxWidth: 600,
+              height: "auto",
+              objectFit: "contain",
+            }}
+          >
+            {/* Здесь будет форма редактирования состава команды */}
+          </Box>
         </Box>
       </Container>
     </Box>
