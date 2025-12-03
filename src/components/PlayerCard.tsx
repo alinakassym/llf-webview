@@ -22,28 +22,29 @@ const PlayerCard: FC<PlayerCardProps> = ({
     <Box
       sx={{
         position: "absolute",
+        ...position,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         gap: 0.5,
-        ...position,
+        backgroundColor: "rgba(0, 0, 0, 0.25)",
+        borderRadius: 1,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+        overflow: "hidden",
       }}
     >
       {/* Иконка футболки с номером */}
       <Box
         sx={{
           position: "relative",
-          width: 60,
-          height: 60,
+          width: 64,
+          height: 64,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          borderRadius: 2,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
         }}
       >
-        <ShirtIcon size={48} strokeColor="#1976d2" />
+        <ShirtIcon size={64} strokeColor="#1976d2" />
         <Typography
           sx={{
             position: "absolute",
@@ -59,13 +60,12 @@ const PlayerCard: FC<PlayerCardProps> = ({
       </Box>
 
       {/* Имя игрока */}
-      <Box
-        sx={{
-          backgroundColor: "rgba(255, 255, 255, 0.95)",
-          borderRadius: 1,
-          px: 1,
-          py: 0.5,
-          boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+      <div
+        style={{
+          maxWidth: 80,
+          padding: "2px 6px",
+          borderBottomLeftRadius: 8,
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
         }}
       >
         <Typography
@@ -78,7 +78,7 @@ const PlayerCard: FC<PlayerCardProps> = ({
         >
           {playerName}
         </Typography>
-      </Box>
+      </div>
     </Box>
   );
 };

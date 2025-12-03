@@ -200,25 +200,20 @@ const TeamEditPage: FC = () => {
               pointerEvents: "none",
             }}
           >
-            {/* Формация 4-3-3 */}
-            {players.slice(0, 11).map((player, index) => {
-              // Определяем позицию игрока на поле (пример для 4-3-3)
+            {/* Формация мини-футбола 2-2-1 (максимум 6 игроков) */}
+            {players.slice(0, 6).map((player, index) => {
+              // Определяем позицию игрока на поле для мини-футбола (2-2-1)
               const positions = [
                 // Вратарь
-                { top: "5%", left: "50%", transform: "translateX(-50%)" },
-                // Защитники (4)
-                { top: "25%", left: "15%" },
-                { top: "25%", left: "38%" },
-                { top: "25%", left: "62%" },
-                { top: "25%", left: "85%" },
-                // Полузащитники (3)
-                { top: "50%", left: "25%" },
-                { top: "50%", left: "50%", transform: "translateX(-50%)" },
-                { top: "50%", left: "75%" },
-                // Нападающие (3)
-                { top: "75%", left: "25%" },
-                { top: "75%", left: "50%", transform: "translateX(-50%)" },
-                { top: "75%", left: "75%" },
+                { top: "8%", left: "50%", transform: "translateX(-50%)" },
+                // Защитники (2)
+                { top: "35%", left: "30%" },
+                { top: "35%", left: "70%" },
+                // Полузащитники (2)
+                { top: "60%", left: "30%" },
+                { top: "60%", left: "70%" },
+                // Нападающий (1)
+                { top: "85%", left: "50%", transform: "translateX(-50%)" },
               ];
 
               const position = positions[index] || {
