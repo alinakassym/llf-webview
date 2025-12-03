@@ -22,8 +22,8 @@ import {
 } from "../store/slices/teamSlice";
 import {
   fetchPlayers,
-  fetchAllPlayers,
-  selectAllPlayers,
+  fetchPlayerProfiles,
+  selectPlayerProfiles,
 } from "../store/slices/playerSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
@@ -59,7 +59,7 @@ const TeamsManagementPage: FC = () => {
   const { cities, loading: citiesLoading } = useAppSelector(
     (state) => state.cities,
   );
-  const players = useAppSelector(selectAllPlayers);
+  const playerProfiles = useAppSelector(selectPlayerProfiles);
 
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -89,10 +89,10 @@ const TeamsManagementPage: FC = () => {
     }
   }, [activeToken, authLoading, webViewLoading, dispatch]);
 
-  // Загружаем всех игроков при монтировании
+  // Загружаем профили игроков при монтировании
   useEffect(() => {
     if (activeToken && !authLoading && !webViewLoading) {
-      dispatch(fetchAllPlayers({ token: activeToken }));
+      dispatch(fetchPlayerProfiles({ token: activeToken }));
     }
   }, [activeToken, authLoading, webViewLoading, dispatch]);
 
@@ -167,13 +167,13 @@ const TeamsManagementPage: FC = () => {
 
   // Фильтруем игроков по поисковому запросу
   const filteredPlayers = useMemo(() => {
-    return (players || []).filter((player) => {
+    return (playerProfiles || []).filter((player) => {
       const matchesSearch = player.fullName
         .toLowerCase()
         .includes(playersSearchQuery.toLowerCase());
       return matchesSearch;
     });
-  }, [players, playersSearchQuery]);
+  }, [playerProfiles, playersSearchQuery]);
 
   // Создаем стабильный ключ из ID команд для предотвращения бесконечного цикла
   const teamIdsKey = useMemo(() => {
@@ -224,16 +224,10 @@ const TeamsManagementPage: FC = () => {
     alert("Удаление в разработке");
   };
 
-  const handleEditPlayer = (playerId: string) => {
-    // TODO: Implement edit functionality
-    console.log("Edit player:", playerId);
-    alert("Редактирование в разработке");
-  };
-
-  const handleDeletePlayer = (playerId: string) => {
-    // TODO: Implement delete functionality
-    console.log("Delete player:", playerId);
-    alert("Удаление в разработке");
+  const handlePlayerClick = (userId: number) => {
+    // TODO: Implement player profile navigation
+    console.log("Player clicked:", userId);
+    alert(`Просмотр профиля игрока в разработке (userId: ${userId})`);
   };
 
   const handleAdd = () => {
@@ -462,8 +456,7 @@ const TeamsManagementPage: FC = () => {
           >
             <PlayersList
               players={filteredPlayers}
-              onEdit={handleEditPlayer}
-              onDelete={handleDeletePlayer}
+              onPlayerClick={handlePlayerClick}
             />
           </Box>
         </TabPanel>

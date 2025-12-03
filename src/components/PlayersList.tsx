@@ -1,29 +1,25 @@
 import { type FC } from "react";
 import { Box } from "@mui/material";
-import ManagementItemCard from "./ManagementItemCard";
-import type { Player } from "../types/player";
+import PlayerPreviewCard from "./PlayerPreviewCard";
+import type { PlayerProfile } from "../types/player";
 
 interface PlayersListProps {
-  players: Player[];
-  onEdit: (playerId: string) => void;
-  onDelete: (playerId: string) => void;
+  players: PlayerProfile[];
+  onPlayerClick: (userId: number) => void;
 }
 
-// Функция для вычисления возраста из даты рождения
-const calculateAge = (dateOfBirth: string): number => {
-  const birthDate = new Date(dateOfBirth);
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-
-  return age;
+// Маппинг позиций для мини-футбола
+const getPositionName = (position: number): string => {
+  const positions: Record<number, string> = {
+    1: "Вратарь",
+    2: "Защитник",
+    3: "Полузащитник",
+    4: "Нападающий",
+  };
+  return positions[position] || "Неизвестно";
 };
 
-const PlayersList: FC<PlayersListProps> = ({ players, onEdit, onDelete }) => {
+const PlayersList: FC<PlayersListProps> = ({ players, onPlayerClick }) => {
   if (players.length === 0) {
     return (
       <Box
@@ -40,20 +36,15 @@ const PlayersList: FC<PlayersListProps> = ({ players, onEdit, onDelete }) => {
 
   return (
     <Box>
-      {players.map((player) => {
-        const age = calculateAge(player.dateOfBirth);
-        const subtitle = `${age} лет • ${player.teamName}`;
-
-        return (
-          <ManagementItemCard
-            key={player.id}
-            title={player.fullName}
-            subtitle={subtitle}
-            onEdit={() => onEdit(String(player.id))}
-            onDelete={() => onDelete(String(player.id))}
-          />
-        );
-      })}
+      {players.map((player) => (
+        <PlayerPreviewCard
+          key={player.userId}
+          fullName={player.fullName}
+          age={player.age}
+          position={getPositionName(player.position)}
+          onClick={() => onPlayerClick(player.userId)}
+        />
+      ))}
     </Box>
   );
 };
