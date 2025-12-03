@@ -5,9 +5,12 @@ import { useParams } from "react-router-dom";
 import { Box, Container, Typography, CircularProgress } from "@mui/material";
 import { ShirtIcon } from "../components/icons";
 import { teamService } from "../services/teamService";
+import { playerService } from "../services/playerService";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import type { Team } from "../types/team";
+import type { Player } from "../types/player";
+import PlayerCard from "../components/PlayerCard";
 
 const TeamEditPage: FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
@@ -15,6 +18,7 @@ const TeamEditPage: FC = () => {
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
 
   const [team, setTeam] = useState<Team | null>(null);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,9 +28,9 @@ const TeamEditPage: FC = () => {
     [webViewToken, token],
   );
 
-  // Загружаем данные команды
+  // Загружаем данные команды и игроков
   useEffect(() => {
-    const fetchTeam = async () => {
+    const fetchTeamAndPlayers = async () => {
       if (!teamId) {
         setLoading(false);
         setError("ID команды не указан");
@@ -40,8 +44,12 @@ const TeamEditPage: FC = () => {
       try {
         setLoading(true);
         setError(null);
-        const teamData = await teamService.getTeamById(teamId, activeToken);
+        const [teamData, playersData] = await Promise.all([
+          teamService.getTeamById(teamId, activeToken),
+          playerService.getPlayers(activeToken, teamId),
+        ]);
         setTeam(teamData);
+        setPlayers(playersData);
       } catch (err) {
         console.error("Error fetching team:", err);
         setError("Не удалось загрузить данные команды");
@@ -50,7 +58,7 @@ const TeamEditPage: FC = () => {
       }
     };
 
-    fetchTeam();
+    fetchTeamAndPlayers();
   }, [teamId, activeToken, authLoading, webViewLoading]);
 
   // Показываем loader пока идет загрузка
@@ -159,28 +167,75 @@ const TeamEditPage: FC = () => {
         <Box
           sx={{
             position: "relative",
-            padding: 3,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
           }}
         >
+          {/* Изображение поля */}
           <Box
             component="img"
-            src="/images/football-field-2.png"
+            src="/images/football-field.png"
             alt="Football field"
             sx={{
-              position: "absolute",
-              top: 16,
+              padding: 2,
+              position: "relative",
               left: "50%",
-              transform: "translateX(-50%)",
-              width: "120%",
-              maxWidth: 600,
-              height: "auto",
-              objectFit: "contain",
+              width: "150%",
+              transform: "translate(-50%, 0)",
+              height: "100%",
+              display: "block",
+              margin: "0 auto",
+              filter: "hue-rotate(50deg) brightness(1.2) contrast(1.1)",
+            }}
+          />
+
+          {/* Контейнер для игроков - позиционируется поверх поля */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "100%",
+              maxWidth: 500,
+              height: "100%",
+              pointerEvents: "none",
             }}
           >
-            {/* Здесь будет форма редактирования состава команды */}
+            {/* Формация 4-3-3 */}
+            {players.slice(0, 11).map((player, index) => {
+              // Определяем позицию игрока на поле (пример для 4-3-3)
+              const positions = [
+                // Вратарь
+                { top: "5%", left: "50%", transform: "translateX(-50%)" },
+                // Защитники (4)
+                { top: "25%", left: "15%" },
+                { top: "25%", left: "38%" },
+                { top: "25%", left: "62%" },
+                { top: "25%", left: "85%" },
+                // Полузащитники (3)
+                { top: "50%", left: "25%" },
+                { top: "50%", left: "50%", transform: "translateX(-50%)" },
+                { top: "50%", left: "75%" },
+                // Нападающие (3)
+                { top: "75%", left: "25%" },
+                { top: "75%", left: "50%", transform: "translateX(-50%)" },
+                { top: "75%", left: "75%" },
+              ];
+
+              const position = positions[index] || {
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              };
+
+              return (
+                <PlayerCard
+                  key={player.id}
+                  playerName={player.fullName}
+                  playerNumber={player.number}
+                  position={position}
+                />
+              );
+            })}
           </Box>
         </Box>
       </Container>
