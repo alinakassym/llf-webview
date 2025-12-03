@@ -42,9 +42,10 @@ const PlayerCard: FC<PlayerCardProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
         }}
       >
-        <ShirtIcon size={64} strokeColor="#1976d2" />
+        <ShirtIcon size={64} strokeColor="#FFFFFF" />
         <Typography
           sx={{
             position: "absolute",
@@ -71,8 +72,7 @@ const PlayerCard: FC<PlayerCardProps> = ({
         <Typography
           sx={{
             fontSize: "12px",
-            fontWeight: 600,
-            color: "text.primary",
+            fontWeight: 400,
             whiteSpace: "nowrap",
           }}
         >
