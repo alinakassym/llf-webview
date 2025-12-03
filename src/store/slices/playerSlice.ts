@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState } from "../index";
-import type { Player } from "../../types/player";
+import type { Player, PlayerProfile } from "../../types/player";
 import { playerService } from "../../services/playerService";
 
 interface PlayerState {
@@ -10,6 +10,9 @@ interface PlayerState {
   allPlayers: Player[]; // Все игроки
   loadingAll: boolean; // Загрузка всех игроков
   errorAll: string | null; // Ошибка загрузки всех игроков
+  playerProfiles: PlayerProfile[]; // Профили всех игроков
+  loadingProfiles: boolean; // Загрузка профилей
+  errorProfiles: string | null; // Ошибка загрузки профилей
 }
 
 const initialState: PlayerState = {
@@ -19,6 +22,9 @@ const initialState: PlayerState = {
   allPlayers: [],
   loadingAll: false,
   errorAll: null,
+  playerProfiles: [],
+  loadingProfiles: false,
+  errorProfiles: null,
 };
 
 // Thunk для загрузки игроков по команде
@@ -37,6 +43,15 @@ export const fetchAllPlayers = createAsyncThunk<
 >("players/fetchAllPlayers", async ({ token, teamId, seasonId }) => {
   const players = await playerService.getPlayers(token, teamId, seasonId);
   return players;
+});
+
+// Thunk для загрузки профилей игроков
+export const fetchPlayerProfiles = createAsyncThunk<
+  PlayerProfile[],
+  { token: string }
+>("players/fetchPlayerProfiles", async ({ token }) => {
+  const profiles = await playerService.getPlayerProfiles(token);
+  return profiles;
 });
 
 const playerSlice = createSlice({
@@ -94,6 +109,21 @@ const playerSlice = createSlice({
       .addCase(fetchAllPlayers.rejected, (state, action) => {
         state.loadingAll = false;
         state.errorAll = action.error.message || "Failed to fetch all players";
+      })
+      .addCase(fetchPlayerProfiles.pending, (state) => {
+        state.loadingProfiles = true;
+        state.errorProfiles = null;
+      })
+      .addCase(fetchPlayerProfiles.fulfilled, (state, action) => {
+        state.playerProfiles = action.payload.sort((a, b) =>
+          a.fullName.localeCompare(b.fullName)
+        );
+        state.loadingProfiles = false;
+      })
+      .addCase(fetchPlayerProfiles.rejected, (state, action) => {
+        state.loadingProfiles = false;
+        state.errorProfiles =
+          action.error.message || "Failed to fetch player profiles";
       });
   },
 });
@@ -121,6 +151,21 @@ export const selectAllPlayersLoading = (state: RootState) => {
 // Селектор для ошибки загрузки всех игроков
 export const selectAllPlayersError = (state: RootState) => {
   return state.players.errorAll;
+};
+
+// Селектор для получения профилей игроков
+export const selectPlayerProfiles = (state: RootState) => {
+  return state.players.playerProfiles;
+};
+
+// Селектор для загрузки профилей
+export const selectPlayerProfilesLoading = (state: RootState) => {
+  return state.players.loadingProfiles;
+};
+
+// Селектор для ошибки загрузки профилей
+export const selectPlayerProfilesError = (state: RootState) => {
+  return state.players.errorProfiles;
 };
 
 export const { clearPlayers, clearPlayersForTeam } = playerSlice.actions;

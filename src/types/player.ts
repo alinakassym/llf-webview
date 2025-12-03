@@ -10,3 +10,18 @@ export interface Player {
   number: number;
   cityName: string;
 }
+
+export interface PlayerProfile {
+  userId: number;
+  firstName: string;
+  lastName: string;
+  middleName: string;
+  fullName: string;
+  dateOfBirth: string;
+  age: number;
+  position: number;
+  yellowCards: number;
+  redCards: number;
+  totalGoals: number;
+  matchesPlayed: number;
+}

@@ -1,5 +1,5 @@
 import { apiRequest } from "./api";
-import type { Player } from "../types/player";
+import type { Player, PlayerProfile } from "../types/player";
 
 export const playerService = {
   getPlayers: async (
@@ -19,5 +19,16 @@ export const playerService = {
       token,
     });
     return response.players;
+  },
+
+  getPlayerProfiles: async (token: string): Promise<PlayerProfile[]> => {
+    const response = await apiRequest<{ profiles: PlayerProfile[] }>(
+      "/players/profiles",
+      {
+        method: "GET",
+        token,
+      }
+    );
+    return response.profiles;
   },
 };
