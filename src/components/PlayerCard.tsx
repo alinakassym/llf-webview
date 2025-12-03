@@ -1,3 +1,5 @@
+// llf-webview/src/components/PlayerCard.tsx
+
 import { type FC } from "react";
 import { Box, Typography } from "@mui/material";
 import { ShirtIcon } from "./icons";
