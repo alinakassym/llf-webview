@@ -11,6 +11,9 @@ import PlayersList from "../components/PlayersList";
 import CreateTeamModal, {
   type CreateTeamData,
 } from "../components/CreateTeamModal";
+import CreatePlayerModal, {
+  type CreatePlayerData,
+} from "../components/CreatePlayerModal";
 import type { Team } from "../types/team";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
@@ -66,6 +69,7 @@ const TeamsManagementPage: FC = () => {
   const [playersSearchQuery, setPlayersSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreatePlayerModalOpen, setIsCreatePlayerModalOpen] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -247,14 +251,17 @@ const TeamsManagementPage: FC = () => {
       // Вкладка "Команды" - открываем модальное окно создания команды
       setIsCreateModalOpen(true);
     } else if (tabValue === 1) {
-      // Вкладка "Игроки" - TODO: реализовать создание игрока
-      console.log("Add player - to be implemented");
-      alert("Добавление нового игрока в разработке");
+      // Вкладка "Игроки" - открываем модальное окно создания игрока
+      setIsCreatePlayerModalOpen(true);
     }
   };
 
   const handleCloseModal = () => {
     setIsCreateModalOpen(false);
+  };
+
+  const handleClosePlayerModal = () => {
+    setIsCreatePlayerModalOpen(false);
   };
 
   const handleCreateTeam = async (data: CreateTeamData) => {
@@ -271,6 +278,15 @@ const TeamsManagementPage: FC = () => {
         token: activeToken,
       }),
     ).unwrap();
+  };
+
+  const handleCreatePlayer = async (data: CreatePlayerData) => {
+    if (!activeToken) {
+      throw new Error("No auth token available");
+    }
+    // TODO: Implement player creation in Redux
+    console.log("Create player:", data);
+    alert("Создание игрока в разработке");
   };
 
   // Если идет загрузка - показываем loader на весь экран
@@ -495,6 +511,13 @@ const TeamsManagementPage: FC = () => {
         cities={cities}
         token={activeToken || ""}
         onSubmit={handleCreateTeam}
+      />
+
+      <CreatePlayerModal
+        open={isCreatePlayerModalOpen}
+        onClose={handleClosePlayerModal}
+        token={activeToken || ""}
+        onSubmit={handleCreatePlayer}
       />
     </Box>
   );
