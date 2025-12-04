@@ -1,3 +1,5 @@
+// llf-webview/src/components/ManagementItemCard.tsx
+
 import { type FC } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";

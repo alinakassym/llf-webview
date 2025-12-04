@@ -1,7 +1,9 @@
 // llf-webview/src/components/PlayerPreviewCard.tsx
 
 import { type FC } from "react";
-import { Box, Typography, Avatar } from "@mui/material";
+import { Box, Typography, Avatar, IconButton } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { ShirtIcon } from "./icons";
 import { getYearsWord } from "../utils/getYearsWord";
 
@@ -11,6 +13,8 @@ interface PlayerPreviewCardProps {
   position?: string;
   photoUrl?: string;
   onClick?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 const PlayerPreviewCard: FC<PlayerPreviewCardProps> = ({
@@ -19,6 +23,8 @@ const PlayerPreviewCard: FC<PlayerPreviewCardProps> = ({
   position,
   photoUrl,
   onClick,
+  onEdit,
+  onDelete,
 }) => {
   return (
     <Box
@@ -139,6 +145,55 @@ const PlayerPreviewCard: FC<PlayerPreviewCardProps> = ({
           )}
         </div>
       </Box>
+
+      {/* Кнопки редактирования и удаления */}
+      {(onEdit || onDelete) && (
+        <Box sx={{ display: "flex", gap: 1 }}>
+          {onEdit && (
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: "8px",
+                backgroundColor: "surface",
+                color: "primary.main",
+                "&:hover": {
+                  backgroundColor: "surface",
+                  opacity: 0.8,
+                },
+              }}
+            >
+              <EditIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+          )}
+
+          {onDelete && (
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: "8px",
+                backgroundColor: "surface",
+                color: "#ef4444",
+                "&:hover": {
+                  backgroundColor: "surface",
+                  opacity: 0.8,
+                },
+              }}
+            >
+              <DeleteIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+          )}
+        </Box>
+      )}
     </Box>
   );
 };
