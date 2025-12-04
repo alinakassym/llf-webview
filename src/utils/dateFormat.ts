@@ -3,6 +3,7 @@
  * @param dateString - строка с датой в формате ISO (например, "2025-11-01T00:00:00Z")
  * @returns отформатированная дата в формате DD.MM.YYYY
  */
+// llf-webview/src/utils/dateFormat.ts
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
 

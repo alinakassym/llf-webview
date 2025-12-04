@@ -3,6 +3,7 @@
 import { type FC } from "react";
 import { Box, Typography, Avatar } from "@mui/material";
 import { ShirtIcon } from "./icons";
+import { getYearsWord } from "../utils/getYearsWord";
 
 interface PlayerPreviewCardProps {
   fullName: string;
@@ -38,7 +39,6 @@ const PlayerPreviewCard: FC<PlayerPreviewCardProps> = ({
         transition: "all 0.2s ease",
         "&:hover": onClick
           ? {
-              backgroundColor: "surface",
               transform: "translateY(-2px)",
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
             }
@@ -75,50 +75,70 @@ const PlayerPreviewCard: FC<PlayerPreviewCardProps> = ({
       </Box>
 
       {/* Информация об игроке */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
-        <Typography
-          variant="body1"
-          fontWeight={600}
-          sx={{
-            fontSize: "14px",
-            color: "text.primary",
-          }}
-        >
-          {fullName}
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            fontSize: "12px",
-            color: "text.secondary",
-          }}
-        >
-          {age} {age === 1 ? "год" : age < 5 ? "года" : "лет"}
-        </Typography>
-      </Box>
-
-      {/* Позиция (если есть) */}
-      {position && (
-        <Box
-          sx={{
-            paddingX: 1.5,
-            paddingY: 0.75,
-            borderRadius: "8px",
-            backgroundColor: "surface",
-          }}
-        >
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 0 }}>
+        <div>
           <Typography
-            variant="body2"
-            fontWeight={500}
+            variant="body1"
+            fontWeight={600}
             sx={{
               fontSize: "12px",
-              color: "primary.main",
+              color: "text.primary",
             }}
           >
-            {position}
+            {fullName}
           </Typography>
-        </Box>
-      )}
+        </div>
+        <div
+          style={{
+            marginTop: 2,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <Box
+            sx={{
+              paddingX: 1.5,
+              paddingY: 0.75,
+              borderRadius: "8px",
+              backgroundColor: "surface",
+            }}
+          >
+            <Typography
+              variant="body2"
+              fontWeight={400}
+              sx={{
+                fontSize: "10px",
+                color: "primary.main",
+              }}
+            >
+              {age} {getYearsWord(age)}
+            </Typography>
+          </Box>
+          {/* Позиция (если есть) */}
+          {position && (
+            <Box
+              sx={{
+                paddingX: 1.5,
+                paddingY: 0.75,
+                borderRadius: "8px",
+                backgroundColor: "surface",
+              }}
+            >
+              <Typography
+                variant="body2"
+                fontWeight={400}
+                sx={{
+                  fontSize: "10px",
+                  color: "primary.main",
+                }}
+              >
+                {position}
+              </Typography>
+            </Box>
+          )}
+        </div>
+      </Box>
     </Box>
   );
 };
