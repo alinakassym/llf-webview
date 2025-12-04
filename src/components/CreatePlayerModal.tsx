@@ -115,7 +115,13 @@ const CreatePlayerModal: FC<CreatePlayerModalProps> = ({
 
     setLoading(true);
     try {
-      await onSubmit(formData);
+      // Конвертируем дату из формата YYYY-MM-DD в RFC 3339
+      const dateTime = `${formData.dateOfBirth}T16:06:36.427Z`;
+
+      await onSubmit({
+        ...formData,
+        dateOfBirth: dateTime,
+      });
       handleClose();
     } catch (error) {
       console.error("Error creating player:", error);

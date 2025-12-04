@@ -1,6 +1,15 @@
 import { apiRequest } from "./api";
 import type { Player, PlayerProfile } from "../types/player";
 
+export interface CreatePlayerPayload {
+  userId: number | null;
+  firstName: string;
+  lastName: string;
+  middleName: string;
+  dateOfBirth: string;
+  position: number | null;
+}
+
 export const playerService = {
   getPlayers: async (
     token: string,
@@ -30,5 +39,17 @@ export const playerService = {
       }
     );
     return response.profiles;
+  },
+
+  createPlayer: async (
+    data: CreatePlayerPayload,
+    token: string
+  ): Promise<PlayerProfile> => {
+    const response = await apiRequest<PlayerProfile>("/players/profiles", {
+      method: "POST",
+      token,
+      body: JSON.stringify(data),
+    });
+    return response;
   },
 };

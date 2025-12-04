@@ -27,6 +27,7 @@ import {
   fetchPlayers,
   fetchPlayerProfiles,
   selectPlayerProfiles,
+  createPlayer,
 } from "../store/slices/playerSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
@@ -284,9 +285,19 @@ const TeamsManagementPage: FC = () => {
     if (!activeToken) {
       throw new Error("No auth token available");
     }
-    // TODO: Implement player creation in Redux
-    console.log("Create player:", data);
-    alert("Создание игрока в разработке");
+    await dispatch(
+      createPlayer({
+        data: {
+          userId: null,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          middleName: data.middleName,
+          dateOfBirth: data.dateOfBirth,
+          position: data.position || null,
+        },
+        token: activeToken,
+      }),
+    ).unwrap();
   };
 
   // Если идет загрузка - показываем loader на весь экран
