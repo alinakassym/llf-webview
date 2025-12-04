@@ -230,6 +230,18 @@ const TeamsManagementPage: FC = () => {
     alert(`Просмотр профиля игрока в разработке (fullName: ${fullName})`);
   };
 
+  const handlePlayerEdit = (userId: number) => {
+    // TODO: Implement player edit functionality
+    console.log("Edit player:", userId);
+    navigate(`/player-edit/${userId}`);
+  };
+
+  const handlePlayerDelete = (userId: number) => {
+    // TODO: Implement player delete functionality
+    console.log("Delete player:", userId);
+    alert("Удаление игрока в разработке");
+  };
+
   const handleAdd = () => {
     if (tabValue === 0) {
       // Вкладка "Команды" - открываем модальное окно создания команды
@@ -457,6 +469,8 @@ const TeamsManagementPage: FC = () => {
             <PlayersList
               players={filteredPlayers}
               onPlayerClick={handlePlayerClick}
+              onEdit={handlePlayerEdit}
+              onDelete={handlePlayerDelete}
             />
           </Box>
         </TabPanel>

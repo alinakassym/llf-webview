@@ -9,6 +9,8 @@ import { PlayerRole, PlayerRoleAbbreviation } from "../types/playerRole";
 interface PlayersListProps {
   players: PlayerProfile[];
   onPlayerClick: (fullName: string) => void;
+  onEdit?: (userId: number) => void;
+  onDelete?: (userId: number) => void;
 }
 
 // Получение сокращенного обозначения позиции
@@ -16,7 +18,12 @@ const getPositionAbbreviation = (position: PlayerRole): string => {
   return PlayerRoleAbbreviation[position] || "—";
 };
 
-const PlayersList: FC<PlayersListProps> = ({ players, onPlayerClick }) => {
+const PlayersList: FC<PlayersListProps> = ({
+  players,
+  onPlayerClick,
+  onEdit,
+  onDelete,
+}) => {
   if (players.length === 0) {
     return (
       <Box
@@ -40,6 +47,8 @@ const PlayersList: FC<PlayersListProps> = ({ players, onPlayerClick }) => {
           age={player.age}
           position={getPositionAbbreviation(player.position)}
           onClick={() => onPlayerClick(player.fullName)}
+          onEdit={onEdit ? () => onEdit(player.userId) : undefined}
+          onDelete={onDelete ? () => onDelete(player.userId) : undefined}
         />
       ))}
     </Box>
