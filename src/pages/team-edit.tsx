@@ -9,6 +9,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import type { Team } from "../types/team";
 import EmptyPlayerSlot from "../components/EmptyPlayerSlot";
+import { PlayerRole, PlayerRoleAbbreviation } from "../types/playerRole";
 
 const TeamEditPage: FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
@@ -193,7 +194,7 @@ const TeamEditPage: FC = () => {
               pointerEvents: "none",
             }}
           >
-            {/* Вратарь (GKP) - верх */}
+            {/* Вратарь (ВР) - верх */}
             <div
               style={{
                 position: "relative",
@@ -205,10 +206,10 @@ const TeamEditPage: FC = () => {
                 gap: 20,
               }}
             >
-              <EmptyPlayerSlot label="GKP" />
+              <EmptyPlayerSlot label={PlayerRoleAbbreviation[PlayerRole.Goalkeeper]} />
             </div>
 
-            {/* Полузащитники (MID) - средний ряд (3 карточки) */}
+            {/* Полузащитники (ПЗЩ) - средний ряд (3 карточки) */}
             <div
               style={{
                 position: "relative",
@@ -220,11 +221,11 @@ const TeamEditPage: FC = () => {
                 gap: 20,
               }}
             >
-              <EmptyPlayerSlot label="MID" />
-              <EmptyPlayerSlot label="MID" />
-              <EmptyPlayerSlot label="MID" />
+              <EmptyPlayerSlot label={PlayerRoleAbbreviation[PlayerRole.Halfback]} />
+              <EmptyPlayerSlot label={PlayerRoleAbbreviation[PlayerRole.Halfback]} />
+              <EmptyPlayerSlot label={PlayerRoleAbbreviation[PlayerRole.Halfback]} />
             </div>
-            {/* Защитник (DEF) и Нападающий (FWD) - нижний ряд (2 карточки) */}
+            {/* Защитник (ЗАЩ) и Нападающий (НАП) - нижний ряд (2 карточки) */}
             <div
               style={{
                 position: "relative",
@@ -235,8 +236,8 @@ const TeamEditPage: FC = () => {
                 gap: 20,
               }}
             >
-              <EmptyPlayerSlot label="DEF" />
-              <EmptyPlayerSlot label="FWD" />
+              <EmptyPlayerSlot label={PlayerRoleAbbreviation[PlayerRole.Defender]} />
+              <EmptyPlayerSlot label={PlayerRoleAbbreviation[PlayerRole.Forward]} />
             </div>
           </Box>
         </Box>
