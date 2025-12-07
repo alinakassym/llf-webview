@@ -5,12 +5,10 @@ import { useParams } from "react-router-dom";
 import { Box, Container, Typography, CircularProgress } from "@mui/material";
 import { ShirtIcon } from "../components/icons";
 import { teamService } from "../services/teamService";
-import { playerService } from "../services/playerService";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import type { Team } from "../types/team";
-import type { Player } from "../types/player";
-import PlayerCard from "../components/PlayerCard";
+import EmptyPlayerSlot from "../components/EmptyPlayerSlot";
 
 const TeamEditPage: FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
@@ -18,7 +16,6 @@ const TeamEditPage: FC = () => {
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
 
   const [team, setTeam] = useState<Team | null>(null);
-  const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,12 +41,8 @@ const TeamEditPage: FC = () => {
       try {
         setLoading(true);
         setError(null);
-        const [teamData, playersData] = await Promise.all([
-          teamService.getTeamById(teamId, activeToken),
-          playerService.getPlayers(activeToken, teamId),
-        ]);
+        const teamData = await teamService.getTeamById(teamId, activeToken);
         setTeam(teamData);
-        setPlayers(playersData);
       } catch (err) {
         console.error("Error fetching team:", err);
         setError("Не удалось загрузить данные команды");
@@ -200,37 +193,51 @@ const TeamEditPage: FC = () => {
               pointerEvents: "none",
             }}
           >
-            {/* Формация мини-футбола 2-2-1 (максимум 6 игроков) */}
-            {players.slice(0, 6).map((player, index) => {
-              // Определяем позицию игрока на поле для мини-футбола (2-2-1)
-              const positions = [
-                // Вратарь
-                { top: "8%", left: "50%", transform: "translateX(-50%)" },
-                // Защитники (2)
-                { top: "35%", left: "30%" },
-                { top: "35%", left: "70%" },
-                // Полузащитники (2)
-                { top: "60%", left: "30%" },
-                { top: "60%", left: "70%" },
-                // Нападающий (1)
-                { top: "85%", left: "50%", transform: "translateX(-50%)" },
-              ];
+            {/* Вратарь (GKP) - верх */}
+            <div
+              style={{
+                position: "relative",
+                top: "6%",
+                marginBottom: 28,
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                gap: 20,
+              }}
+            >
+              <EmptyPlayerSlot label="GKP" />
+            </div>
 
-              const position = positions[index] || {
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-              };
-
-              return (
-                <PlayerCard
-                  key={player.id}
-                  playerName={player.fullName}
-                  playerNumber={player.number}
-                  position={position}
-                />
-              );
-            })}
+            {/* Полузащитники (MID) - средний ряд (3 карточки) */}
+            <div
+              style={{
+                position: "relative",
+                top: "6%",
+                marginBottom: 28,
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                gap: 20,
+              }}
+            >
+              <EmptyPlayerSlot label="MID" />
+              <EmptyPlayerSlot label="MID" />
+              <EmptyPlayerSlot label="MID" />
+            </div>
+            {/* Защитник (DEF) и Нападающий (FWD) - нижний ряд (2 карточки) */}
+            <div
+              style={{
+                position: "relative",
+                top: "6%",
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                gap: 20,
+              }}
+            >
+              <EmptyPlayerSlot label="DEF" />
+              <EmptyPlayerSlot label="FWD" />
+            </div>
           </Box>
         </Box>
       </Container>
