@@ -1,11 +1,13 @@
 // llf-webview/src/types/playerRole.ts
 
-export enum PlayerRole {
-  Goalkeeper = 0, // Вратарь
-  Defender = 1, // Защитник
-  Halfback = 2, // Полузащитник
-  Forward = 3, // Нападающий
-}
+export const PlayerRole = {
+  Goalkeeper: 0, // Вратарь
+  Defender: 1, // Защитник
+  Halfback: 2, // Полузащитник
+  Forward: 3, // Нападающий
+} as const;
+
+export type PlayerRole = (typeof PlayerRole)[keyof typeof PlayerRole];
 
 // Сокращенные обозначения для UI
 export const PlayerRoleAbbreviation: Record<PlayerRole, string> = {
