@@ -22,7 +22,7 @@ const EmptyPlayerSlot: FC<EmptyPlayerSlotProps> = ({ label, onClick }) => {
         width: 80,
         height: 100,
         backgroundColor: "#2a8019",
-        border: "2px dashed rgba(255, 255, 255, 0.3)",
+        border: "2px dashed rgba(255, 255, 255, 0.5)",
         borderRadius: 2,
         cursor: onClick ? "pointer" : "default",
         transition: "all 0.2s ease",
@@ -31,7 +31,7 @@ const EmptyPlayerSlot: FC<EmptyPlayerSlotProps> = ({ label, onClick }) => {
         "&:hover": onClick
           ? {
               backgroundColor: "rgba(255, 255, 255, 0.15)",
-              borderColor: "rgba(255, 255, 255, 0.5)",
+              borderColor: "rgba(255, 255, 255, 0.8)",
             }
           : {},
       }}
