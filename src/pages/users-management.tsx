@@ -99,7 +99,7 @@ const UsersManagementPage: FC = () => {
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
-      <Container disableGutters maxWidth={false} sx={{ py: 2, pb: 10 }}>
+      <Container disableGutters maxWidth={false} sx={{ pt: 2, px: 0, pb: 10 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
           {/* Отображение ошибок */}
           {usersError && (
@@ -107,11 +107,13 @@ const UsersManagementPage: FC = () => {
               Ошибка загрузки пользователей: {usersError}
             </Alert>
           )}
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Поиск пользователя..."
-          />
+          <div style={{ paddingLeft: 16, paddingRight: 16, width: "100%" }}>
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Поиск пользователя..."
+            />
+          </div>
 
           <Box sx={{ mt: 1 }}>
             {filteredUsers.length === 0 ? (
