@@ -328,7 +328,7 @@ const TeamsManagementPage: FC = () => {
         backgroundColor: "surface",
       }}
     >
-      <Container maxWidth="md" sx={{ px: 0, pt: 0, pb: 10 }}>
+      <Container disableGutters maxWidth={false} sx={{ px: 0, pt: 0, pb: 10 }}>
         <Box
           sx={{
             pt: 1,
