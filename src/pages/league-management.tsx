@@ -334,7 +334,7 @@ const LeagueManagementPage: FC = () => {
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
-      <Container maxWidth="md" sx={{ pt: 2, px: 0, pb: 10 }}>
+      <Container disableGutters maxWidth={false} sx={{ pt: 2, px: 0, pb: 10 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {/* Отображение ошибок */}
           {citiesError && (

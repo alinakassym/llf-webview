@@ -99,7 +99,7 @@ const UsersManagementPage: FC = () => {
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
-      <Container maxWidth="md" sx={{ py: 2, pb: 10 }}>
+      <Container disableGutters maxWidth={false} sx={{ py: 2, pb: 10 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
           {/* Отображение ошибок */}
           {usersError && (

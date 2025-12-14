@@ -100,7 +100,7 @@ const TeamEditPage: FC = () => {
         backgroundColor: "surface",
       }}
     >
-      <Container maxWidth="md" sx={{ px: 0, pt: 0, pb: 10 }}>
+      <Container disableGutters maxWidth={false} sx={{ px: 0, pt: 0, pb: 10 }}>
         {/* Шапка с градиентом */}
         <Box
           sx={{
@@ -206,7 +206,9 @@ const TeamEditPage: FC = () => {
                 gap: 20,
               }}
             >
-              <EmptyPlayerSlot label={PlayerRoleAbbreviation[PlayerRole.Goalkeeper]} />
+              <EmptyPlayerSlot
+                label={PlayerRoleAbbreviation[PlayerRole.Goalkeeper]}
+              />
             </div>
 
             {/* Полузащитники (ПЗЩ) - средний ряд (3 карточки) */}
@@ -221,9 +223,15 @@ const TeamEditPage: FC = () => {
                 gap: 20,
               }}
             >
-              <EmptyPlayerSlot label={PlayerRoleAbbreviation[PlayerRole.Halfback]} />
-              <EmptyPlayerSlot label={PlayerRoleAbbreviation[PlayerRole.Halfback]} />
-              <EmptyPlayerSlot label={PlayerRoleAbbreviation[PlayerRole.Halfback]} />
+              <EmptyPlayerSlot
+                label={PlayerRoleAbbreviation[PlayerRole.Halfback]}
+              />
+              <EmptyPlayerSlot
+                label={PlayerRoleAbbreviation[PlayerRole.Halfback]}
+              />
+              <EmptyPlayerSlot
+                label={PlayerRoleAbbreviation[PlayerRole.Halfback]}
+              />
             </div>
             {/* Защитник (ЗАЩ) и Нападающий (НАП) - нижний ряд (2 карточки) */}
             <div
@@ -236,8 +244,12 @@ const TeamEditPage: FC = () => {
                 gap: 20,
               }}
             >
-              <EmptyPlayerSlot label={PlayerRoleAbbreviation[PlayerRole.Defender]} />
-              <EmptyPlayerSlot label={PlayerRoleAbbreviation[PlayerRole.Forward]} />
+              <EmptyPlayerSlot
+                label={PlayerRoleAbbreviation[PlayerRole.Defender]}
+              />
+              <EmptyPlayerSlot
+                label={PlayerRoleAbbreviation[PlayerRole.Forward]}
+              />
             </div>
           </Box>
         </Box>
