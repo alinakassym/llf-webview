@@ -40,6 +40,26 @@ export const fetchLeagueGroups = createAsyncThunk<
   return response.leagueGroups;
 });
 
+export interface CreateLeagueGroupData {
+  name: string;
+  order: number;
+}
+
+export const createLeagueGroup = createAsyncThunk<
+  LeagueGroup,
+  { data: CreateLeagueGroupData; token: string }
+>("leagueGroups/createLeagueGroup", async ({ data, token }) => {
+  const response = await apiRequest<{ leagueGroup: LeagueGroup }>(
+    "/leagues/groups",
+    {
+      method: "POST",
+      token,
+      body: JSON.stringify(data),
+    }
+  );
+  return response.leagueGroup;
+});
+
 const leagueGroupSlice = createSlice({
   name: "leagueGroups",
   initialState,
@@ -64,6 +84,19 @@ const leagueGroupSlice = createSlice({
       .addCase(fetchLeagueGroups.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed to load league groups";
+      })
+      .addCase(createLeagueGroup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createLeagueGroup.fulfilled, (state, action) => {
+        state.items.push(action.payload);
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(createLeagueGroup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to create league group";
       });
   },
 });

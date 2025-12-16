@@ -1,7 +1,19 @@
 // llf-webview/src/pages/league-management.tsx
 import { type FC, useState, useMemo, useEffect, useCallback } from "react";
-import { Box, Fab, Container, CircularProgress, Alert } from "@mui/material";
+import {
+  Box,
+  Fab,
+  Container,
+  CircularProgress,
+  Alert,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import GroupWorkIcon from "@mui/icons-material/GroupWork";
+import SportsIcon from "@mui/icons-material/Sports";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import SingleCityLeaguesList from "../components/SingleCityLeaguesList";
@@ -9,6 +21,9 @@ import AllCitiesLeaguesList from "../components/AllCitiesLeaguesList";
 import CreateLeagueModal, {
   type CreateLeagueData,
 } from "../components/CreateLeagueModal";
+import CreateLeagueGroupModal, {
+  type CreateLeagueGroupData,
+} from "../components/CreateLeagueGroupModal";
 import EditLeagueModal, {
   type EditLeagueData,
 } from "../components/EditLeagueModal";
@@ -26,6 +41,7 @@ import {
 } from "../store/slices/leagueSlice";
 import {
   fetchLeagueGroups,
+  createLeagueGroup,
   selectLeagueGroups,
   selectLeagueGroupsLoading,
   selectLeagueGroupsError,
@@ -51,7 +67,9 @@ const LeagueManagementPage: FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
   const [selectedGroup, setSelectedGroup] = useState<LeagueGroup>(ALL_GROUPS);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [leagueToEdit, setLeagueToEdit] = useState<{
     id: string;
     name: string;
@@ -236,12 +254,30 @@ const LeagueManagementPage: FC = () => {
     }
   };
 
-  const handleAdd = () => {
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setMenuAnchorEl(null);
+  };
+
+  const handleAddLeague = () => {
+    handleCloseMenu();
     setIsCreateModalOpen(true);
+  };
+
+  const handleAddLeagueGroup = () => {
+    handleCloseMenu();
+    setIsCreateGroupModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsCreateModalOpen(false);
+  };
+
+  const handleCloseGroupModal = () => {
+    setIsCreateGroupModalOpen(false);
   };
 
   const handleCloseEditModal = () => {
@@ -303,6 +339,13 @@ const LeagueManagementPage: FC = () => {
       throw new Error("No auth token available");
     }
     await dispatch(createLeague({ data, token: activeToken })).unwrap();
+  };
+
+  const handleCreateLeagueGroup = async (data: CreateLeagueGroupData) => {
+    if (!activeToken) {
+      throw new Error("No auth token available");
+    }
+    await dispatch(createLeagueGroup({ data, token: activeToken })).unwrap();
   };
 
   const handleCityChangeInModal = useCallback(
@@ -397,7 +440,7 @@ const LeagueManagementPage: FC = () => {
       <Fab
         color="primary"
         aria-label="add"
-        onClick={handleAdd}
+        onClick={handleOpenMenu}
         sx={{
           position: "fixed",
           bottom: 24,
@@ -407,6 +450,33 @@ const LeagueManagementPage: FC = () => {
         <AddIcon />
       </Fab>
 
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={Boolean(menuAnchorEl)}
+        onClose={handleCloseMenu}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+        transformOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+      >
+        <MenuItem onClick={handleAddLeagueGroup}>
+          <ListItemIcon>
+            <GroupWorkIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Добавить группу лиг</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleAddLeague}>
+          <ListItemIcon>
+            <SportsIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Добавить лигу</ListItemText>
+        </MenuItem>
+      </Menu>
+
       <CreateLeagueModal
         open={isCreateModalOpen}
         onClose={handleCloseModal}
@@ -414,6 +484,12 @@ const LeagueManagementPage: FC = () => {
         leagueGroups={leagueGroups}
         onSubmit={handleCreateLeague}
         onCityChange={handleCityChangeInModal}
+      />
+
+      <CreateLeagueGroupModal
+        open={isCreateGroupModalOpen}
+        onClose={handleCloseGroupModal}
+        onSubmit={handleCreateLeagueGroup}
       />
 
       <EditLeagueModal
