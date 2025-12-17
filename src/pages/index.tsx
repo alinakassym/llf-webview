@@ -13,7 +13,7 @@ const HomePage: FC = () => {
           <Box
             sx={{
               borderRadius: 1,
-              padding: "12px 16px",
+              padding: 1.5,
               border: (theme) => `1px solid ${theme.palette.cardBorder}`,
               backgroundColor: (theme) => theme.palette.primary.main,
             }}
