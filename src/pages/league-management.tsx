@@ -420,8 +420,8 @@ const LeagueManagementPage: FC = () => {
         id: group.id,
         name: group.name,
         order: group.order,
-        cityId: 0,
-        sportType: selectedSportType,
+        cityId: group.cityId,
+        sportType: group.sportType,
       });
       setIsEditGroupModalOpen(true);
     }

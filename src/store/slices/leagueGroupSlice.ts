@@ -8,6 +8,9 @@ export interface LeagueGroup {
   name: string;
   description?: string;
   order: number;
+  cityId: number;
+  cityName: string;
+  sportType: string;
 }
 
 interface LeagueGroupsState {
