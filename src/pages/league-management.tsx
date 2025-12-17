@@ -440,6 +440,19 @@ const LeagueManagementPage: FC = () => {
       throw new Error("No auth token available");
     }
     await dispatch(updateLeagueGroup({ id, data, token: activeToken })).unwrap();
+
+    // Перезагружаем список групп лиг после успешного обновления
+    if (selectedCity === ALL_CITIES) {
+      dispatch(fetchLeagueGroups({ token: activeToken, sportType: selectedSportType }));
+    } else if (selectedCityData) {
+      dispatch(
+        fetchLeagueGroups({
+          token: activeToken,
+          cityId: String(selectedCityData.id),
+          sportType: selectedSportType,
+        })
+      );
+    }
   };
 
   const handleCityChangeInModal = useCallback(
