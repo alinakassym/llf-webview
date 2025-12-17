@@ -31,6 +31,7 @@ export interface CreateLeagueData {
   order: number;
   cityId: number;
   leagueGroupId: number;
+  sportType: string;
 }
 
 const CreateLeagueModal: FC<CreateLeagueModalProps> = ({
@@ -46,6 +47,7 @@ const CreateLeagueModal: FC<CreateLeagueModalProps> = ({
     order: 1,
     cityId: 0,
     leagueGroupId: 0,
+    sportType: "2",
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof CreateLeagueData, string>>>({});
@@ -118,6 +120,7 @@ const CreateLeagueModal: FC<CreateLeagueModalProps> = ({
       order: 1,
       cityId: 0,
       leagueGroupId: 0,
+      sportType: "2",
     });
     setErrors({});
     setLoading(false);

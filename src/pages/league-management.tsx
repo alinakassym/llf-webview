@@ -16,7 +16,7 @@ import FilterChips from "../components/FilterChips";
 import SingleCityLeaguesList from "../components/SingleCityLeaguesList";
 import AllCitiesLeaguesList from "../components/AllCitiesLeaguesList";
 import LeagueGroupsList from "../components/LeagueGroupsList";
-import { SelectsRow, type Sport } from "../components/SelectsRow";
+import { SportSelectRow, type Sport } from "../components/SportSelectRow";
 import { SportType, SportTypeName } from "../types/sportType";
 import CreateLeagueModal, {
   type CreateLeagueData,
@@ -113,6 +113,7 @@ const LeagueManagementPage: FC = () => {
     order: number;
     cityId: number;
     leagueGroupId: number;
+    sportType: string;
   } | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [leagueToDelete, setLeagueToDelete] = useState<{
@@ -277,6 +278,7 @@ const LeagueManagementPage: FC = () => {
         order: league.order,
         cityId: Number(league.cityId),
         leagueGroupId: league.leagueGroupId,
+        sportType: league.sportType,
       });
       setIsEditModalOpen(true);
     }
@@ -332,6 +334,7 @@ const LeagueManagementPage: FC = () => {
           order: data.order,
           cityId: leagueToEdit.cityId,
           leagueGroupId: leagueToEdit.leagueGroupId,
+          sportType: leagueToEdit.sportType,
         },
         token: activeToken,
       }),
@@ -435,7 +438,7 @@ const LeagueManagementPage: FC = () => {
           }}
         >
           <Box sx={{ pl: 1 }}>
-            <SelectsRow sports={SPORTS} />
+            <SportSelectRow sports={SPORTS} />
           </Box>
           <Tabs
             value={tabValue}

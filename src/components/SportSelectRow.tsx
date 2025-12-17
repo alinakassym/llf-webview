@@ -1,7 +1,7 @@
-// llf-webview/src/components/SelectsRow.tsx
+// llf-webview/src/components/SportSelectRow.tsx
 
 import type { FC } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Select,
@@ -11,6 +11,8 @@ import {
 import type { SelectChangeEvent } from "@mui/material";
 import { SportIcon } from "./icons/SportIcons";
 
+const SPORT_TYPE_STORAGE_KEY = "selectedSportType";
+
 export type Sport = {
   id: number;
   name: string;
@@ -18,14 +20,33 @@ export type Sport = {
   color: string;
 };
 
-interface SelectsRowProps {
+interface SportSelectRowProps {
   sports: Sport[];
+  onSportChange?: (sportId: string) => void;
 }
 
-export const SelectsRow: FC<SelectsRowProps> = ({ sports }) => {
-  const [selectedSportId, setSelectedSportId] = useState<string>(
-    sports.length > 0 ? String(sports[0].id) : "",
-  );
+export const SportSelectRow: FC<SportSelectRowProps> = ({ sports, onSportChange }) => {
+  // Инициализация: читаем из localStorage или используем "2" (волейбол) по умолчанию
+  const getInitialSportId = (): string => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(SPORT_TYPE_STORAGE_KEY);
+      if (saved) return saved;
+    }
+    return "2"; // Волейбол по умолчанию
+  };
+
+  const [selectedSportId, setSelectedSportId] = useState<string>(getInitialSportId());
+
+  // Сохраняем в localStorage при каждом изменении
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(SPORT_TYPE_STORAGE_KEY, selectedSportId);
+    }
+    // Вызываем callback если он передан
+    if (onSportChange) {
+      onSportChange(selectedSportId);
+    }
+  }, [selectedSportId, onSportChange]);
 
   const handleSportChange = (event: SelectChangeEvent) => {
     setSelectedSportId(event.target.value);

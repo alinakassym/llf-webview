@@ -10,6 +10,7 @@ export interface CreateLeaguePayload {
   order: number;
   cityId: number;
   leagueGroupId: number;
+  sportType: string;
 }
 
 export interface UpdateLeaguePayload {
@@ -17,15 +18,18 @@ export interface UpdateLeaguePayload {
   order: number;
   cityId: number;
   leagueGroupId: number;
+  sportType: string;
 }
 
 export const leagueService = {
   getLeaguesByCityId: async (
     cityId: string,
-    token: string
+    token: string,
+    sportType: string = "2"
   ): Promise<League[]> => {
+    const queryParams = new URLSearchParams({ cityId, sportType });
     const response = await apiRequest<LeaguesResponse>(
-      `/leagues?cityId=${cityId}`,
+      `/leagues?${queryParams.toString()}`,
       {
         method: "GET",
         token,

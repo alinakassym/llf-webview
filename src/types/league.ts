@@ -6,6 +6,7 @@ export interface League {
   leagueGroupId: number;
   leagueGroupName: string;
   order: number;
+  sportType: string;
   icon?: { uri: string };
 }
 

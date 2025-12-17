@@ -21,9 +21,9 @@ const initialState: LeagueState = {
 // Thunk для загрузки лиг по cityId
 export const fetchLeaguesByCityId = createAsyncThunk<
   { cityId: string; leagues: League[] },
-  { cityId: string; token: string }
->("leagues/fetchLeaguesByCityId", async ({ cityId, token }) => {
-  const leagues = await leagueService.getLeaguesByCityId(cityId, token);
+  { cityId: string; token: string; sportType?: string }
+>("leagues/fetchLeaguesByCityId", async ({ cityId, token, sportType }) => {
+  const leagues = await leagueService.getLeaguesByCityId(cityId, token, sportType);
   return { cityId, leagues };
 });
 
