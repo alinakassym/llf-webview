@@ -104,6 +104,7 @@ const LeagueManagementPage: FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
   const [selectedGroup, setSelectedGroup] = useState<LeagueGroup>(ALL_GROUPS);
+  const [selectedSportType, setSelectedSportType] = useState<string>("2");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -187,7 +188,7 @@ const LeagueManagementPage: FC = () => {
     dispatch,
   ]);
 
-  // Загружаем лиги при выборе города
+  // Загружаем лиги при выборе города или изменении спорта
   useEffect(() => {
     if (!activeToken || authLoading || webViewLoading || cities.length === 0) {
       return;
@@ -200,6 +201,7 @@ const LeagueManagementPage: FC = () => {
           fetchLeaguesByCityId({
             cityId: String(city.id),
             token: activeToken,
+            sportType: selectedSportType,
           }),
         );
       });
@@ -210,6 +212,7 @@ const LeagueManagementPage: FC = () => {
           fetchLeaguesByCityId({
             cityId: String(selectedCityData.id),
             token: activeToken,
+            sportType: selectedSportType,
           }),
         );
       }
@@ -221,6 +224,7 @@ const LeagueManagementPage: FC = () => {
     activeToken,
     authLoading,
     webViewLoading,
+    selectedSportType,
     dispatch,
   ]);
 
@@ -266,6 +270,10 @@ const LeagueManagementPage: FC = () => {
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+
+  const handleSportChange = (sportId: string) => {
+    setSelectedSportType(sportId);
   };
 
   const handleEdit = (leagueId: string) => {
@@ -438,7 +446,7 @@ const LeagueManagementPage: FC = () => {
           }}
         >
           <Box sx={{ pl: 1 }}>
-            <SportSelectRow sports={SPORTS} />
+            <SportSelectRow sports={SPORTS} onSportChange={handleSportChange} />
           </Box>
           <Tabs
             value={tabValue}
@@ -535,7 +543,7 @@ const LeagueManagementPage: FC = () => {
               mt: 0,
               px: 2,
               pb: 8,
-              height: "calc(100vh - 174px)",
+              height: "calc(100vh - 221px)",
               overflowY: "auto",
             }}
           >
