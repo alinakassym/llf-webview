@@ -8,8 +8,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 interface ManagementItemCardProps {
   title: string;
   subtitle?: string;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 const ManagementItemCard: FC<ManagementItemCardProps> = ({

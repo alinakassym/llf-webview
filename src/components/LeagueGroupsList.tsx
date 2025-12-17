@@ -1,3 +1,5 @@
+// llf-webview/src/components/LeagueGroupsList.tsx
+
 import { type FC } from "react";
 import { Box } from "@mui/material";
 import ManagementItemCard from "./ManagementItemCard";
@@ -33,8 +35,8 @@ const LeagueGroupsList: FC<LeagueGroupsListProps> = ({
       {leagueGroups.map((group) => (
         <ManagementItemCard
           key={group.id}
-          title={group.name}
-          subtitle={group.description || `Порядок: ${group.order}`}
+          title={`${group.order}: ${group.name}`}
+          subtitle={group.cityName}
           onEdit={onEdit ? () => onEdit(group.id) : undefined}
           onDelete={onDelete ? () => onDelete(group.id, group.name) : undefined}
         />
