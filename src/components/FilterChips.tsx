@@ -5,12 +5,14 @@ interface FilterChipsProps<T extends string> {
   options: readonly T[];
   selected: T;
   onSelect: (value: T) => void;
+  getKey?: (option: T, index: number) => string;
 }
 
 const FilterChips = <T extends string>({
   options,
   selected,
   onSelect,
+  getKey,
 }: FilterChipsProps<T>): ReturnType<FC> => {
   return (
     <Box
@@ -25,9 +27,9 @@ const FilterChips = <T extends string>({
         scrollbarWidth: "none",
       }}
     >
-      {options.map((option) => (
+      {options.map((option, index) => (
         <Chip
-          key={option}
+          key={getKey ? getKey(option, index) : `${option}-${index}`}
           label={option}
           onClick={() => onSelect(option)}
           color={selected === option ? "primary" : "default"}
