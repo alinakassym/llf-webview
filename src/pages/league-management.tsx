@@ -24,6 +24,9 @@ import CreateLeagueModal, {
 import CreateLeagueGroupModal, {
   type CreateLeagueGroupData,
 } from "../components/CreateLeagueGroupModal";
+import EditLeagueGroupModal, {
+  type EditLeagueGroupData,
+} from "../components/EditLeagueGroupModal";
 import EditLeagueModal, {
   type EditLeagueData,
 } from "../components/EditLeagueModal";
@@ -43,6 +46,7 @@ import {
 import {
   fetchLeagueGroups,
   createLeagueGroup,
+  updateLeagueGroup,
   selectLeagueGroups,
   selectLeagueGroupsLoading,
   selectLeagueGroupsError,
@@ -109,12 +113,20 @@ const LeagueManagementPage: FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);
   const [leagueToEdit, setLeagueToEdit] = useState<{
     id: string;
     name: string;
     order: number;
     cityId: number;
     leagueGroupId: number;
+    sportType: string;
+  } | null>(null);
+  const [leagueGroupToEdit, setLeagueGroupToEdit] = useState<{
+    id: number;
+    name: string;
+    order: number;
+    cityId: number;
     sportType: string;
   } | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -401,6 +413,35 @@ const LeagueManagementPage: FC = () => {
     await dispatch(createLeagueGroup({ data, token: activeToken })).unwrap();
   };
 
+  const handleEditLeagueGroup = (groupId: number) => {
+    const group = leagueGroups.find((g) => g.id === groupId);
+    if (group) {
+      setLeagueGroupToEdit({
+        id: group.id,
+        name: group.name,
+        order: group.order,
+        cityId: 0,
+        sportType: selectedSportType,
+      });
+      setIsEditGroupModalOpen(true);
+    }
+  };
+
+  const handleCloseEditGroupModal = () => {
+    setIsEditGroupModalOpen(false);
+    setLeagueGroupToEdit(null);
+  };
+
+  const handleUpdateLeagueGroup = async (
+    id: number,
+    data: EditLeagueGroupData
+  ) => {
+    if (!activeToken) {
+      throw new Error("No auth token available");
+    }
+    await dispatch(updateLeagueGroup({ id, data, token: activeToken })).unwrap();
+  };
+
   const handleCityChangeInModal = useCallback(
     (cityId: number) => {
       if (!activeToken) return;
@@ -587,7 +628,10 @@ const LeagueManagementPage: FC = () => {
               overflowY: "auto",
             }}
           >
-            <LeagueGroupsList leagueGroups={leagueGroups} />
+            <LeagueGroupsList
+              leagueGroups={leagueGroups}
+              onEdit={handleEditLeagueGroup}
+            />
           </Box>
         </TabPanel>
       </Container>
@@ -620,6 +664,15 @@ const LeagueManagementPage: FC = () => {
         onSubmit={handleCreateLeagueGroup}
         cities={cities}
         sportType={selectedSportType}
+      />
+
+      <EditLeagueGroupModal
+        open={isEditGroupModalOpen}
+        onClose={handleCloseEditGroupModal}
+        onSubmit={handleUpdateLeagueGroup}
+        cities={cities}
+        sportType={selectedSportType}
+        initialData={leagueGroupToEdit}
       />
 
       <EditLeagueModal

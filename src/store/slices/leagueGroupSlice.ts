@@ -54,6 +54,13 @@ export interface CreateLeagueGroupData {
   sportType: string;
 }
 
+export interface UpdateLeagueGroupData {
+  name: string;
+  order: number;
+  cityId: number;
+  sportType: string;
+}
+
 export const createLeagueGroup = createAsyncThunk<
   LeagueGroup,
   { data: CreateLeagueGroupData; token: string }
@@ -67,6 +74,18 @@ export const createLeagueGroup = createAsyncThunk<
     }
   );
   return response;
+});
+
+export const updateLeagueGroup = createAsyncThunk<
+  { id: number; data: UpdateLeagueGroupData },
+  { id: number; data: UpdateLeagueGroupData; token: string }
+>("leagueGroups/updateLeagueGroup", async ({ id, data, token }) => {
+  await apiRequest<void>(`/leagues/groups/${id}`, {
+    method: "PUT",
+    token,
+    body: JSON.stringify(data),
+  });
+  return { id, data };
 });
 
 const leagueGroupSlice = createSlice({
@@ -106,6 +125,27 @@ const leagueGroupSlice = createSlice({
       .addCase(createLeagueGroup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed to create league group";
+      })
+      .addCase(updateLeagueGroup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateLeagueGroup.fulfilled, (state, action) => {
+        const index = state.items.findIndex(
+          (item) => item.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.items[index] = {
+            ...state.items[index],
+            ...action.payload.data,
+          };
+        }
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(updateLeagueGroup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to update league group";
       });
   },
 });
