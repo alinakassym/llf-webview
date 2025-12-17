@@ -18,9 +18,9 @@ const initialState: TeamState = {
 // Thunk для загрузки команд по cityId
 export const fetchTeamsByCityId = createAsyncThunk<
   { cityId: string; teams: Team[] },
-  { cityId: string; token: string; leagueId?: string }
->("teams/fetchTeamsByCityId", async ({ cityId, token, leagueId }) => {
-  const teams = await teamService.getTeams(token, cityId, leagueId);
+  { cityId: string; token: string; leagueId?: string; sportType?: string }
+>("teams/fetchTeamsByCityId", async ({ cityId, token, leagueId, sportType }) => {
+  const teams = await teamService.getTeams(token, cityId, leagueId, sportType);
   return { cityId, teams };
 });
 

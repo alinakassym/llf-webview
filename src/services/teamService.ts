@@ -11,11 +11,13 @@ export const teamService = {
   getTeams: async (
     token: string,
     cityId?: string,
-    leagueId?: string
+    leagueId?: string,
+    sportType?: string
   ): Promise<Team[]> => {
     const params = new URLSearchParams();
     if (cityId) params.append("cityId", cityId);
     if (leagueId) params.append("leagueId", leagueId);
+    if (sportType) params.append("sportType", sportType);
 
     const queryString = params.toString();
     const url = queryString ? `/teams?${queryString}` : "/teams";

@@ -8,6 +8,8 @@ import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import ManagementTeamCard from "../components/ManagementTeamCard";
 import PlayersList from "../components/PlayersList";
+import { SportSelectRow, type Sport } from "../components/SportSelectRow";
+import { SportType, SportTypeName } from "../types/sportType";
 import CreateTeamModal, {
   type CreateTeamData,
 } from "../components/CreateTeamModal";
@@ -55,6 +57,21 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
+const SPORTS: Sport[] = [
+  {
+    id: SportType.Volleyball,
+    name: SportTypeName[SportType.Volleyball],
+    icon: "volleyball",
+    color: "#5060D8",
+  },
+  {
+    id: SportType.Football,
+    name: SportTypeName[SportType.Football],
+    icon: "football",
+    color: "#E86C3D",
+  },
+];
+
 const TeamsManagementPage: FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -69,6 +86,7 @@ const TeamsManagementPage: FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [playersSearchQuery, setPlayersSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
+  const [selectedSportType, setSelectedSportType] = useState<string>("2");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreatePlayerModalOpen, setIsCreatePlayerModalOpen] = useState(false);
 
@@ -85,6 +103,10 @@ const TeamsManagementPage: FC = () => {
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+
+  const handleSportChange = (sportId: string) => {
+    setSelectedSportType(sportId);
   };
 
   // Загружаем города при монтировании
@@ -125,6 +147,7 @@ const TeamsManagementPage: FC = () => {
           fetchTeamsByCityId({
             cityId: String(city.id),
             token: activeToken,
+            sportType: selectedSportType,
           }),
         );
       });
@@ -135,6 +158,7 @@ const TeamsManagementPage: FC = () => {
           fetchTeamsByCityId({
             cityId: String(selectedCityData.id),
             token: activeToken,
+            sportType: selectedSportType,
           }),
         );
       }
@@ -145,6 +169,7 @@ const TeamsManagementPage: FC = () => {
     activeToken,
     authLoading,
     webViewLoading,
+    selectedSportType,
     cities,
     dispatch,
   ]);
@@ -335,18 +360,23 @@ const TeamsManagementPage: FC = () => {
             pr: 1,
             minHeight: 48,
             maxHeight: 48,
+            display: "flex",
             borderBottom: 1,
             borderColor: "divider",
             background: (theme) =>
               `linear-gradient(to right, ${theme.palette.gradient.join(", ")})`,
           }}
         >
+          <Box sx={{ pl: 1 }}>
+            <SportSelectRow sports={SPORTS} onSportChange={handleSportChange} />
+          </Box>
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
             aria-label="teams management tabs"
             variant="fullWidth"
             sx={{
+              width: "100%",
               "& .MuiTabs-indicator": {
                 display: "none",
               },
