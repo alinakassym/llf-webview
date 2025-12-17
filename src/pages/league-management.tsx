@@ -159,22 +159,23 @@ const LeagueManagementPage: FC = () => {
     [cities, selectedCity],
   );
 
-  // Загружаем группы лиг в зависимости от выбранного города
+  // Загружаем группы лиг в зависимости от выбранного города и спорта
   useEffect(() => {
     if (!activeToken || authLoading || webViewLoading) {
       return;
     }
 
     if (selectedCity === ALL_CITIES) {
-      // Загружаем все группы лиг без фильтрации
-      dispatch(fetchLeagueGroups({ token: activeToken }));
+      // Загружаем все группы лиг с фильтрацией по спорту
+      dispatch(fetchLeagueGroups({ token: activeToken, sportType: selectedSportType }));
     } else {
-      // Загружаем группы лиг для конкретного города
+      // Загружаем группы лиг для конкретного города и спорта
       if (selectedCityData) {
         dispatch(
           fetchLeagueGroups({
             token: activeToken,
             cityId: String(selectedCityData.id),
+            sportType: selectedSportType,
           }),
         );
       }
@@ -185,6 +186,7 @@ const LeagueManagementPage: FC = () => {
     activeToken,
     authLoading,
     webViewLoading,
+    selectedSportType,
     dispatch,
   ]);
 
@@ -396,10 +398,14 @@ const LeagueManagementPage: FC = () => {
     (cityId: number) => {
       if (!activeToken) return;
       dispatch(
-        fetchLeagueGroups({ token: activeToken, cityId: String(cityId) }),
+        fetchLeagueGroups({
+          token: activeToken,
+          cityId: String(cityId),
+          sportType: selectedSportType,
+        }),
       );
     },
-    [activeToken, dispatch],
+    [activeToken, selectedSportType, dispatch],
   );
 
   // Если идет загрузка - показываем loader на весь экран

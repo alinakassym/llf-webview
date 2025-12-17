@@ -28,10 +28,17 @@ const initialState: LeagueGroupsState = {
 
 export const fetchLeagueGroups = createAsyncThunk<
   LeagueGroup[],
-  { token: string; cityId?: string }
->("leagueGroups/fetchLeagueGroups", async ({ token, cityId }) => {
-  const endpoint = cityId
-    ? `/leagues/groups?cityId=${cityId}`
+  { token: string; cityId?: string; sportType?: string }
+>("leagueGroups/fetchLeagueGroups", async ({ token, cityId, sportType }) => {
+  const queryParams = new URLSearchParams();
+  if (cityId) {
+    queryParams.append("cityId", cityId);
+  }
+  if (sportType) {
+    queryParams.append("sportType", sportType);
+  }
+  const endpoint = queryParams.toString()
+    ? `/leagues/groups?${queryParams.toString()}`
     : "/leagues/groups";
   const response = await apiRequest<LeagueGroupsResponse>(endpoint, {
     method: "GET",
