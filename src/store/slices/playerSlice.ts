@@ -48,9 +48,9 @@ export const fetchAllPlayers = createAsyncThunk<
 // Thunk для загрузки профилей игроков
 export const fetchPlayerProfiles = createAsyncThunk<
   PlayerProfile[],
-  { token: string }
->("players/fetchPlayerProfiles", async ({ token }) => {
-  const profiles = await playerService.getPlayerProfiles(token);
+  { token: string; sportType?: string }
+>("players/fetchPlayerProfiles", async ({ token, sportType }) => {
+  const profiles = await playerService.getPlayerProfiles(token, sportType);
   return profiles;
 });
 

@@ -32,14 +32,22 @@ export const playerService = {
     return response.players;
   },
 
-  getPlayerProfiles: async (token: string): Promise<PlayerProfile[]> => {
-    const response = await apiRequest<{ profiles: PlayerProfile[] }>(
-      "/players/profiles",
-      {
-        method: "GET",
-        token,
-      }
-    );
+  getPlayerProfiles: async (
+    token: string,
+    sportType?: string
+  ): Promise<PlayerProfile[]> => {
+    const params = new URLSearchParams();
+    if (sportType) params.append("sportType", sportType);
+
+    const queryString = params.toString();
+    const url = queryString
+      ? `/players/profiles?${queryString}`
+      : "/players/profiles";
+
+    const response = await apiRequest<{ profiles: PlayerProfile[] }>(url, {
+      method: "GET",
+      token,
+    });
     return response.profiles;
   },
 

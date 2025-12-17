@@ -116,12 +116,14 @@ const TeamsManagementPage: FC = () => {
     }
   }, [activeToken, authLoading, webViewLoading, dispatch]);
 
-  // Загружаем профили игроков при монтировании
+  // Загружаем профили игроков при монтировании и при изменении sportType
   useEffect(() => {
     if (activeToken && !authLoading && !webViewLoading) {
-      dispatch(fetchPlayerProfiles({ token: activeToken }));
+      dispatch(
+        fetchPlayerProfiles({ token: activeToken, sportType: selectedSportType })
+      );
     }
-  }, [activeToken, authLoading, webViewLoading, dispatch]);
+  }, [activeToken, authLoading, webViewLoading, selectedSportType, dispatch]);
 
   const cityOptions = useMemo(() => {
     const cityNames = cities.map((city) => city.name);

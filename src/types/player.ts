@@ -1,5 +1,3 @@
-import { PlayerRole } from "./playerRole";
-
 export interface Player {
   id: number;
   userId: number;
@@ -14,14 +12,18 @@ export interface Player {
 }
 
 export interface PlayerProfile {
-  userId: number;
+  id: number;
+  userId: number | null;
   firstName: string;
   lastName: string;
   middleName: string;
   fullName: string;
   dateOfBirth: string;
   age: number;
-  position: PlayerRole;
+  sportType: string;
+  position: string;
+  volleyballPosition: string;
+  isProfessionalVolleyballPlayer: boolean;
   yellowCards: number;
   redCards: number;
   totalGoals: number;
