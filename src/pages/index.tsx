@@ -1,24 +1,143 @@
 import type { FC } from 'react'
 import { Link } from 'react-router-dom'
+import { Box } from "@mui/material";
 
 const HomePage: FC = () => {
   return (
     <main style={{ padding: 16 }}>
-      <h1 style={{ marginBottom: 16 }}>Главная</h1>
-
       <nav style={{ display: "grid", gap: 12 }}>
-        <Link to="/users-management">Управление пользователями</Link>
-        <Link to="/cities-management">Управление городами</Link>
-        <Link to="/league-management">Управление лигами</Link>
-        <Link to="/seasons-management">Управление сезонами</Link>
-        <Link to="/teams-management">Управление командами и игроками</Link>
-        <Link to="/competition-plan">План соревнований</Link>
-        <Link to="/regulations">Регламент</Link>
-        <Link to="/rules">Правила</Link>
-        <Link to="/contacts">Контакты</Link>
+        <Link
+          to="/users-management"
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          <Box
+            sx={{
+              borderRadius: 1,
+              padding: "12px 16px",
+              border: (theme) => `1px solid ${theme.palette.cardBorder}`,
+              backgroundColor: (theme) => theme.palette.primary.main,
+            }}
+          >
+            Управление пользователями
+          </Box>
+        </Link>
+        <Link
+          to="/cities-management"
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          <Box
+            sx={{
+              borderRadius: 1,
+              padding: 1.5,
+              border: (theme) => `1px solid ${theme.palette.cardBorder}`,
+              backgroundColor: (theme) => theme.palette.primary.main,
+            }}
+          >
+            Управление городами
+          </Box>
+        </Link>
+        <Link
+          to="/league-management"
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          <Box
+            sx={{
+              borderRadius: 1,
+              padding: 1.5,
+              border: (theme) => `1px solid ${theme.palette.cardBorder}`,
+              backgroundColor: (theme) => theme.palette.primary.main,
+            }}
+          >
+            Управление лигами
+          </Box>
+        </Link>
+        <Link
+          to="/seasons-management"
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          <Box
+            sx={{
+              borderRadius: 1,
+              padding: 1.5,
+              border: (theme) => `1px solid ${theme.palette.cardBorder}`,
+              backgroundColor: (theme) => theme.palette.primary.main,
+            }}
+          >
+            Управление сезонами
+          </Box>
+        </Link>
+        <Link
+          to="/teams-management"
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          <Box
+            sx={{
+              borderRadius: 1,
+              padding: 1.5,
+              border: (theme) => `1px solid ${theme.palette.cardBorder}`,
+              backgroundColor: (theme) => theme.palette.primary.main,
+            }}
+          >
+            Управление командами и игроками
+          </Box>
+        </Link>
+        <Link
+          to="/competition-plan"
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          <Box
+            sx={{
+              borderRadius: 1,
+              padding: 1.5,
+              border: (theme) => `1px solid ${theme.palette.cardBorder}`,
+              backgroundColor: (theme) => theme.palette.secondary.main,
+            }}
+          >
+            План соревнований
+          </Box>
+        </Link>
+        <Link
+          to="/regulations"
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          <Box
+            sx={{
+              borderRadius: 1,
+              padding: 1.5,
+              border: (theme) => `1px solid ${theme.palette.cardBorder}`,
+              backgroundColor: (theme) => theme.palette.secondary.main,
+            }}
+          >
+            Регламент
+          </Box>
+        </Link>
+        <Link to="/rules" style={{ textDecoration: "none", color: "white" }}>
+          <Box
+            sx={{
+              borderRadius: 1,
+              padding: 1.5,
+              border: (theme) => `1px solid ${theme.palette.cardBorder}`,
+              backgroundColor: (theme) => theme.palette.secondary.main,
+            }}
+          >
+            Правила
+          </Box>
+        </Link>
+        <Link to="/contacts" style={{ textDecoration: "none", color: "white" }}>
+          <Box
+            sx={{
+              borderRadius: 1,
+              padding: 1.5,
+              border: (theme) => `1px solid ${theme.palette.cardBorder}`,
+              backgroundColor: (theme) => theme.palette.secondary.main,
+            }}
+          >
+            Контакты
+          </Box>
+        </Link>
       </nav>
     </main>
   );
-}
+};
 
 export default HomePage
