@@ -11,28 +11,38 @@ import {
   TextField,
   Button,
   CircularProgress,
+  MenuItem,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import type { City } from "../types/city";
 
 interface CreateLeagueGroupModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: CreateLeagueGroupData) => Promise<void>;
+  cities: City[];
+  sportType: string;
 }
 
 export interface CreateLeagueGroupData {
   name: string;
   order: number;
+  cityId: number;
+  sportType: string;
 }
 
 const CreateLeagueGroupModal: FC<CreateLeagueGroupModalProps> = ({
   open,
   onClose,
   onSubmit,
+  cities,
+  sportType,
 }) => {
   const [formData, setFormData] = useState<CreateLeagueGroupData>({
     name: "",
     order: 1,
+    cityId: 0,
+    sportType,
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<
@@ -42,7 +52,7 @@ const CreateLeagueGroupModal: FC<CreateLeagueGroupModalProps> = ({
   const handleChange =
     (field: keyof CreateLeagueGroupData) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (field === "name") {
+      if (field === "name" || field === "sportType") {
         setFormData((prev) => ({ ...prev, [field]: e.target.value }));
       } else {
         const numValue = Number(e.target.value);
@@ -60,6 +70,9 @@ const CreateLeagueGroupModal: FC<CreateLeagueGroupModalProps> = ({
 
     if (!formData.name.trim()) {
       newErrors.name = "Название обязательно";
+    }
+    if (formData.cityId === 0) {
+      newErrors.cityId = "Выберите город";
     }
 
     setErrors(newErrors);
@@ -87,6 +100,8 @@ const CreateLeagueGroupModal: FC<CreateLeagueGroupModalProps> = ({
       setFormData({
         name: "",
         order: 1,
+        cityId: 0,
+        sportType,
       });
       setErrors({});
       onClose();
@@ -130,6 +145,9 @@ const CreateLeagueGroupModal: FC<CreateLeagueGroupModalProps> = ({
 
       <DialogContent dividers>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <p style={{ margin: 0 }}>
+            {sportType === "2" ? "Волейбол" : "Футбол"}
+          </p>
           <TextField
             label="Название группы"
             fullWidth
@@ -154,6 +172,27 @@ const CreateLeagueGroupModal: FC<CreateLeagueGroupModalProps> = ({
             required
             slotProps={{ htmlInput: { min: 1 } }}
           />
+
+          <TextField
+            label="Город"
+            select
+            value={formData.cityId}
+            onChange={handleChange("cityId")}
+            error={Boolean(errors.cityId)}
+            helperText={errors.cityId}
+            disabled={loading}
+            fullWidth
+            required
+          >
+            <MenuItem value={0} disabled>
+              Выберите город
+            </MenuItem>
+            {cities.map((city) => (
+              <MenuItem key={city.id} value={city.id}>
+                {city.name}
+              </MenuItem>
+            ))}
+          </TextField>
         </Box>
       </DialogContent>
 

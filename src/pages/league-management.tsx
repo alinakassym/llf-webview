@@ -611,6 +611,8 @@ const LeagueManagementPage: FC = () => {
         open={isCreateGroupModalOpen}
         onClose={handleCloseGroupModal}
         onSubmit={handleCreateLeagueGroup}
+        cities={cities}
+        sportType={selectedSportType}
       />
 
       <EditLeagueModal

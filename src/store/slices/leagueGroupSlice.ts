@@ -50,6 +50,8 @@ export const fetchLeagueGroups = createAsyncThunk<
 export interface CreateLeagueGroupData {
   name: string;
   order: number;
+  cityId: number;
+  sportType: string;
 }
 
 export const createLeagueGroup = createAsyncThunk<
