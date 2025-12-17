@@ -1,4 +1,5 @@
 // llf-webview/src/pages/league-management.tsx
+
 import { type FC, useState, useMemo, useEffect, useCallback } from "react";
 import {
   Box,
@@ -6,18 +7,15 @@ import {
   Container,
   CircularProgress,
   Alert,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import GroupWorkIcon from "@mui/icons-material/GroupWork";
-import SportsIcon from "@mui/icons-material/Sports";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import SingleCityLeaguesList from "../components/SingleCityLeaguesList";
 import AllCitiesLeaguesList from "../components/AllCitiesLeaguesList";
+import LeagueGroupsList from "../components/LeagueGroupsList";
 import CreateLeagueModal, {
   type CreateLeagueData,
 } from "../components/CreateLeagueModal";
@@ -50,6 +48,28 @@ import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import { ALL_CITIES, ALL_GROUPS } from "../constants/leagueManagement";
 
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`leagues-tabpanel-${index}`}
+      aria-labelledby={`leagues-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ py: 2 }}>{children}</Box>}
+    </div>
+  );
+}
+
 const LeagueManagementPage: FC = () => {
   const dispatch = useAppDispatch();
   const { token, loading: authLoading } = useAuth();
@@ -63,13 +83,13 @@ const LeagueManagementPage: FC = () => {
   const leagueGroupsLoading = useAppSelector(selectLeagueGroupsLoading);
   const leagueGroupsError = useAppSelector(selectLeagueGroupsError);
 
+  const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
   const [selectedGroup, setSelectedGroup] = useState<LeagueGroup>(ALL_GROUPS);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [leagueToEdit, setLeagueToEdit] = useState<{
     id: string;
     name: string;
@@ -226,6 +246,10 @@ const LeagueManagementPage: FC = () => {
     return grouped;
   }, [selectedCity, filteredLeagues]);
 
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
   const handleEdit = (leagueId: string) => {
     // Находим лигу по ID
     const league = leagues.find((l) => String(l.id) === String(leagueId));
@@ -254,22 +278,14 @@ const LeagueManagementPage: FC = () => {
     }
   };
 
-  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setMenuAnchorEl(event.currentTarget);
-  };
-
-  const handleCloseMenu = () => {
-    setMenuAnchorEl(null);
-  };
-
-  const handleAddLeague = () => {
-    handleCloseMenu();
-    setIsCreateModalOpen(true);
-  };
-
-  const handleAddLeagueGroup = () => {
-    handleCloseMenu();
-    setIsCreateGroupModalOpen(true);
+  const handleAdd = () => {
+    if (tabValue === 0) {
+      // Вкладка "Лиги" - открываем модальное окно создания лиги
+      setIsCreateModalOpen(true);
+    } else if (tabValue === 1) {
+      // Вкладка "Группы лиг" - открываем модальное окно создания группы лиг
+      setIsCreateGroupModalOpen(true);
+    }
   };
 
   const handleCloseModal = () => {
@@ -301,7 +317,7 @@ const LeagueManagementPage: FC = () => {
           leagueGroupId: leagueToEdit.leagueGroupId,
         },
         token: activeToken,
-      })
+      }),
     ).unwrap();
   };
 
@@ -376,33 +392,102 @@ const LeagueManagementPage: FC = () => {
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
-      <Container disableGutters maxWidth={false} sx={{ pt: 2, px: 0, pb: 10 }}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {/* Отображение ошибок */}
-          {citiesError && (
-            <Alert severity="error" sx={{ mb: 1 }}>
-              Ошибка загрузки городов: {citiesError}
-            </Alert>
-          )}
-          {leagueGroupsError && (
-            <Alert severity="error" sx={{ mb: 1 }}>
-              Ошибка загрузки групп лиг: {leagueGroupsError}
-            </Alert>
-          )}
-          <div style={{ paddingLeft: 16, paddingRight: 16, width: "100%" }}>
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Поиск лиги..."
+    <Box
+      sx={{
+        position: "fixed",
+        left: 0,
+        top: 0,
+        right: 0,
+        minHeight: "100vh",
+        backgroundColor: "surface",
+      }}
+    >
+      <Container disableGutters maxWidth={false} sx={{ px: 0, pt: 0, pb: 10 }}>
+        <Box
+          sx={{
+            pt: 1,
+            pr: 1,
+            minHeight: 48,
+            maxHeight: 48,
+            borderBottom: 1,
+            borderColor: "divider",
+            background: (theme) =>
+              `linear-gradient(to right, ${theme.palette.gradient.join(", ")})`,
+          }}
+        >
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            aria-label="league management tabs"
+            variant="fullWidth"
+            sx={{
+              "& .MuiTabs-indicator": {
+                display: "none",
+              },
+              "& .MuiTab-root": {
+                ml: 1,
+                textTransform: "uppercase",
+                fontSize: "12px",
+                fontWeight: 400,
+                minHeight: 32,
+                maxHeight: 32,
+                color: "#FFFFFF",
+                borderRadius: 1,
+                backgroundColor: "rgba(0, 0, 0, 0.2)",
+                "&.Mui-selected": {
+                  backgroundColor: "dark",
+                  color: "#FFFFFF",
+                },
+              },
+            }}
+          >
+            <Tab
+              label="Лиги"
+              id="leagues-tab-0"
+              aria-controls="leagues-tabpanel-0"
             />
-          </div>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            <FilterChips
-              options={cityOptions as readonly string[]}
-              selected={selectedCity}
-              onSelect={setSelectedCity}
+            <Tab
+              label="Группы лиг"
+              id="leagues-tab-1"
+              aria-controls="leagues-tabpanel-1"
             />
+          </Tabs>
+        </Box>
+
+        <TabPanel value={tabValue} index={0}>
+          <Box
+            sx={{
+              pb: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
+            {/* Отображение ошибок */}
+            {citiesError && (
+              <Alert severity="error" sx={{ mb: 1 }}>
+                Ошибка загрузки городов: {citiesError}
+              </Alert>
+            )}
+            {leagueGroupsError && (
+              <Alert severity="error" sx={{ mb: 1 }}>
+                Ошибка загрузки групп лиг: {leagueGroupsError}
+              </Alert>
+            )}
+            <div style={{ paddingLeft: 16, paddingRight: 16, width: "100%" }}>
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Поиск лиги..."
+              />
+            </div>
+            <div style={{ width: "100%" }}>
+              <FilterChips
+                options={cityOptions as readonly string[]}
+                selected={selectedCity}
+                onSelect={setSelectedCity}
+              />
+            </div>
             {/* Показываем фильтр по группам только если выбран конкретный город */}
             {leagueGroupsLoading && (
               <Box sx={{ display: "flex", justifyContent: "center", py: 1 }}>
@@ -410,15 +495,24 @@ const LeagueManagementPage: FC = () => {
               </Box>
             )}
             {!leagueGroupsLoading && selectedCity !== ALL_CITIES && (
-              <FilterChips
-                options={groupOptions}
-                selected={selectedGroup}
-                onSelect={setSelectedGroup}
-              />
+              <div style={{ width: "100%" }}>
+                <FilterChips
+                  options={groupOptions}
+                  selected={selectedGroup}
+                  onSelect={setSelectedGroup}
+                />
+              </div>
             )}
           </Box>
-
-          <Box sx={{ px: 2 }}>
+          <Box
+            sx={{
+              mt: 0,
+              px: 2,
+              pb: 8,
+              height: "calc(100vh - 174px)",
+              overflowY: "auto",
+            }}
+          >
             {selectedCity === ALL_CITIES && leaguesByCity ? (
               <AllCitiesLeaguesList
                 leaguesByCity={leaguesByCity}
@@ -434,13 +528,27 @@ const LeagueManagementPage: FC = () => {
               />
             )}
           </Box>
-        </Box>
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={1}>
+          <Box
+            sx={{
+              mt: 0,
+              px: 2,
+              pb: 8,
+              height: "calc(100vh - 125px)",
+              overflowY: "auto",
+            }}
+          >
+            <LeagueGroupsList leagueGroups={leagueGroups} />
+          </Box>
+        </TabPanel>
       </Container>
 
       <Fab
         color="primary"
         aria-label="add"
-        onClick={handleOpenMenu}
+        onClick={handleAdd}
         sx={{
           position: "fixed",
           bottom: 24,
@@ -449,33 +557,6 @@ const LeagueManagementPage: FC = () => {
       >
         <AddIcon />
       </Fab>
-
-      <Menu
-        anchorEl={menuAnchorEl}
-        open={Boolean(menuAnchorEl)}
-        onClose={handleCloseMenu}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
-        transformOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-      >
-        <MenuItem onClick={handleAddLeagueGroup}>
-          <ListItemIcon>
-            <GroupWorkIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Добавить группу лиг</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleAddLeague}>
-          <ListItemIcon>
-            <SportsIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Добавить лигу</ListItemText>
-        </MenuItem>
-      </Menu>
 
       <CreateLeagueModal
         open={isCreateModalOpen}

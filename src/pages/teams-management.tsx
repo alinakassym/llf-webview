@@ -408,8 +408,8 @@ const TeamsManagementPage: FC = () => {
             sx={{
               mt: 0,
               px: 2,
-              pb: 8,
-              height: "calc(100vh - 190px)",
+              pb: 10,
+              height: "calc(100vh - 174px)",
               overflowY: "auto",
             }}
           >
@@ -488,7 +488,7 @@ const TeamsManagementPage: FC = () => {
             sx={{
               mt: 0,
               px: 2,
-              pb: 8,
+              pb: 12,
               height: "calc(100vh - 125px)",
               overflowY: "auto",
             }}
