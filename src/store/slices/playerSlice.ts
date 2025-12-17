@@ -30,9 +30,9 @@ const initialState: PlayerState = {
 // Thunk для загрузки игроков по команде
 export const fetchPlayers = createAsyncThunk<
   { teamId: string; players: Player[] },
-  { teamId: string; token: string; seasonId?: string }
->("players/fetchPlayers", async ({ teamId, token, seasonId }) => {
-  const players = await playerService.getPlayers(token, teamId, seasonId);
+  { teamId: string; token: string; seasonId?: string; sportType?: string }
+>("players/fetchPlayers", async ({ teamId, token, seasonId, sportType }) => {
+  const players = await playerService.getPlayers(token, teamId, seasonId, sportType);
   return { teamId, players };
 });
 

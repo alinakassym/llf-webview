@@ -225,11 +225,12 @@ const TeamsManagementPage: FC = () => {
         fetchPlayers({
           teamId: String(team.id),
           token: activeToken,
+          sportType: selectedSportType,
         }),
       );
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [teamIdsKey, activeToken]);
+  }, [teamIdsKey, activeToken, selectedSportType]);
 
   // Группируем команды по городам для отображения
   const teamsByCity = useMemo(() => {

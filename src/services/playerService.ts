@@ -14,11 +14,13 @@ export const playerService = {
   getPlayers: async (
     token: string,
     teamId?: string,
-    seasonId?: string
+    seasonId?: string,
+    sportType?: string
   ): Promise<Player[]> => {
     const params = new URLSearchParams();
     if (teamId) params.append("teamId", teamId);
     if (seasonId) params.append("seasonId", seasonId);
+    if (sportType) params.append("sportType", sportType);
 
     const queryString = params.toString();
     const url = queryString ? `/players?${queryString}` : "/players";
