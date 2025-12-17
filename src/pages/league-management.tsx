@@ -47,6 +47,7 @@ import {
   fetchLeagueGroups,
   createLeagueGroup,
   updateLeagueGroup,
+  deleteLeagueGroup,
   selectLeagueGroups,
   selectLeagueGroupsLoading,
   selectLeagueGroupsError,
@@ -136,6 +137,12 @@ const LeagueManagementPage: FC = () => {
     cityId: string;
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteGroupDialogOpen, setDeleteGroupDialogOpen] = useState(false);
+  const [leagueGroupToDelete, setLeagueGroupToDelete] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+  const [isDeletingGroup, setIsDeletingGroup] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -455,6 +462,42 @@ const LeagueManagementPage: FC = () => {
     }
   };
 
+  const handleDeleteLeagueGroup = (groupId: number, groupName: string) => {
+    setLeagueGroupToDelete({
+      id: groupId,
+      name: groupName,
+    });
+    setDeleteGroupDialogOpen(true);
+  };
+
+  const handleCloseDeleteGroupDialog = () => {
+    if (!isDeletingGroup) {
+      setDeleteGroupDialogOpen(false);
+      setLeagueGroupToDelete(null);
+    }
+  };
+
+  const handleConfirmDeleteGroup = async () => {
+    if (!leagueGroupToDelete || !activeToken) {
+      return;
+    }
+
+    setIsDeletingGroup(true);
+    try {
+      await dispatch(
+        deleteLeagueGroup({
+          id: leagueGroupToDelete.id,
+          token: activeToken,
+        }),
+      ).unwrap();
+      handleCloseDeleteGroupDialog();
+    } catch (error) {
+      console.error("Error deleting league group:", error);
+    } finally {
+      setIsDeletingGroup(false);
+    }
+  };
+
   const handleCityChangeInModal = useCallback(
     (cityId: number) => {
       if (!activeToken) return;
@@ -644,6 +687,7 @@ const LeagueManagementPage: FC = () => {
             <LeagueGroupsList
               leagueGroups={leagueGroups}
               onEdit={handleEditLeagueGroup}
+              onDelete={handleDeleteLeagueGroup}
             />
           </Box>
         </TabPanel>
@@ -706,6 +750,19 @@ const LeagueManagementPage: FC = () => {
             : ""
         }
         loading={isDeleting}
+      />
+
+      <DeleteConfirmDialog
+        open={deleteGroupDialogOpen}
+        onClose={handleCloseDeleteGroupDialog}
+        onConfirm={handleConfirmDeleteGroup}
+        title="Удалить группу лиг?"
+        message={
+          leagueGroupToDelete
+            ? `Вы уверены, что хотите удалить группу лиг "${leagueGroupToDelete.name}"? Это действие нельзя отменить.`
+            : ""
+        }
+        loading={isDeletingGroup}
       />
     </Box>
   );

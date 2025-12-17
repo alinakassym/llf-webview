@@ -91,6 +91,17 @@ export const updateLeagueGroup = createAsyncThunk<
   return { id, data };
 });
 
+export const deleteLeagueGroup = createAsyncThunk<
+  number,
+  { id: number; token: string }
+>("leagueGroups/deleteLeagueGroup", async ({ id, token }) => {
+  await apiRequest<void>(`/leagues/groups/${id}`, {
+    method: "DELETE",
+    token,
+  });
+  return id;
+});
+
 const leagueGroupSlice = createSlice({
   name: "leagueGroups",
   initialState,
@@ -149,6 +160,19 @@ const leagueGroupSlice = createSlice({
       .addCase(updateLeagueGroup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed to update league group";
+      })
+      .addCase(deleteLeagueGroup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteLeagueGroup.fulfilled, (state, action) => {
+        state.items = state.items.filter((item) => item.id !== action.payload);
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(deleteLeagueGroup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to delete league group";
       });
   },
 });
