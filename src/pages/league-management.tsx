@@ -16,6 +16,8 @@ import FilterChips from "../components/FilterChips";
 import SingleCityLeaguesList from "../components/SingleCityLeaguesList";
 import AllCitiesLeaguesList from "../components/AllCitiesLeaguesList";
 import LeagueGroupsList from "../components/LeagueGroupsList";
+import { SelectsRow, type Sport } from "../components/SelectsRow";
+import { SportType, SportTypeName } from "../types/sportType";
 import CreateLeagueModal, {
   type CreateLeagueData,
 } from "../components/CreateLeagueModal";
@@ -69,6 +71,21 @@ function TabPanel(props: TabPanelProps) {
     </div>
   );
 }
+
+const SPORTS: Sport[] = [
+  {
+    id: SportType.Volleyball,
+    name: SportTypeName[SportType.Volleyball],
+    icon: "volleyball",
+    color: "#5060D8",
+  },
+  {
+    id: SportType.Football,
+    name: SportTypeName[SportType.Football],
+    icon: "football",
+    color: "#8450D8",
+  },
+];
 
 const LeagueManagementPage: FC = () => {
   const dispatch = useAppDispatch();
@@ -407,20 +424,26 @@ const LeagueManagementPage: FC = () => {
           sx={{
             pt: 1,
             pr: 1,
+            width: "100%",
             minHeight: 48,
             maxHeight: 48,
+            display: "flex",
             borderBottom: 1,
             borderColor: "divider",
             background: (theme) =>
               `linear-gradient(to right, ${theme.palette.gradient.join(", ")})`,
           }}
         >
+          <Box sx={{ pl: 1 }}>
+            <SelectsRow sports={SPORTS} />
+          </Box>
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
             aria-label="league management tabs"
             variant="fullWidth"
             sx={{
+              width: "100%",
               "& .MuiTabs-indicator": {
                 display: "none",
               },

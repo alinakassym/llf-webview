@@ -10,6 +10,7 @@ declare module "@mui/material/styles" {
     surface: string;
     customBackground: string;
     dark: string;
+    bgOpacity: string;
   }
   interface PaletteOptions {
     tertiary?: PaletteOptions["primary"];
@@ -18,6 +19,7 @@ declare module "@mui/material/styles" {
     surface?: string;
     customBackground?: string;
     dark?: string;
+    bgOpacity?: string;
   }
 }
 
@@ -42,6 +44,7 @@ export const createAppTheme = (mode: PaletteMode) =>
       surface: mode === "light" ? "#EAECFA" : "#1D1527",
       customBackground: mode === "light" ? "#F9FAFE" : "rgba(39, 27, 56, 1)",
       dark: "#271B38",
+      bgOpacity: mode === "light" ? "rgba(255, 255, 255, 0.4)" : "rgba(39, 27, 56, 0.4)",
     },
     shape: {
       borderRadius: 8,

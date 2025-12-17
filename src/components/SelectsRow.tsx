@@ -10,33 +10,21 @@ import {
 } from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material";
 import { SportIcon } from "./icons/SportIcons";
-import { SportType, SportTypeName } from "../types/sportType";
 
-type Sport = {
+export type Sport = {
   id: number;
   name: string;
   icon: "volleyball" | "football";
   color: string;
 };
 
-const SPORTS: Sport[] = [
-  {
-    id: SportType.Volleyball,
-    name: SportTypeName[SportType.Volleyball],
-    icon: "volleyball",
-    color: "#5060D8",
-  },
-  {
-    id: SportType.Football,
-    name: SportTypeName[SportType.Football],
-    icon: "football",
-    color: "#8450D8",
-  },
-];
+interface SelectsRowProps {
+  sports: Sport[];
+}
 
-export const SelectsRow: FC = () => {
+export const SelectsRow: FC<SelectsRowProps> = ({ sports }) => {
   const [selectedSportId, setSelectedSportId] = useState<string>(
-    String(SportType.Volleyball)
+    sports.length > 0 ? String(sports[0].id) : "",
   );
 
   const handleSportChange = (event: SelectChangeEvent) => {
@@ -59,19 +47,27 @@ export const SelectsRow: FC = () => {
           size="small"
           displayEmpty
           renderValue={(selected) => {
-            const sport = SPORTS.find((s) => String(s.id) === selected);
+            const sport = sports.find((s) => String(s.id) === selected);
             if (!sport) return "";
             return (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                <SportIcon name={sport.icon} size={24} color={sport.color} />
+              <Box
+                sx={{
+                  pt: 0.3,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                }}
+              >
+                <SportIcon name={sport.icon} size={18} color="#FFFFFF" />
               </Box>
             );
           }}
           sx={{
+            height: 32,
             backgroundColor: (theme) => theme.palette.bgOpacity,
             backdropFilter: "blur(10px)",
             WebkitBackdropFilter: "blur(10px)",
-            borderRadius: 2,
+            borderRadius: 1,
             "& .MuiOutlinedInput-notchedOutline": {
               border: "none",
             },
@@ -83,10 +79,10 @@ export const SelectsRow: FC = () => {
             },
           }}
         >
-          {SPORTS.map((sport) => (
+          {sports.map((sport) => (
             <MenuItem key={sport.id} value={String(sport.id)}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                <SportIcon name={sport.icon} size={24} color={sport.color} />
+                <SportIcon name={sport.icon} size={18} color={sport.color} />
                 <span>{sport.name}</span>
               </Box>
             </MenuItem>
