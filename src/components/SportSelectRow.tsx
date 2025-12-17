@@ -9,9 +9,15 @@ import {
   FormControl,
 } from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { SportIcon } from "./icons/SportIcons";
 
 const SPORT_TYPE_STORAGE_KEY = "selectedSportType";
+
+// Кастомная иконка dropdown с белым цветом
+const WhiteDropdownIcon = (
+  props: React.ComponentProps<typeof ArrowDropDownIcon>,
+) => <ArrowDropDownIcon {...props} sx={{ fill: "#FFFFFF" }} />;
 
 export type Sport = {
   id: number;
@@ -25,7 +31,10 @@ interface SportSelectRowProps {
   onSportChange?: (sportId: string) => void;
 }
 
-export const SportSelectRow: FC<SportSelectRowProps> = ({ sports, onSportChange }) => {
+export const SportSelectRow: FC<SportSelectRowProps> = ({
+  sports,
+  onSportChange,
+}) => {
   // Инициализация: читаем из localStorage или используем "2" (волейбол) по умолчанию
   const getInitialSportId = (): string => {
     if (typeof window !== "undefined") {
@@ -35,7 +44,9 @@ export const SportSelectRow: FC<SportSelectRowProps> = ({ sports, onSportChange 
     return "2"; // Волейбол по умолчанию
   };
 
-  const [selectedSportId, setSelectedSportId] = useState<string>(getInitialSportId());
+  const [selectedSportId, setSelectedSportId] = useState<string>(
+    getInitialSportId(),
+  );
 
   // Сохраняем в localStorage при каждом изменении
   useEffect(() => {
@@ -67,6 +78,7 @@ export const SportSelectRow: FC<SportSelectRowProps> = ({ sports, onSportChange 
           onChange={handleSportChange}
           size="small"
           displayEmpty
+          IconComponent={WhiteDropdownIcon}
           renderValue={(selected) => {
             const sport = sports.find((s) => String(s.id) === selected);
             if (!sport) return "";
@@ -85,10 +97,8 @@ export const SportSelectRow: FC<SportSelectRowProps> = ({ sports, onSportChange 
           }}
           sx={{
             height: 32,
-            backgroundColor: (theme) => theme.palette.bgOpacity,
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
             borderRadius: 1,
+            backgroundColor: "rgba(0, 0, 0, 0.2)",
             "& .MuiOutlinedInput-notchedOutline": {
               border: "none",
             },
