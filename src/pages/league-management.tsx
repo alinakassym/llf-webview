@@ -28,8 +28,9 @@ import EditLeagueModal, {
   type EditLeagueData,
 } from "../components/EditLeagueModal";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
-import type { League, LeagueGroup } from "../types/league";
+import type { League } from "../types/league";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+import type { RootState } from "../store";
 import { fetchCities } from "../store/slices/citySlice";
 import {
   fetchLeaguesByCityId,
@@ -103,7 +104,7 @@ const LeagueManagementPage: FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
-  const [selectedGroup, setSelectedGroup] = useState<LeagueGroup>(ALL_GROUPS);
+  const [selectedGroup, setSelectedGroup] = useState<string>(ALL_GROUPS);
   const [selectedSportType, setSelectedSportType] = useState<string>("2");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
@@ -150,7 +151,7 @@ const LeagueManagementPage: FC = () => {
   // Формируем опции групп лиг из API
   const groupOptions = useMemo(() => {
     const groupNames = leagueGroups.map((group) => group.name);
-    return [ALL_GROUPS, ...groupNames] as readonly LeagueGroup[];
+    return [ALL_GROUPS, ...groupNames];
   }, [leagueGroups]);
 
   // Находим данные выбранного города
@@ -167,7 +168,9 @@ const LeagueManagementPage: FC = () => {
 
     if (selectedCity === ALL_CITIES) {
       // Загружаем все группы лиг с фильтрацией по спорту
-      dispatch(fetchLeagueGroups({ token: activeToken, sportType: selectedSportType }));
+      dispatch(
+        fetchLeagueGroups({ token: activeToken, sportType: selectedSportType }),
+      );
     } else {
       // Загружаем группы лиг для конкретного города и спорта
       if (selectedCityData) {
@@ -231,13 +234,17 @@ const LeagueManagementPage: FC = () => {
   ]);
 
   // Получаем лиги в зависимости от выбранного города
-  const leagues = useAppSelector((state) =>
-    selectedCity === ALL_CITIES
-      ? selectAllLeagues(state)
-      : selectedCityData
-      ? selectLeaguesByCity(String(selectedCityData.id))(state)
-      : [],
+  const leaguesSelector = useMemo(
+    () => (state: RootState) =>
+      selectedCity === ALL_CITIES
+        ? selectAllLeagues(state)
+        : selectedCityData
+        ? selectLeaguesByCity(String(selectedCityData.id))(state)
+        : [],
+    [selectedCity, selectedCityData],
   );
+
+  const leagues = useAppSelector(leaguesSelector);
 
   const filteredLeagues = useMemo(() => {
     return leagues.filter((league: League) => {

@@ -58,7 +58,7 @@ export const createLeagueGroup = createAsyncThunk<
   LeagueGroup,
   { data: CreateLeagueGroupData; token: string }
 >("leagueGroups/createLeagueGroup", async ({ data, token }) => {
-  const response = await apiRequest<{ leagueGroup: LeagueGroup }>(
+  const response = await apiRequest<LeagueGroup>(
     "/leagues/groups",
     {
       method: "POST",
@@ -66,7 +66,7 @@ export const createLeagueGroup = createAsyncThunk<
       body: JSON.stringify(data),
     }
   );
-  return response.leagueGroup;
+  return response;
 });
 
 const leagueGroupSlice = createSlice({
