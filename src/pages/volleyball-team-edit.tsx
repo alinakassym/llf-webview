@@ -1,4 +1,4 @@
-// llf-webview/src/pages/team-edit.tsx
+// llf-webview/src/pages/volleyball-team-edit.tsx
 
 import { type FC, useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
@@ -9,9 +9,12 @@ import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import type { Team } from "../types/team";
 import EmptyPlayerSlot from "../components/EmptyPlayerSlot";
-import { PlayerRole, PlayerRoleAbbreviation } from "../types/playerRole";
+import {
+  VolleyballPosition,
+  VolleyballPositionAbbreviation,
+} from "../types/volleyballPosition";
 
-const TeamEditPage: FC = () => {
+const VolleyballTeamEditPage: FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const { token, loading: authLoading } = useAuth();
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
@@ -157,7 +160,7 @@ const TeamEditPage: FC = () => {
           </Box>
         </Box>
 
-        {/* Контентная область - футбольное поле */}
+        {/* Контентная область - волейбольное поле */}
         <Box
           sx={{
             position: "relative",
@@ -166,8 +169,8 @@ const TeamEditPage: FC = () => {
           {/* Изображение поля */}
           <Box
             component="img"
-            src="/images/football-field-1.png"
-            alt="Football field"
+            src="/images/volleyball-field.png"
+            alt="Volleyball field"
             sx={{
               padding: 2,
               position: "relative",
@@ -177,7 +180,6 @@ const TeamEditPage: FC = () => {
               height: "100%",
               display: "block",
               margin: "0 auto",
-              filter: "hue-rotate(50deg) brightness(1.2) contrast(1.1)",
             }}
           />
 
@@ -194,7 +196,7 @@ const TeamEditPage: FC = () => {
               pointerEvents: "none",
             }}
           >
-            {/* Вратарь (ВР) - верх */}
+            {/* Верхний ряд - Блокирующие (БЛ) - 2 карточки */}
             <div
               style={{
                 position: "relative",
@@ -207,11 +209,22 @@ const TeamEditPage: FC = () => {
               }}
             >
               <EmptyPlayerSlot
-                label={PlayerRoleAbbreviation[PlayerRole.Goalkeeper]}
+                label={
+                  VolleyballPositionAbbreviation[
+                    VolleyballPosition.MiddleBlocker
+                  ]
+                }
+              />
+              <EmptyPlayerSlot
+                label={
+                  VolleyballPositionAbbreviation[
+                    VolleyballPosition.MiddleBlocker
+                  ]
+                }
               />
             </div>
 
-            {/* Полузащитники (ПЗЩ) - средний ряд (3 карточки) */}
+            {/* Средний ряд - Связующий (СВ), Нападающий (НАП), Диагональный (ДИ) - 3 карточки */}
             <div
               style={{
                 position: "relative",
@@ -224,16 +237,25 @@ const TeamEditPage: FC = () => {
               }}
             >
               <EmptyPlayerSlot
-                label={PlayerRoleAbbreviation[PlayerRole.Halfback]}
+                label={
+                  VolleyballPositionAbbreviation[VolleyballPosition.Setter]
+                }
               />
               <EmptyPlayerSlot
-                label={PlayerRoleAbbreviation[PlayerRole.Halfback]}
+                label={
+                  VolleyballPositionAbbreviation[
+                    VolleyballPosition.OutsideHitter
+                  ]
+                }
               />
               <EmptyPlayerSlot
-                label={PlayerRoleAbbreviation[PlayerRole.Halfback]}
+                label={
+                  VolleyballPositionAbbreviation[VolleyballPosition.Opposite]
+                }
               />
             </div>
-            {/* Защитник (ЗАЩ) и Нападающий (НАП) - нижний ряд (2 карточки) */}
+
+            {/* Нижний ряд - Либеро (ЛИБ) - 1 карточка */}
             <div
               style={{
                 position: "relative",
@@ -245,10 +267,9 @@ const TeamEditPage: FC = () => {
               }}
             >
               <EmptyPlayerSlot
-                label={PlayerRoleAbbreviation[PlayerRole.Defender]}
-              />
-              <EmptyPlayerSlot
-                label={PlayerRoleAbbreviation[PlayerRole.Forward]}
+                label={
+                  VolleyballPositionAbbreviation[VolleyballPosition.Libero]
+                }
               />
             </div>
           </Box>
@@ -258,4 +279,4 @@ const TeamEditPage: FC = () => {
   );
 };
 
-export default TeamEditPage;
+export default VolleyballTeamEditPage;
