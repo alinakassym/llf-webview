@@ -139,23 +139,22 @@ const TeamsManagementPage: FC = () => {
 
   // Загружаем команды при выборе города
   useEffect(() => {
-    if (!activeToken || authLoading || webViewLoading || cities.length === 0) {
+    if (!activeToken || authLoading || webViewLoading) {
       return;
     }
 
     if (selectedCity === ALL_CITIES) {
-      // Загружаем команды для всех городов
-      cities.forEach((city) => {
-        dispatch(
-          fetchTeamsByCityId({
-            cityId: String(city.id),
-            token: activeToken,
-            sportType: selectedSportType,
-          }),
-        );
-      });
+      // Загружаем команды для всех городов одним запросом (не передаём cityId)
+      // Используем специальный ключ "__ALL__" для кеширования
+      dispatch(
+        fetchTeamsByCityId({
+          cityId: "__ALL__",
+          token: activeToken,
+          sportType: selectedSportType,
+        }),
+      );
     } else {
-      // Загружаем команды для одного города
+      // Загружаем команды для конкретного города
       if (selectedCityData) {
         dispatch(
           fetchTeamsByCityId({
@@ -173,7 +172,6 @@ const TeamsManagementPage: FC = () => {
     authLoading,
     webViewLoading,
     selectedSportType,
-    cities,
     dispatch,
   ]);
 
@@ -209,15 +207,6 @@ const TeamsManagementPage: FC = () => {
       return matchesSearch;
     });
   }, [playerProfiles, playersSearchQuery]);
-
-  // Создаем стабильный ключ из ID команд для предотвращения бесконечного цикла
-  // selectAllTeams() возвращает новый массив каждый раз, поэтому используем ключ
-  const teamIdsKey = useMemo(() => {
-    return teams
-      .map((team) => team.id)
-      .sort()
-      .join(",");
-  }, [teams]);
 
   // Загружаем игроков для команд
   useEffect(() => {
@@ -263,8 +252,7 @@ const TeamsManagementPage: FC = () => {
       isCancelled = true;
       timeouts.forEach((timeoutId) => clearTimeout(timeoutId));
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [teamIdsKey, activeToken, selectedSportType, authLoading, webViewLoading, dispatch]);
+  }, [teams, activeToken, selectedSportType, authLoading, webViewLoading, dispatch]);
 
   // Группируем команды по городам для отображения
   const teamsByCity = useMemo(() => {

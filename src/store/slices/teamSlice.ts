@@ -20,7 +20,9 @@ export const fetchTeamsByCityId = createAsyncThunk<
   { cityId: string; teams: Team[] },
   { cityId: string; token: string; leagueId?: string; sportType?: string }
 >("teams/fetchTeamsByCityId", async ({ cityId, token, leagueId, sportType }) => {
-  const teams = await teamService.getTeams(token, cityId, leagueId, sportType);
+  // Если cityId === "__ALL__", не передаём cityId в API для загрузки всех команд
+  const actualCityId = cityId === "__ALL__" ? undefined : cityId;
+  const teams = await teamService.getTeams(token, actualCityId, leagueId, sportType);
   return { cityId, teams };
 });
 
@@ -95,8 +97,9 @@ export const selectTeamsByCity = (state: RootState, cityId: string) => {
 };
 
 // Селектор для получения всех команд
+// Используем специальный ключ "__ALL__" для кеша всех команд
 export const selectAllTeams = (state: RootState) => {
-  return Object.values(state.teams.itemsByCityId).flat();
+  return state.teams.itemsByCityId["__ALL__"] || [];
 };
 
 export const { clearTeams, clearTeamsForCity } = teamSlice.actions;
