@@ -93,6 +93,14 @@ const teamSlice = createSlice({
         } else {
           state.itemsByCityId[cityId] = [team];
         }
+
+        // Также добавляем в кеш "__ALL__", если он существует
+        if (state.itemsByCityId["__ALL__"]) {
+          state.itemsByCityId["__ALL__"] = [
+            ...state.itemsByCityId["__ALL__"],
+            team,
+          ].sort((a, b) => a.leagueName.localeCompare(b.leagueName));
+        }
       });
   },
 });
