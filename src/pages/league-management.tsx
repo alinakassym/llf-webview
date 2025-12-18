@@ -532,7 +532,7 @@ const LeagueManagementPage: FC = () => {
         left: 0,
         top: 0,
         right: 0,
-        minHeight: "100vh",
+        minHeight: "100%",
         backgroundColor: "surface",
       }}
     >
