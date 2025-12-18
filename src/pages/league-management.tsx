@@ -100,7 +100,9 @@ const LeagueManagementPage: FC = () => {
 
   const [tabValue, setTabValue] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchGroupQuery, setSearchGroupQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
+  const [selectedCityForGroups, setSelectedCityForGroups] = useState<string>(ALL_CITIES);
   const [selectedGroup, setSelectedGroup] = useState<string>(ALL_GROUPS);
   const [selectedSportType, setSelectedSportType] = useState<string>("2");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -171,32 +173,38 @@ const LeagueManagementPage: FC = () => {
     [cities, selectedCity],
   );
 
+  // Находим данные выбранного города для групп лиг
+  const selectedCityDataForGroups = useMemo(
+    () => cities.find((city) => city.name === selectedCityForGroups),
+    [cities, selectedCityForGroups],
+  );
+
   // Загружаем группы лиг в зависимости от выбранного города и спорта
   useEffect(() => {
     if (!activeToken || authLoading || webViewLoading) {
       return;
     }
 
-    if (selectedCity === ALL_CITIES) {
+    if (selectedCityForGroups === ALL_CITIES) {
       // Загружаем все группы лиг с фильтрацией по спорту
       dispatch(
         fetchLeagueGroups({ token: activeToken, sportType: selectedSportType }),
       );
     } else {
       // Загружаем группы лиг для конкретного города и спорта
-      if (selectedCityData) {
+      if (selectedCityDataForGroups) {
         dispatch(
           fetchLeagueGroups({
             token: activeToken,
-            cityId: String(selectedCityData.id),
+            cityId: String(selectedCityDataForGroups.id),
             sportType: selectedSportType,
           }),
         );
       }
     }
   }, [
-    selectedCity,
-    selectedCityData,
+    selectedCityForGroups,
+    selectedCityDataForGroups,
     activeToken,
     authLoading,
     webViewLoading,
@@ -269,6 +277,16 @@ const LeagueManagementPage: FC = () => {
       return matchesSearch && matchesGroup;
     });
   }, [leagues, searchQuery, selectedGroup]);
+
+  // Фильтрация групп лиг по поисковому запросу
+  const filteredLeagueGroups = useMemo(() => {
+    return leagueGroups.filter((group) => {
+      const matchesSearch = group.name
+        .toLowerCase()
+        .includes(searchGroupQuery.toLowerCase());
+      return matchesSearch;
+    });
+  }, [leagueGroups, searchGroupQuery]);
 
   // Группировка лиг по городам для "Все города"
   const leaguesByCity = useMemo(() => {
@@ -443,15 +461,15 @@ const LeagueManagementPage: FC = () => {
     ).unwrap();
 
     // Перезагружаем список групп лиг после успешного обновления
-    if (selectedCity === ALL_CITIES) {
+    if (selectedCityForGroups === ALL_CITIES) {
       dispatch(
         fetchLeagueGroups({ token: activeToken, sportType: selectedSportType }),
       );
-    } else if (selectedCityData) {
+    } else if (selectedCityDataForGroups) {
       dispatch(
         fetchLeagueGroups({
           token: activeToken,
-          cityId: String(selectedCityData.id),
+          cityId: String(selectedCityDataForGroups.id),
           sportType: selectedSportType,
         }),
       );
@@ -675,18 +693,58 @@ const LeagueManagementPage: FC = () => {
       <TabPanel value={tabValue} index={1}>
         <Box
           sx={{
+            pb: 2,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {/* Отображение ошибок */}
+          {citiesError && (
+            <Alert severity="error" sx={{ mb: 1 }}>
+              Ошибка загрузки городов: {citiesError}
+            </Alert>
+          )}
+          {leagueGroupsError && (
+            <Alert severity="error" sx={{ mb: 1 }}>
+              Ошибка загрузки групп лиг: {leagueGroupsError}
+            </Alert>
+          )}
+          <div style={{ paddingLeft: 16, paddingRight: 16, width: "100%" }}>
+            <SearchBar
+              value={searchGroupQuery}
+              onChange={setSearchGroupQuery}
+              placeholder="Поиск группы лиг..."
+            />
+          </div>
+          <div style={{ width: "100%" }}>
+            <FilterChips
+              options={cityOptions as readonly string[]}
+              selected={selectedCityForGroups}
+              onSelect={setSelectedCityForGroups}
+            />
+          </div>
+        </Box>
+        <Box
+          sx={{
             mt: 0,
             px: 2,
             pb: 8,
-            height: "calc(100vh - 125px)",
+            height: "calc(100vh - 221px)",
             overflowY: "auto",
           }}
         >
-          <LeagueGroupsList
-            leagueGroups={leagueGroups}
-            onEdit={handleEditLeagueGroup}
-            onDelete={handleDeleteLeagueGroup}
-          />
+          {leagueGroupsLoading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+              <CircularProgress size={48} />
+            </Box>
+          ) : (
+            <LeagueGroupsList
+              leagueGroups={filteredLeagueGroups}
+              onEdit={handleEditLeagueGroup}
+              onDelete={handleDeleteLeagueGroup}
+            />
+          )}
         </Box>
       </TabPanel>
 
