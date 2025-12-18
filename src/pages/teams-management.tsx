@@ -18,6 +18,7 @@ import CreatePlayerModal, {
 } from "../components/CreatePlayerModal";
 import type { Team } from "../types/team";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+import type { RootState } from "../store";
 import { fetchCities } from "../store/slices/citySlice";
 import {
   fetchTeamsByCityId,
@@ -177,15 +178,17 @@ const TeamsManagementPage: FC = () => {
   ]);
 
   // Получаем команды в зависимости от выбранного города
-  const teams = useAppSelector((state) => {
-    if (selectedCity === ALL_CITIES) {
-      return selectAllTeams(state);
-    }
-    if (selectedCityData) {
-      return selectTeamsByCity(state, String(selectedCityData.id));
-    }
-    return [];
-  });
+  const teamsSelector = useMemo(
+    () => (state: RootState) =>
+      selectedCity === ALL_CITIES
+        ? selectAllTeams(state)
+        : selectedCityData
+        ? selectTeamsByCity(state, String(selectedCityData.id))
+        : [],
+    [selectedCity, selectedCityData],
+  );
+
+  const teams = useAppSelector(teamsSelector);
 
   // Фильтруем команды по поисковому запросу
   const filteredTeams = useMemo(() => {
@@ -207,14 +210,6 @@ const TeamsManagementPage: FC = () => {
     });
   }, [playerProfiles, playersSearchQuery]);
 
-  // Создаем стабильный ключ из ID команд для предотвращения бесконечного цикла
-  const teamIdsKey = useMemo(() => {
-    return teams
-      .map((team) => team.id)
-      .sort()
-      .join(",");
-  }, [teams]);
-
   // Загружаем игроков для команд
   useEffect(() => {
     if (!activeToken || authLoading || webViewLoading || teams.length === 0) {
@@ -231,8 +226,7 @@ const TeamsManagementPage: FC = () => {
         }),
       );
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [teamIdsKey, activeToken, selectedSportType]);
+  }, [teams, activeToken, selectedSportType, authLoading, webViewLoading, dispatch]);
 
   // Группируем команды по городам для отображения
   const teamsByCity = useMemo(() => {
