@@ -216,16 +216,44 @@ const TeamsManagementPage: FC = () => {
       return;
     }
 
-    // Загружаем игроков для каждой команды
-    teams.forEach((team) => {
-      dispatch(
-        fetchPlayers({
-          teamId: String(team.id),
-          token: activeToken,
-          sportType: selectedSportType,
-        }),
-      );
-    });
+    // Загружаем игроков для каждой команды с батчингом для предотвращения перегрузки
+    const batchSize = 5;
+    let currentBatch = 0;
+    let isCancelled = false;
+    const timeouts: number[] = [];
+
+    const loadPlayersBatch = () => {
+      if (isCancelled) return;
+
+      const start = currentBatch * batchSize;
+      const end = start + batchSize;
+      const batch = teams.slice(start, end);
+
+      batch.forEach((team) => {
+        if (!isCancelled) {
+          dispatch(
+            fetchPlayers({
+              teamId: String(team.id),
+              token: activeToken,
+              sportType: selectedSportType,
+            }),
+          );
+        }
+      });
+
+      currentBatch++;
+      if (currentBatch * batchSize < teams.length) {
+        const timeoutId = setTimeout(loadPlayersBatch, 100);
+        timeouts.push(timeoutId);
+      }
+    };
+
+    loadPlayersBatch();
+
+    return () => {
+      isCancelled = true;
+      timeouts.forEach((timeoutId) => clearTimeout(timeoutId));
+    };
   }, [teams, activeToken, selectedSportType, authLoading, webViewLoading, dispatch]);
 
   // Группируем команды по городам для отображения
