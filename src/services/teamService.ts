@@ -10,13 +10,13 @@ export interface CreateTeamPayload {
 export const teamService = {
   getTeams: async (
     token: string,
-    cityId?: string,
-    leagueId?: string,
+    cityId?: number,
+    leagueId?: number,
     sportType?: string
   ): Promise<Team[]> => {
     const params = new URLSearchParams();
-    if (cityId) params.append("cityId", cityId);
-    if (leagueId) params.append("leagueId", leagueId);
+    if (cityId !== undefined) params.append("cityId", String(cityId));
+    if (leagueId !== undefined) params.append("leagueId", String(leagueId));
     if (sportType) params.append("sportType", sportType);
 
     const queryString = params.toString();

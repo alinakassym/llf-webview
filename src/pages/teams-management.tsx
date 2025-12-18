@@ -21,7 +21,7 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import type { RootState } from "../store";
 import { fetchCities } from "../store/slices/citySlice";
 import {
-  fetchTeamsByCityId,
+  fetchTeams,
   selectTeamsByCity,
   selectAllTeams,
   createTeam,
@@ -144,11 +144,9 @@ const TeamsManagementPage: FC = () => {
     }
 
     if (selectedCity === ALL_CITIES) {
-      // Загружаем команды для всех городов одним запросом (не передаём cityId)
-      // Используем специальный ключ "__ALL__" для кеширования
+      // Загружаем все команды одним запросом (не передаём cityId)
       dispatch(
-        fetchTeamsByCityId({
-          cityId: "__ALL__",
+        fetchTeams({
           token: activeToken,
           sportType: selectedSportType,
         }),
@@ -157,8 +155,8 @@ const TeamsManagementPage: FC = () => {
       // Загружаем команды для конкретного города
       if (selectedCityData) {
         dispatch(
-          fetchTeamsByCityId({
-            cityId: String(selectedCityData.id),
+          fetchTeams({
+            cityId: selectedCityData.id,
             token: activeToken,
             sportType: selectedSportType,
           }),

@@ -15,15 +15,17 @@ const initialState: TeamState = {
   errorByCityId: {},
 };
 
-// Thunk для загрузки команд по cityId
-export const fetchTeamsByCityId = createAsyncThunk<
-  { cityId: string; teams: Team[] },
-  { cityId: string; token: string; leagueId?: string; sportType?: string }
->("teams/fetchTeamsByCityId", async ({ cityId, token, leagueId, sportType }) => {
-  // Если cityId === "__ALL__", не передаём cityId в API для загрузки всех команд
-  const actualCityId = cityId === "__ALL__" ? undefined : cityId;
-  const teams = await teamService.getTeams(token, actualCityId, leagueId, sportType);
-  return { cityId, teams };
+// Thunk для загрузки команд
+export const fetchTeams = createAsyncThunk<
+  { cacheKey: string; teams: Team[] },
+  { cityId?: number; token: string; leagueId?: number; sportType?: string }
+>("teams/fetchTeams", async ({ cityId, token, leagueId, sportType }) => {
+  const teams = await teamService.getTeams(token, cityId, leagueId, sportType);
+
+  // Создаём ключ кеша на основе параметров запроса
+  const cacheKey = cityId ? String(cityId) : "__ALL__";
+
+  return { cacheKey, teams };
 });
 
 // Thunk для создания команды
@@ -54,24 +56,28 @@ const teamSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchTeamsByCityId.pending, (state, action) => {
-        const cityId = action.meta.arg.cityId;
-        if (!state.loadingCities.includes(cityId)) {
-          state.loadingCities.push(cityId);
+      .addCase(fetchTeams.pending, (state, action) => {
+        const cacheKey = action.meta.arg.cityId
+          ? String(action.meta.arg.cityId)
+          : "__ALL__";
+        if (!state.loadingCities.includes(cacheKey)) {
+          state.loadingCities.push(cacheKey);
         }
-        state.errorByCityId[cityId] = null;
+        state.errorByCityId[cacheKey] = null;
       })
-      .addCase(fetchTeamsByCityId.fulfilled, (state, action) => {
-        const { cityId, teams } = action.payload;
-        state.itemsByCityId[cityId] = teams.sort((a, b) =>
+      .addCase(fetchTeams.fulfilled, (state, action) => {
+        const { cacheKey, teams } = action.payload;
+        state.itemsByCityId[cacheKey] = teams.sort((a, b) =>
           a.leagueName.localeCompare(b.leagueName)
         );
-        state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
+        state.loadingCities = state.loadingCities.filter((id) => id !== cacheKey);
       })
-      .addCase(fetchTeamsByCityId.rejected, (state, action) => {
-        const cityId = action.meta.arg.cityId;
-        state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
-        state.errorByCityId[cityId] =
+      .addCase(fetchTeams.rejected, (state, action) => {
+        const cacheKey = action.meta.arg.cityId
+          ? String(action.meta.arg.cityId)
+          : "__ALL__";
+        state.loadingCities = state.loadingCities.filter((id) => id !== cacheKey);
+        state.errorByCityId[cacheKey] =
           action.error.message || "Failed to fetch teams";
       })
       .addCase(createTeam.fulfilled, (state, action) => {
