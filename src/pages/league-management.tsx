@@ -1,15 +1,7 @@
 // llf-webview/src/pages/league-management.tsx
 
 import { type FC, useState, useMemo, useEffect, useCallback } from "react";
-import {
-  Box,
-  Fab,
-  Container,
-  CircularProgress,
-  Alert,
-  Tabs,
-  Tab,
-} from "@mui/material";
+import { Box, Fab, CircularProgress, Alert, Tabs, Tab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
@@ -441,23 +433,27 @@ const LeagueManagementPage: FC = () => {
 
   const handleUpdateLeagueGroup = async (
     id: number,
-    data: EditLeagueGroupData
+    data: EditLeagueGroupData,
   ) => {
     if (!activeToken) {
       throw new Error("No auth token available");
     }
-    await dispatch(updateLeagueGroup({ id, data, token: activeToken })).unwrap();
+    await dispatch(
+      updateLeagueGroup({ id, data, token: activeToken }),
+    ).unwrap();
 
     // Перезагружаем список групп лиг после успешного обновления
     if (selectedCity === ALL_CITIES) {
-      dispatch(fetchLeagueGroups({ token: activeToken, sportType: selectedSportType }));
+      dispatch(
+        fetchLeagueGroups({ token: activeToken, sportType: selectedSportType }),
+      );
     } else if (selectedCityData) {
       dispatch(
         fetchLeagueGroups({
           token: activeToken,
           cityId: String(selectedCityData.id),
           sportType: selectedSportType,
-        })
+        }),
       );
     }
   };
@@ -540,158 +536,159 @@ const LeagueManagementPage: FC = () => {
         backgroundColor: "surface",
       }}
     >
-      <Container disableGutters maxWidth={false} sx={{ px: 0, pt: 0, pb: 10 }}>
-        <Box
+      <Box
+        sx={{
+          pt: 1,
+          pr: 1,
+          width: "100%",
+          minHeight: 48,
+          maxHeight: 48,
+          display: "flex",
+          borderBottom: 1,
+          borderColor: "divider",
+          background: (theme) =>
+            `linear-gradient(to right, ${theme.palette.gradient.join(", ")})`,
+        }}
+      >
+        <Box sx={{ pl: 1 }}>
+          <SportSelectRow sports={SPORTS} onSportChange={handleSportChange} />
+        </Box>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          aria-label="league management tabs"
+          variant="fullWidth"
           sx={{
-            pt: 1,
-            pr: 1,
             width: "100%",
-            minHeight: 48,
-            maxHeight: 48,
-            display: "flex",
-            borderBottom: 1,
-            borderColor: "divider",
-            background: (theme) =>
-              `linear-gradient(to right, ${theme.palette.gradient.join(", ")})`,
+            "& .MuiTabs-indicator": {
+              display: "none",
+            },
+            "& .MuiTab-root": {
+              ml: 1,
+              textTransform: "uppercase",
+              fontSize: "12px",
+              fontWeight: 400,
+              minHeight: 32,
+              maxHeight: 32,
+              color: "#FFFFFF",
+              borderRadius: 1,
+              backgroundColor: "rgba(0, 0, 0, 0.2)",
+              "&.Mui-selected": {
+                backgroundColor: "dark",
+                color: "#FFFFFF",
+              },
+            },
           }}
         >
-          <Box sx={{ pl: 1 }}>
-            <SportSelectRow sports={SPORTS} onSportChange={handleSportChange} />
-          </Box>
-          <Tabs
-            value={tabValue}
-            onChange={handleTabChange}
-            aria-label="league management tabs"
-            variant="fullWidth"
-            sx={{
-              width: "100%",
-              "& .MuiTabs-indicator": {
-                display: "none",
-              },
-              "& .MuiTab-root": {
-                ml: 1,
-                textTransform: "uppercase",
-                fontSize: "12px",
-                fontWeight: 400,
-                minHeight: 32,
-                maxHeight: 32,
-                color: "#FFFFFF",
-                borderRadius: 1,
-                backgroundColor: "rgba(0, 0, 0, 0.2)",
-                "&.Mui-selected": {
-                  backgroundColor: "dark",
-                  color: "#FFFFFF",
-                },
-              },
-            }}
-          >
-            <Tab
-              label="Лиги"
-              id="leagues-tab-0"
-              aria-controls="leagues-tabpanel-0"
-            />
-            <Tab
-              label="Группы лиг"
-              id="leagues-tab-1"
-              aria-controls="leagues-tabpanel-1"
-            />
-          </Tabs>
-        </Box>
+          <Tab
+            label="Лиги"
+            id="leagues-tab-0"
+            aria-controls="leagues-tabpanel-0"
+          />
+          <Tab
+            label="Группы лиг"
+            id="leagues-tab-1"
+            aria-controls="leagues-tabpanel-1"
+          />
+        </Tabs>
+      </Box>
 
-        <TabPanel value={tabValue} index={0}>
-          <Box
-            sx={{
-              pb: 2,
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
-            {/* Отображение ошибок */}
-            {citiesError && (
-              <Alert severity="error" sx={{ mb: 1 }}>
-                Ошибка загрузки городов: {citiesError}
-              </Alert>
-            )}
-            {leagueGroupsError && (
-              <Alert severity="error" sx={{ mb: 1 }}>
-                Ошибка загрузки групп лиг: {leagueGroupsError}
-              </Alert>
-            )}
-            <div style={{ paddingLeft: 16, paddingRight: 16, width: "100%" }}>
-              <SearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder="Поиск лиги..."
-              />
-            </div>
+      <TabPanel value={tabValue} index={0}>
+        <Box
+          sx={{
+            pb: 2,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {/* Отображение ошибок */}
+          {citiesError && (
+            <Alert severity="error" sx={{ mb: 1 }}>
+              Ошибка загрузки городов: {citiesError}
+            </Alert>
+          )}
+          {leagueGroupsError && (
+            <Alert severity="error" sx={{ mb: 1 }}>
+              Ошибка загрузки групп лиг: {leagueGroupsError}
+            </Alert>
+          )}
+          <div style={{ paddingLeft: 16, paddingRight: 16, width: "100%" }}>
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Поиск лиги..."
+            />
+          </div>
+          <div style={{ width: "100%" }}>
+            <FilterChips
+              options={cityOptions as readonly string[]}
+              selected={selectedCity}
+              onSelect={setSelectedCity}
+            />
+          </div>
+          {/* Показываем фильтр по группам только если выбран конкретный город */}
+          {leagueGroupsLoading && (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 1 }}>
+              <CircularProgress size={24} />
+            </Box>
+          )}
+          {!leagueGroupsLoading && selectedCity !== ALL_CITIES && (
             <div style={{ width: "100%" }}>
               <FilterChips
-                options={cityOptions as readonly string[]}
-                selected={selectedCity}
-                onSelect={setSelectedCity}
+                options={groupOptions}
+                selected={selectedGroup}
+                onSelect={setSelectedGroup}
               />
             </div>
-            {/* Показываем фильтр по группам только если выбран конкретный город */}
-            {leagueGroupsLoading && (
-              <Box sx={{ display: "flex", justifyContent: "center", py: 1 }}>
-                <CircularProgress size={24} />
-              </Box>
-            )}
-            {!leagueGroupsLoading && selectedCity !== ALL_CITIES && (
-              <div style={{ width: "100%" }}>
-                <FilterChips
-                  options={groupOptions}
-                  selected={selectedGroup}
-                  onSelect={setSelectedGroup}
-                />
-              </div>
-            )}
-          </Box>
-          <Box
-            sx={{
-              mt: 0,
-              px: 2,
-              pb: 8,
-              height: "calc(100vh - 221px)",
-              overflowY: "auto",
-            }}
-          >
-            {selectedCity === ALL_CITIES && leaguesByCity ? (
-              <AllCitiesLeaguesList
-                leaguesByCity={leaguesByCity}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            ) : (
-              <SingleCityLeaguesList
-                cityName={selectedCity}
-                leagues={filteredLeagues}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            )}
-          </Box>
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={1}>
-          <Box
-            sx={{
-              mt: 0,
-              px: 2,
-              pb: 8,
-              height: "calc(100vh - 125px)",
-              overflowY: "auto",
-            }}
-          >
-            <LeagueGroupsList
-              leagueGroups={leagueGroups}
-              onEdit={handleEditLeagueGroup}
-              onDelete={handleDeleteLeagueGroup}
+          )}
+        </Box>
+        <Box
+          sx={{
+            mt: 0,
+            px: 2,
+            pb: 8,
+            height:
+              selectedCity === ALL_CITIES
+                ? "calc(100vh - 174px)"
+                : "calc(100vh - 221px)",
+            overflowY: "auto",
+          }}
+        >
+          {selectedCity === ALL_CITIES && leaguesByCity ? (
+            <AllCitiesLeaguesList
+              leaguesByCity={leaguesByCity}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
             />
-          </Box>
-        </TabPanel>
-      </Container>
+          ) : (
+            <SingleCityLeaguesList
+              cityName={selectedCity}
+              leagues={filteredLeagues}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          )}
+        </Box>
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={1}>
+        <Box
+          sx={{
+            mt: 0,
+            px: 2,
+            pb: 8,
+            height: "calc(100vh - 125px)",
+            overflowY: "auto",
+          }}
+        >
+          <LeagueGroupsList
+            leagueGroups={leagueGroups}
+            onEdit={handleEditLeagueGroup}
+            onDelete={handleDeleteLeagueGroup}
+          />
+        </Box>
+      </TabPanel>
 
       <Fab
         color="primary"
