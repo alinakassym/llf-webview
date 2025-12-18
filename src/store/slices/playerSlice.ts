@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState } from "../index";
 import type { Player, PlayerProfile } from "../../types/player";
-import { playerService, type CreatePlayerPayload } from "../../services/playerService";
+import { playerService, type CreatePlayerProfilePayload } from "../../services/playerService";
 
 interface PlayerState {
   itemsByTeamId: Record<string, Player[]>; // Игроки по командам
@@ -54,12 +54,12 @@ export const fetchPlayerProfiles = createAsyncThunk<
   return profiles;
 });
 
-// Thunk для создания игрока
-export const createPlayer = createAsyncThunk<
+// Thunk для создания профиля игрока
+export const createPlayerProfile = createAsyncThunk<
   PlayerProfile,
-  { data: CreatePlayerPayload; token: string }
->("players/createPlayer", async ({ data, token }) => {
-  const player = await playerService.createPlayer(data, token);
+  { data: CreatePlayerProfilePayload; token: string }
+>("players/createPlayerProfile", async ({ data, token }) => {
+  const player = await playerService.createPlayerProfile(data, token);
   return player;
 });
 
@@ -157,21 +157,21 @@ const playerSlice = createSlice({
         state.errorProfiles =
           action.error.message || "Failed to fetch player profiles";
       })
-      .addCase(createPlayer.pending, (state) => {
+      .addCase(createPlayerProfile.pending, (state) => {
         state.loadingProfiles = true;
         state.errorProfiles = null;
       })
-      .addCase(createPlayer.fulfilled, (state, action) => {
+      .addCase(createPlayerProfile.fulfilled, (state, action) => {
         state.playerProfiles.push(action.payload);
         state.playerProfiles.sort((a, b) =>
           a.fullName.localeCompare(b.fullName)
         );
         state.loadingProfiles = false;
       })
-      .addCase(createPlayer.rejected, (state, action) => {
+      .addCase(createPlayerProfile.rejected, (state, action) => {
         state.loadingProfiles = false;
         state.errorProfiles =
-          action.error.message || "Failed to create player";
+          action.error.message || "Failed to create player profile";
       });
   },
 });

@@ -12,7 +12,7 @@ export interface Player {
 }
 
 export interface PlayerProfile {
-  id: number;
+  id?: number;
   userId: number | null;
   firstName: string;
   lastName: string;

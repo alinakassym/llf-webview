@@ -1,13 +1,20 @@
 import { apiRequest } from "./api";
 import type { Player, PlayerProfile } from "../types/player";
 
-export interface CreatePlayerPayload {
-  userId: number | null;
+export interface CreatePlayerProfilePayload {
+  userId?: number | null;
   firstName: string;
   lastName: string;
   middleName: string;
   dateOfBirth: string;
-  position: number | null;
+  sportType: number;
+  position: number;
+  volleyballPosition?: number;
+  isProfessionalVolleyballPlayer?: boolean;
+  yellowCards?: number;
+  redCards?: number;
+  totalGoals?: number;
+  matchesPlayed?: number;
 }
 
 export const playerService = {
@@ -51,8 +58,8 @@ export const playerService = {
     return response.profiles;
   },
 
-  createPlayer: async (
-    data: CreatePlayerPayload,
+  createPlayerProfile: async (
+    data: CreatePlayerProfilePayload,
     token: string
   ): Promise<PlayerProfile> => {
     const response = await apiRequest<PlayerProfile>("/players/profiles", {

@@ -30,7 +30,7 @@ import {
   fetchPlayers,
   fetchPlayerProfiles,
   selectPlayerProfiles,
-  createPlayer,
+  createPlayerProfile,
 } from "../store/slices/playerSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
@@ -302,14 +302,21 @@ const TeamsManagementPage: FC = () => {
       throw new Error("No auth token available");
     }
     await dispatch(
-      createPlayer({
+      createPlayerProfile({
         data: {
-          userId: null,
+          userId: data.userId || null,
           firstName: data.firstName,
           lastName: data.lastName,
           middleName: data.middleName,
           dateOfBirth: data.dateOfBirth,
-          position: data.position || null,
+          sportType: Number(selectedSportType),
+          position: data.position || 0,
+          volleyballPosition: data.volleyballPosition,
+          isProfessionalVolleyballPlayer: data.isProfessionalVolleyballPlayer,
+          yellowCards: data.yellowCards || 0,
+          redCards: data.redCards || 0,
+          totalGoals: data.totalGoals || 0,
+          matchesPlayed: data.matchesPlayed || 0,
         },
         token: activeToken,
       }),

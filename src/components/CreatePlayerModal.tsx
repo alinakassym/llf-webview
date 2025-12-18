@@ -24,11 +24,18 @@ interface CreatePlayerModalProps {
 }
 
 export interface CreatePlayerData {
+  userId?: number | null;
   firstName: string;
   lastName: string;
   middleName: string;
   dateOfBirth: string;
   position: number;
+  volleyballPosition?: number;
+  isProfessionalVolleyballPlayer?: boolean;
+  yellowCards?: number;
+  redCards?: number;
+  totalGoals?: number;
+  matchesPlayed?: number;
 }
 
 // Полные названия позиций для выбора
