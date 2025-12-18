@@ -44,7 +44,7 @@ const AllCitiesLeaguesList: FC<AllCitiesLeaguesListProps> = ({
           <Box sx={{ display: "flex", flexDirection: "column" }}>
             {cityLeagues.map((league) => (
               <ManagementItemCard
-                key={league.id}
+                key={`${cityName}-${league.id}-${Math.random()}`}
                 title={league.name}
                 subtitle={`Группа: ${league.leagueGroupName}`}
                 onEdit={() => onEdit(league.id)}
