@@ -244,7 +244,13 @@ const TeamsManagementPage: FC = () => {
   }, [filteredTeams]);
 
   const handleEdit = (teamId: string) => {
-    navigate(`/team-edit/${teamId}`);
+    // Определяем маршрут в зависимости от выбранного вида спорта
+    // SportType.Volleyball = 2, SportType.Football = 1
+    if (selectedSportType === "2") {
+      navigate(`/volleyball-team-edit/${teamId}`);
+    } else {
+      navigate(`/team-edit/${teamId}`);
+    }
   };
 
   const handleDelete = (teamId: string, teamName: string) => {
