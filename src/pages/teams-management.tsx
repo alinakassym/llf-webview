@@ -210,6 +210,15 @@ const TeamsManagementPage: FC = () => {
     });
   }, [playerProfiles, playersSearchQuery]);
 
+  // Создаем стабильный ключ из ID команд для предотвращения бесконечного цикла
+  // selectAllTeams() возвращает новый массив каждый раз, поэтому используем ключ
+  const teamIdsKey = useMemo(() => {
+    return teams
+      .map((team) => team.id)
+      .sort()
+      .join(",");
+  }, [teams]);
+
   // Загружаем игроков для команд
   useEffect(() => {
     if (!activeToken || authLoading || webViewLoading || teams.length === 0) {
@@ -218,16 +227,17 @@ const TeamsManagementPage: FC = () => {
 
     // Загружаем игроков для каждой команды с батчингом для предотвращения перегрузки
     const batchSize = 5;
-    let currentBatch = 0;
     let isCancelled = false;
     const timeouts: number[] = [];
 
-    const loadPlayersBatch = () => {
+    const loadPlayersBatch = (batchIndex: number) => {
       if (isCancelled) return;
 
-      const start = currentBatch * batchSize;
+      const start = batchIndex * batchSize;
       const end = start + batchSize;
       const batch = teams.slice(start, end);
+
+      if (batch.length === 0) return;
 
       batch.forEach((team) => {
         if (!isCancelled) {
@@ -241,20 +251,20 @@ const TeamsManagementPage: FC = () => {
         }
       });
 
-      currentBatch++;
-      if (currentBatch * batchSize < teams.length) {
-        const timeoutId = setTimeout(loadPlayersBatch, 100);
+      if (end < teams.length) {
+        const timeoutId = setTimeout(() => loadPlayersBatch(batchIndex + 1), 100);
         timeouts.push(timeoutId);
       }
     };
 
-    loadPlayersBatch();
+    loadPlayersBatch(0);
 
     return () => {
       isCancelled = true;
       timeouts.forEach((timeoutId) => clearTimeout(timeoutId));
     };
-  }, [teams, activeToken, selectedSportType, authLoading, webViewLoading, dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teamIdsKey, activeToken, selectedSportType, authLoading, webViewLoading, dispatch]);
 
   // Группируем команды по городам для отображения
   const teamsByCity = useMemo(() => {
