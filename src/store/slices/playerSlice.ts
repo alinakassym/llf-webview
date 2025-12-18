@@ -29,8 +29,8 @@ const initialState: PlayerState = {
 
 // Thunk для загрузки игроков по команде
 export const fetchPlayers = createAsyncThunk<
-  { teamId: string; players: Player[] },
-  { teamId: string; token: string; seasonId?: string; sportType?: string }
+  { teamId: string | undefined; players: Player[] },
+  { teamId?: string; token: string; seasonId?: string; sportType?: string }
 >("players/fetchPlayers", async ({ teamId, token, seasonId, sportType }) => {
   const players = await playerService.getPlayers(token, teamId, seasonId, sportType);
   return { teamId, players };
@@ -86,7 +86,7 @@ const playerSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchPlayers.pending, (state, action) => {
-        const teamId = action.meta.arg.teamId;
+        const teamId = action.meta.arg.teamId || "__ALL__";
         if (!state.loadingTeams.includes(teamId)) {
           state.loadingTeams.push(teamId);
         }
@@ -94,13 +94,36 @@ const playerSlice = createSlice({
       })
       .addCase(fetchPlayers.fulfilled, (state, action) => {
         const { teamId, players } = action.payload;
-        state.itemsByTeamId[teamId] = players.sort((a, b) =>
-          a.fullName.localeCompare(b.fullName)
-        );
-        state.loadingTeams = state.loadingTeams.filter((id) => id !== teamId);
+
+        if (teamId) {
+          // Если teamId указан, сохраняем игроков для конкретной команды
+          state.itemsByTeamId[teamId] = players.sort((a, b) =>
+            a.fullName.localeCompare(b.fullName)
+          );
+          state.loadingTeams = state.loadingTeams.filter((id) => id !== teamId);
+        } else {
+          // Если teamId не указан, группируем игроков по командам
+          const grouped: Record<string, Player[]> = {};
+          players.forEach((player) => {
+            const playerTeamId = String(player.teamId);
+            if (!grouped[playerTeamId]) {
+              grouped[playerTeamId] = [];
+            }
+            grouped[playerTeamId].push(player);
+          });
+
+          // Сортируем игроков в каждой команде и сохраняем
+          Object.entries(grouped).forEach(([teamKey, teamPlayers]) => {
+            state.itemsByTeamId[teamKey] = teamPlayers.sort((a, b) =>
+              a.fullName.localeCompare(b.fullName)
+            );
+          });
+
+          state.loadingTeams = state.loadingTeams.filter((id) => id !== "__ALL__");
+        }
       })
       .addCase(fetchPlayers.rejected, (state, action) => {
-        const teamId = action.meta.arg.teamId;
+        const teamId = action.meta.arg.teamId || "__ALL__";
         state.loadingTeams = state.loadingTeams.filter((id) => id !== teamId);
         state.errorByTeamId[teamId] =
           action.error.message || "Failed to fetch players";

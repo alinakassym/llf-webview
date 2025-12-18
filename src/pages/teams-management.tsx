@@ -208,51 +208,21 @@ const TeamsManagementPage: FC = () => {
     });
   }, [playerProfiles, playersSearchQuery]);
 
-  // Загружаем игроков для команд
+  // Загружаем игроков для всех команд одним запросом
   useEffect(() => {
-    if (!activeToken || authLoading || webViewLoading || teams.length === 0) {
+    if (!activeToken || authLoading || webViewLoading) {
       return;
     }
 
-    // Загружаем игроков для каждой команды с батчингом для предотвращения перегрузки
-    const batchSize = 5;
-    let isCancelled = false;
-    const timeouts: number[] = [];
-
-    const loadPlayersBatch = (batchIndex: number) => {
-      if (isCancelled) return;
-
-      const start = batchIndex * batchSize;
-      const end = start + batchSize;
-      const batch = teams.slice(start, end);
-
-      if (batch.length === 0) return;
-
-      batch.forEach((team) => {
-        if (!isCancelled) {
-          dispatch(
-            fetchPlayers({
-              teamId: String(team.id),
-              token: activeToken,
-              sportType: selectedSportType,
-            }),
-          );
-        }
-      });
-
-      if (end < teams.length) {
-        const timeoutId = setTimeout(() => loadPlayersBatch(batchIndex + 1), 100);
-        timeouts.push(timeoutId);
-      }
-    };
-
-    loadPlayersBatch(0);
-
-    return () => {
-      isCancelled = true;
-      timeouts.forEach((timeoutId) => clearTimeout(timeoutId));
-    };
-  }, [teams, activeToken, selectedSportType, authLoading, webViewLoading, dispatch]);
+    // Загружаем всех игроков одним запросом (не передаём teamId)
+    dispatch(
+      fetchPlayers({
+        teamId: undefined,
+        token: activeToken,
+        sportType: selectedSportType,
+      }),
+    );
+  }, [activeToken, authLoading, webViewLoading, selectedSportType, dispatch]);
 
   // Группируем команды по городам для отображения
   const teamsByCity = useMemo(() => {
