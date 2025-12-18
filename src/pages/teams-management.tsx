@@ -16,6 +16,7 @@ import CreateTeamModal, {
 import CreatePlayerModal, {
   type CreatePlayerData,
 } from "../components/CreatePlayerModal";
+import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import type { Team } from "../types/team";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import type { RootState } from "../store";
@@ -25,6 +26,7 @@ import {
   selectTeamsByCity,
   selectAllTeams,
   createTeam,
+  deleteTeam,
 } from "../store/slices/teamSlice";
 import {
   fetchPlayers,
@@ -90,6 +92,12 @@ const TeamsManagementPage: FC = () => {
   const [selectedSportType, setSelectedSportType] = useState<string>("2");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreatePlayerModalOpen, setIsCreatePlayerModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [teamToDelete, setTeamToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -239,10 +247,40 @@ const TeamsManagementPage: FC = () => {
     navigate(`/team-edit/${teamId}`);
   };
 
-  const handleDelete = (teamId: string) => {
-    // TODO: Implement delete functionality
-    console.log("Delete team:", teamId);
-    alert("Удаление в разработке");
+  const handleDelete = (teamId: string, teamName: string) => {
+    setTeamToDelete({
+      id: teamId,
+      name: teamName,
+    });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    if (!isDeleting) {
+      setDeleteDialogOpen(false);
+      setTeamToDelete(null);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!teamToDelete || !activeToken) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await dispatch(
+        deleteTeam({
+          teamId: Number(teamToDelete.id),
+          token: activeToken,
+        })
+      ).unwrap();
+      handleCloseDeleteDialog();
+    } catch (error) {
+      console.error("Error deleting team:", error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handlePlayerClick = (fullName: string) => {
@@ -474,7 +512,7 @@ const TeamsManagementPage: FC = () => {
                       title={team.name}
                       subtitle={team.leagueName}
                       onEdit={() => handleEdit(String(team.id))}
-                      onDelete={() => handleDelete(String(team.id))}
+                      onDelete={() => handleDelete(String(team.id), team.name)}
                     />
                   ))}
                 </Box>
@@ -488,7 +526,7 @@ const TeamsManagementPage: FC = () => {
                   title={team.name}
                   subtitle={team.leagueName}
                   onEdit={() => handleEdit(String(team.id))}
-                  onDelete={() => handleDelete(String(team.id))}
+                  onDelete={() => handleDelete(String(team.id), team.name)}
                 />
               ))
             )}
@@ -557,6 +595,19 @@ const TeamsManagementPage: FC = () => {
         onClose={handleClosePlayerModal}
         token={activeToken || ""}
         onSubmit={handleCreatePlayer}
+      />
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
+        title="Удалить команду?"
+        message={
+          teamToDelete
+            ? `Вы уверены, что хотите удалить команду "${teamToDelete.name}"? Это действие нельзя отменить.`
+            : ""
+        }
+        loading={isDeleting}
       />
     </Box>
   );

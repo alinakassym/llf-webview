@@ -48,4 +48,11 @@ export const teamService = {
     });
     return response;
   },
+
+  deleteTeam: async (teamId: number, token: string): Promise<void> => {
+    await apiRequest<void>(`/teams/${teamId}`, {
+      method: "DELETE",
+      token,
+    });
+  },
 };

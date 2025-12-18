@@ -37,6 +37,15 @@ export const createTeam = createAsyncThunk<
   return team;
 });
 
+// Thunk для удаления команды
+export const deleteTeam = createAsyncThunk<
+  number,
+  { teamId: number; token: string }
+>("teams/deleteTeam", async ({ teamId, token }) => {
+  await teamService.deleteTeam(teamId, token);
+  return teamId;
+});
+
 const teamSlice = createSlice({
   name: "teams",
   initialState,
@@ -101,6 +110,16 @@ const teamSlice = createSlice({
             team,
           ].sort((a, b) => a.leagueName.localeCompare(b.leagueName));
         }
+      })
+      .addCase(deleteTeam.fulfilled, (state, action) => {
+        const teamId = action.payload;
+
+        // Удаляем команду из всех кешей
+        Object.keys(state.itemsByCityId).forEach((cacheKey) => {
+          state.itemsByCityId[cacheKey] = state.itemsByCityId[cacheKey].filter(
+            (team) => team.id !== teamId
+          );
+        });
       });
   },
 });
