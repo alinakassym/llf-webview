@@ -18,13 +18,17 @@ const initialState: LeagueState = {
   errorByCityId: {},
 };
 
-// Thunk для загрузки лиг по cityId
-export const fetchLeaguesByCityId = createAsyncThunk<
-  { cityId: string; leagues: League[] },
-  { cityId: string; token: string; sportType?: string }
->("leagues/fetchLeaguesByCityId", async ({ cityId, token, sportType }) => {
-  const leagues = await leagueService.getLeaguesByCityId(cityId, token, sportType);
-  return { cityId, leagues };
+// Thunk для загрузки лиг
+export const fetchLeagues = createAsyncThunk<
+  { cacheKey: string; leagues: League[] },
+  { cityId?: number; leagueGroupId?: number; token: string; sportType?: string }
+>("leagues/fetchLeagues", async ({ cityId, leagueGroupId, token, sportType }) => {
+  const leagues = await leagueService.getLeagues(token, cityId, leagueGroupId, sportType);
+
+  // Создаём ключ кеша на основе параметров запроса
+  const cacheKey = cityId ? String(cityId) : "__ALL__";
+
+  return { cacheKey, leagues };
 });
 
 // Thunk для создания лиги
@@ -73,36 +77,49 @@ const leagueSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchLeaguesByCityId.pending, (state, action) => {
-        const cityId = action.meta.arg.cityId;
-        if (!state.loadingCities.includes(cityId)) {
-          state.loadingCities.push(cityId);
+      .addCase(fetchLeagues.pending, (state, action) => {
+        const cacheKey = action.meta.arg.cityId
+          ? String(action.meta.arg.cityId)
+          : "__ALL__";
+        if (!state.loadingCities.includes(cacheKey)) {
+          state.loadingCities.push(cacheKey);
         }
-        delete state.errorByCityId[cityId];
+        state.errorByCityId[cacheKey] = null;
       })
-      .addCase(fetchLeaguesByCityId.fulfilled, (state, action) => {
-        const { cityId, leagues } = action.payload;
+      .addCase(fetchLeagues.fulfilled, (state, action) => {
+        const { cacheKey, leagues } = action.payload;
         // Сортируем лиги по полю order
-        state.itemsByCityId[cityId] = leagues.sort((a, b) => a.order - b.order);
-        state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
-        delete state.errorByCityId[cityId];
+        state.itemsByCityId[cacheKey] = leagues.sort((a, b) => a.order - b.order);
+        state.loadingCities = state.loadingCities.filter((id) => id !== cacheKey);
       })
-      .addCase(fetchLeaguesByCityId.rejected, (state, action) => {
-        const cityId = action.meta.arg.cityId;
-        state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
-        state.errorByCityId[cityId] =
+      .addCase(fetchLeagues.rejected, (state, action) => {
+        const cacheKey = action.meta.arg.cityId
+          ? String(action.meta.arg.cityId)
+          : "__ALL__";
+        state.loadingCities = state.loadingCities.filter((id) => id !== cacheKey);
+        state.errorByCityId[cacheKey] =
           action.error.message || "Failed to load leagues";
       })
       .addCase(createLeague.fulfilled, (state, action) => {
         const newLeague = action.payload;
         const cityId = String(newLeague.cityId);
-        // Добавляем новую лигу в список лиг города
+
+        // Добавляем лигу в кеш для конкретного города
         if (state.itemsByCityId[cityId]) {
-          state.itemsByCityId[cityId].push(newLeague);
-          // Сортируем лиги по полю order
-          state.itemsByCityId[cityId].sort((a, b) => a.order - b.order);
+          state.itemsByCityId[cityId] = [
+            ...state.itemsByCityId[cityId],
+            newLeague,
+          ].sort((a, b) => a.order - b.order);
         } else {
           state.itemsByCityId[cityId] = [newLeague];
+        }
+
+        // Также добавляем в кеш "__ALL__", если он существует
+        if (state.itemsByCityId["__ALL__"]) {
+          state.itemsByCityId["__ALL__"] = [
+            ...state.itemsByCityId["__ALL__"],
+            newLeague,
+          ].sort((a, b) => a.order - b.order);
         }
       })
       .addCase(updateLeague.fulfilled, (state, action) => {
@@ -122,16 +139,14 @@ const leagueSlice = createSlice({
         }
       })
       .addCase(deleteLeague.fulfilled, (state, action) => {
-        const { leagueId, cityId } = action.payload;
-        // Удаляем лигу из списка лиг города
-        if (state.itemsByCityId[cityId]) {
-          const index = state.itemsByCityId[cityId].findIndex(
-            (league) => league.id === leagueId
+        const { leagueId } = action.payload;
+
+        // Удаляем лигу из всех кешей
+        Object.keys(state.itemsByCityId).forEach((cacheKey) => {
+          state.itemsByCityId[cacheKey] = state.itemsByCityId[cacheKey].filter(
+            (league) => league.id !== leagueId
           );
-          if (index !== -1) {
-            state.itemsByCityId[cityId].splice(index, 1);
-          }
-        }
+        });
       });
   },
 });

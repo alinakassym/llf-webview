@@ -15,7 +15,7 @@ import type { City } from "../types/city";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import type { RootState } from "../store";
 import {
-  fetchLeaguesByCityId,
+  fetchLeagues,
   selectLeaguesByCity,
   selectAllLeagues,
   createLeague,
@@ -121,41 +121,31 @@ const LeaguesTab: FC<LeaguesTabProps> = ({
 
   // Загружаем лиги при выборе города или изменении спорта
   useEffect(() => {
-    if (!activeToken || cities.length === 0) {
+    if (!activeToken) {
       return;
     }
 
     if (selectedCity === ALL_CITIES) {
-      // Загружаем лиги для всех городов
-      cities.forEach((city) => {
-        dispatch(
-          fetchLeaguesByCityId({
-            cityId: String(city.id),
-            token: activeToken,
-            sportType: selectedSportType,
-          }),
-        );
-      });
+      // Загружаем все лиги без указания cityId
+      dispatch(
+        fetchLeagues({
+          token: activeToken,
+          sportType: selectedSportType,
+        }),
+      );
     } else {
       // Загружаем лиги для конкретного города
       if (selectedCityData) {
         dispatch(
-          fetchLeaguesByCityId({
-            cityId: String(selectedCityData.id),
+          fetchLeagues({
+            cityId: selectedCityData.id,
             token: activeToken,
             sportType: selectedSportType,
           }),
         );
       }
     }
-  }, [
-    selectedCity,
-    selectedCityData,
-    cities,
-    activeToken,
-    selectedSportType,
-    dispatch,
-  ]);
+  }, [selectedCity, selectedCityData, activeToken, selectedSportType, dispatch]);
 
   // Получаем лиги в зависимости от выбранного города
   const leaguesSelector = useMemo(

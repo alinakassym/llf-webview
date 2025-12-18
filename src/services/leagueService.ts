@@ -22,19 +22,24 @@ export interface UpdateLeaguePayload {
 }
 
 export const leagueService = {
-  getLeaguesByCityId: async (
-    cityId: string,
+  getLeagues: async (
     token: string,
-    sportType: string = "2"
+    cityId?: number,
+    leagueGroupId?: number,
+    sportType?: string
   ): Promise<League[]> => {
-    const queryParams = new URLSearchParams({ cityId, sportType });
-    const response = await apiRequest<LeaguesResponse>(
-      `/leagues?${queryParams.toString()}`,
-      {
-        method: "GET",
-        token,
-      }
-    );
+    const params = new URLSearchParams();
+    if (cityId !== undefined) params.append("cityId", String(cityId));
+    if (leagueGroupId !== undefined) params.append("leagueGroupId", String(leagueGroupId));
+    if (sportType) params.append("sportType", sportType);
+
+    const queryString = params.toString();
+    const url = queryString ? `/leagues?${queryString}` : "/leagues";
+
+    const response = await apiRequest<LeaguesResponse>(url, {
+      method: "GET",
+      token,
+    });
     return response.leagues;
   },
 

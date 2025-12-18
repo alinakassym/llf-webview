@@ -25,7 +25,7 @@ import {
   deleteSeason,
 } from "../store/slices/seasonSlice";
 import {
-  fetchLeaguesByCityId,
+  fetchLeagues,
   selectLeaguesByCity,
 } from "../store/slices/leagueSlice";
 import { useAuth } from "../hooks/useAuth";
@@ -266,7 +266,7 @@ const SeasonsManagementPage: FC = () => {
       if (!activeToken) return;
       setModalCityId(cityId);
       dispatch(
-        fetchLeaguesByCityId({ cityId: String(cityId), token: activeToken }),
+        fetchLeagues({ cityId: cityId, token: activeToken }),
       );
     },
     [activeToken, dispatch],
@@ -277,7 +277,7 @@ const SeasonsManagementPage: FC = () => {
       if (!activeToken) return;
       setEditModalCityId(cityId);
       dispatch(
-        fetchLeaguesByCityId({ cityId: String(cityId), token: activeToken }),
+        fetchLeagues({ cityId: cityId, token: activeToken }),
       );
     },
     [activeToken, dispatch],
