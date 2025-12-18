@@ -7,15 +7,17 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 interface EmptyPlayerSlotProps {
   label: string;
   onClick?: () => void;
-  hoverBackgroundColor?: string;
-  hoverBorderColor?: string;
+  applyFilter?: boolean;
+  backgroundColor?: string;
+  borderColor?: string;
 }
 
 const EmptyPlayerSlot: FC<EmptyPlayerSlotProps> = ({
   label,
   onClick,
-  hoverBackgroundColor = "rgba(255, 255, 255, 0.15)",
-  hoverBorderColor = "rgba(255, 255, 255, 0.8)",
+  applyFilter = false,
+  backgroundColor = "rgba(42, 128, 25, 0.8)",
+  borderColor = "rgba(255, 255, 255, 0.5)",
 }) => {
   return (
     <Box
@@ -28,17 +30,19 @@ const EmptyPlayerSlot: FC<EmptyPlayerSlotProps> = ({
         gap: 0.5,
         width: 80,
         height: 100,
-        backgroundColor: "#2a8019",
-        border: "2px dashed rgba(255, 255, 255, 0.5)",
+        backgroundColor: backgroundColor,
+        border: `2px dashed ${borderColor}`,
         borderRadius: 2,
         cursor: onClick ? "pointer" : "default",
         transition: "all 0.2s ease",
         pointerEvents: "auto",
-        filter: "hue-rotate(50deg) brightness(1.2) contrast(1.1)",
+        filter: applyFilter
+          ? "hue-rotate(50deg) brightness(1.2) contrast(1.1)"
+          : "none",
         "&:hover": onClick
           ? {
-              backgroundColor: hoverBackgroundColor,
-              borderColor: hoverBorderColor,
+              backgroundColor: backgroundColor,
+              borderColor: borderColor,
             }
           : {},
       }}

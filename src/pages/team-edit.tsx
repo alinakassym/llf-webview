@@ -207,6 +207,7 @@ const TeamEditPage: FC = () => {
               }}
             >
               <EmptyPlayerSlot
+                applyFilter
                 label={PlayerRoleAbbreviation[PlayerRole.Goalkeeper]}
               />
             </div>
@@ -224,12 +225,15 @@ const TeamEditPage: FC = () => {
               }}
             >
               <EmptyPlayerSlot
+                applyFilter
                 label={PlayerRoleAbbreviation[PlayerRole.Halfback]}
               />
               <EmptyPlayerSlot
+                applyFilter
                 label={PlayerRoleAbbreviation[PlayerRole.Halfback]}
               />
               <EmptyPlayerSlot
+                applyFilter
                 label={PlayerRoleAbbreviation[PlayerRole.Halfback]}
               />
             </div>
@@ -245,9 +249,11 @@ const TeamEditPage: FC = () => {
               }}
             >
               <EmptyPlayerSlot
+                applyFilter
                 label={PlayerRoleAbbreviation[PlayerRole.Defender]}
               />
               <EmptyPlayerSlot
+                applyFilter
                 label={PlayerRoleAbbreviation[PlayerRole.Forward]}
               />
             </div>

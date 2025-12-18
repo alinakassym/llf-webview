@@ -14,6 +14,9 @@ import {
   VolleyballPositionAbbreviation,
 } from "../types/volleyballPosition";
 
+const VOLLEYBALL_HOVER_BACKGROUND_COLOR = "rgba(179, 77, 68, 0.9)";
+const VOLLEYBALL_HOVER_BORDER_COLOR = "rgba(255, 255, 255, 0.5)";
+
 const VolleyballTeamEditPage: FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const { token, loading: authLoading } = useAuth();
@@ -214,6 +217,8 @@ const VolleyballTeamEditPage: FC = () => {
                     VolleyballPosition.MiddleBlocker
                   ]
                 }
+                backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
+                borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
               />
               <EmptyPlayerSlot
                 label={
@@ -221,6 +226,8 @@ const VolleyballTeamEditPage: FC = () => {
                     VolleyballPosition.MiddleBlocker
                   ]
                 }
+                backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
+                borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
               />
             </div>
 
@@ -240,6 +247,8 @@ const VolleyballTeamEditPage: FC = () => {
                 label={
                   VolleyballPositionAbbreviation[VolleyballPosition.Setter]
                 }
+                backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
+                borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
               />
               <EmptyPlayerSlot
                 label={
@@ -247,11 +256,15 @@ const VolleyballTeamEditPage: FC = () => {
                     VolleyballPosition.OutsideHitter
                   ]
                 }
+                backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
+                borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
               />
               <EmptyPlayerSlot
                 label={
                   VolleyballPositionAbbreviation[VolleyballPosition.Opposite]
                 }
+                backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
+                borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
               />
             </div>
 
@@ -270,6 +283,8 @@ const VolleyballTeamEditPage: FC = () => {
                 label={
                   VolleyballPositionAbbreviation[VolleyballPosition.Libero]
                 }
+                backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
+                borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
               />
             </div>
           </Box>
