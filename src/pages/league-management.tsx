@@ -5,36 +5,19 @@ import { Box, Fab, CircularProgress, Alert, Tabs, Tab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
-import SingleCityLeaguesList from "../components/SingleCityLeaguesList";
-import AllCitiesLeaguesList from "../components/AllCitiesLeaguesList";
+import LeaguesTab from "../components/LeaguesTab";
 import LeagueGroupsList from "../components/LeagueGroupsList";
 import { SportSelectRow, type Sport } from "../components/SportSelectRow";
 import { SportType, SportTypeName } from "../types/sportType";
-import CreateLeagueModal, {
-  type CreateLeagueData,
-} from "../components/CreateLeagueModal";
 import CreateLeagueGroupModal, {
   type CreateLeagueGroupData,
 } from "../components/CreateLeagueGroupModal";
 import EditLeagueGroupModal, {
   type EditLeagueGroupData,
 } from "../components/EditLeagueGroupModal";
-import EditLeagueModal, {
-  type EditLeagueData,
-} from "../components/EditLeagueModal";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
-import type { League } from "../types/league";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import type { RootState } from "../store";
 import { fetchCities } from "../store/slices/citySlice";
-import {
-  fetchLeaguesByCityId,
-  selectLeaguesByCity,
-  selectAllLeagues,
-  createLeague,
-  updateLeague,
-  deleteLeague,
-} from "../store/slices/leagueSlice";
 import {
   fetchLeagueGroups,
   createLeagueGroup,
@@ -46,7 +29,7 @@ import {
 } from "../store/slices/leagueGroupSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
-import { ALL_CITIES, ALL_GROUPS } from "../constants/leagueManagement";
+import { ALL_CITIES } from "../constants/leagueManagement";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -99,24 +82,11 @@ const LeagueManagementPage: FC = () => {
   const leagueGroupsError = useAppSelector(selectLeagueGroupsError);
 
   const [tabValue, setTabValue] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
   const [searchGroupQuery, setSearchGroupQuery] = useState("");
-  const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
   const [selectedCityForGroups, setSelectedCityForGroups] = useState<string>(ALL_CITIES);
-  const [selectedGroup, setSelectedGroup] = useState<string>(ALL_GROUPS);
   const [selectedSportType, setSelectedSportType] = useState<string>("2");
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);
-  const [leagueToEdit, setLeagueToEdit] = useState<{
-    id: string;
-    name: string;
-    order: number;
-    cityId: number;
-    leagueGroupId: number;
-    sportType: string;
-  } | null>(null);
   const [leagueGroupToEdit, setLeagueGroupToEdit] = useState<{
     id: number;
     name: string;
@@ -124,13 +94,6 @@ const LeagueManagementPage: FC = () => {
     cityId: number;
     sportType: string;
   } | null>(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [leagueToDelete, setLeagueToDelete] = useState<{
-    id: string;
-    name: string;
-    cityId: string;
-  } | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [deleteGroupDialogOpen, setDeleteGroupDialogOpen] = useState(false);
   const [leagueGroupToDelete, setLeagueGroupToDelete] = useState<{
     id: number;
@@ -160,18 +123,6 @@ const LeagueManagementPage: FC = () => {
     const cityNames = cities.map((city) => city.name);
     return [ALL_CITIES, ...cityNames];
   }, [cities]);
-
-  // Формируем опции групп лиг из API
-  const groupOptions = useMemo(() => {
-    const groupNames = leagueGroups.map((group) => group.name);
-    return [ALL_GROUPS, ...groupNames];
-  }, [leagueGroups]);
-
-  // Находим данные выбранного города
-  const selectedCityData = useMemo(
-    () => cities.find((city) => city.name === selectedCity),
-    [cities, selectedCity],
-  );
 
   // Находим данные выбранного города для групп лиг
   const selectedCityDataForGroups = useMemo(
@@ -212,72 +163,6 @@ const LeagueManagementPage: FC = () => {
     dispatch,
   ]);
 
-  // Загружаем лиги при выборе города или изменении спорта
-  useEffect(() => {
-    if (!activeToken || authLoading || webViewLoading || cities.length === 0) {
-      return;
-    }
-
-    if (selectedCity === ALL_CITIES) {
-      // Загружаем лиги для всех городов
-      cities.forEach((city) => {
-        dispatch(
-          fetchLeaguesByCityId({
-            cityId: String(city.id),
-            token: activeToken,
-            sportType: selectedSportType,
-          }),
-        );
-      });
-    } else {
-      // Загружаем лиги для конкретного города
-      if (selectedCityData) {
-        dispatch(
-          fetchLeaguesByCityId({
-            cityId: String(selectedCityData.id),
-            token: activeToken,
-            sportType: selectedSportType,
-          }),
-        );
-      }
-    }
-  }, [
-    selectedCity,
-    selectedCityData,
-    cities,
-    activeToken,
-    authLoading,
-    webViewLoading,
-    selectedSportType,
-    dispatch,
-  ]);
-
-  // Получаем лиги в зависимости от выбранного города
-  const leaguesSelector = useMemo(
-    () => (state: RootState) =>
-      selectedCity === ALL_CITIES
-        ? selectAllLeagues(state)
-        : selectedCityData
-        ? selectLeaguesByCity(String(selectedCityData.id))(state)
-        : [],
-    [selectedCity, selectedCityData],
-  );
-
-  const leagues = useAppSelector(leaguesSelector);
-
-  const filteredLeagues = useMemo(() => {
-    return leagues.filter((league: League) => {
-      const matchesSearch = league.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      const matchesGroup =
-        selectedGroup === ALL_GROUPS ||
-        league.leagueGroupName === selectedGroup;
-
-      return matchesSearch && matchesGroup;
-    });
-  }, [leagues, searchQuery, selectedGroup]);
-
   // Фильтрация групп лиг по поисковому запросу
   const filteredLeagueGroups = useMemo(() => {
     return leagueGroups.filter((group) => {
@@ -288,24 +173,6 @@ const LeagueManagementPage: FC = () => {
     });
   }, [leagueGroups, searchGroupQuery]);
 
-  // Группировка лиг по городам для "Все города"
-  const leaguesByCity = useMemo(() => {
-    if (selectedCity !== ALL_CITIES) {
-      return null;
-    }
-
-    const grouped: Record<string, League[]> = {};
-    filteredLeagues.forEach((league) => {
-      const cityName = league.cityName;
-      if (!grouped[cityName]) {
-        grouped[cityName] = [];
-      }
-      grouped[cityName].push(league);
-    });
-
-    return grouped;
-  }, [selectedCity, filteredLeagues]);
-
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
@@ -314,113 +181,15 @@ const LeagueManagementPage: FC = () => {
     setSelectedSportType(sportId);
   };
 
-  const handleEdit = (leagueId: string) => {
-    // Находим лигу по ID
-    const league = leagues.find((l) => String(l.id) === String(leagueId));
-    if (league) {
-      setLeagueToEdit({
-        id: String(league.id),
-        name: league.name,
-        order: league.order,
-        cityId: Number(league.cityId),
-        leagueGroupId: league.leagueGroupId,
-        sportType: league.sportType,
-      });
-      setIsEditModalOpen(true);
-    }
-  };
-
-  const handleDelete = (leagueId: string, leagueName: string) => {
-    // Находим лигу чтобы получить её cityId
-    const league = leagues.find((l) => String(l.id) === String(leagueId));
-    if (league) {
-      setLeagueToDelete({
-        id: leagueId,
-        name: leagueName,
-        cityId: String(league.cityId),
-      });
-      setDeleteDialogOpen(true);
-    }
-  };
-
   const handleAdd = () => {
-    if (tabValue === 0) {
-      // Вкладка "Лиги" - открываем модальное окно создания лиги
-      setIsCreateModalOpen(true);
-    } else if (tabValue === 1) {
+    if (tabValue === 1) {
       // Вкладка "Группы лиг" - открываем модальное окно создания группы лиг
       setIsCreateGroupModalOpen(true);
     }
   };
 
-  const handleCloseModal = () => {
-    setIsCreateModalOpen(false);
-  };
-
   const handleCloseGroupModal = () => {
     setIsCreateGroupModalOpen(false);
-  };
-
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false);
-    setLeagueToEdit(null);
-  };
-
-  const handleUpdateLeague = async (data: EditLeagueData) => {
-    if (!leagueToEdit || !activeToken) {
-      throw new Error("No league or token available");
-    }
-
-    await dispatch(
-      updateLeague({
-        leagueId: leagueToEdit.id,
-        cityId: String(leagueToEdit.cityId),
-        data: {
-          name: data.name,
-          order: data.order,
-          cityId: leagueToEdit.cityId,
-          leagueGroupId: leagueToEdit.leagueGroupId,
-          sportType: leagueToEdit.sportType,
-        },
-        token: activeToken,
-      }),
-    ).unwrap();
-  };
-
-  const handleCloseDeleteDialog = () => {
-    if (!isDeleting) {
-      setDeleteDialogOpen(false);
-      setLeagueToDelete(null);
-    }
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!leagueToDelete || !activeToken) {
-      return;
-    }
-
-    setIsDeleting(true);
-    try {
-      await dispatch(
-        deleteLeague({
-          leagueId: leagueToDelete.id,
-          cityId: leagueToDelete.cityId,
-          token: activeToken,
-        }),
-      ).unwrap();
-      handleCloseDeleteDialog();
-    } catch (error) {
-      console.error("Error deleting league:", error);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  const handleCreateLeague = async (data: CreateLeagueData) => {
-    if (!activeToken) {
-      throw new Error("No auth token available");
-    }
-    await dispatch(createLeague({ data, token: activeToken })).unwrap();
   };
 
   const handleCreateLeagueGroup = async (data: CreateLeagueGroupData) => {
@@ -612,82 +381,13 @@ const LeagueManagementPage: FC = () => {
       </Box>
 
       <TabPanel value={tabValue} index={0}>
-        <Box
-          sx={{
-            pb: 2,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          }}
-        >
-          {/* Отображение ошибок */}
-          {citiesError && (
-            <Alert severity="error" sx={{ mb: 1 }}>
-              Ошибка загрузки городов: {citiesError}
-            </Alert>
-          )}
-          {leagueGroupsError && (
-            <Alert severity="error" sx={{ mb: 1 }}>
-              Ошибка загрузки групп лиг: {leagueGroupsError}
-            </Alert>
-          )}
-          <div style={{ paddingLeft: 16, paddingRight: 16, width: "100%" }}>
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Поиск лиги..."
-            />
-          </div>
-          <div style={{ width: "100%" }}>
-            <FilterChips
-              options={cityOptions as readonly string[]}
-              selected={selectedCity}
-              onSelect={setSelectedCity}
-            />
-          </div>
-          {/* Показываем фильтр по группам только если выбран конкретный город */}
-          {leagueGroupsLoading && (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 1 }}>
-              <CircularProgress size={24} />
-            </Box>
-          )}
-          {!leagueGroupsLoading && selectedCity !== ALL_CITIES && (
-            <div style={{ width: "100%" }}>
-              <FilterChips
-                options={groupOptions}
-                selected={selectedGroup}
-                onSelect={setSelectedGroup}
-              />
-            </div>
-          )}
-        </Box>
-        <Box
-          sx={{
-            mt: 0,
-            px: 2,
-            pb: 8,
-            height:
-              selectedCity === ALL_CITIES
-                ? "calc(100vh - 174px)"
-                : "calc(100vh - 221px)",
-            overflowY: "auto",
-          }}
-        >
-          {selectedCity === ALL_CITIES && leaguesByCity ? (
-            <AllCitiesLeaguesList
-              leaguesByCity={leaguesByCity}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ) : (
-            <SingleCityLeaguesList
-              cityName={selectedCity}
-              leagues={filteredLeagues}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          )}
-        </Box>
+        <LeaguesTab
+          cities={cities}
+          citiesError={citiesError}
+          activeToken={activeToken}
+          selectedSportType={selectedSportType}
+          onCityChangeInModal={handleCityChangeInModal}
+        />
       </TabPanel>
 
       <TabPanel value={tabValue} index={1}>
@@ -748,27 +448,20 @@ const LeagueManagementPage: FC = () => {
         </Box>
       </TabPanel>
 
-      <Fab
-        color="primary"
-        aria-label="add"
-        onClick={handleAdd}
-        sx={{
-          position: "fixed",
-          bottom: 24,
-          right: 24,
-        }}
-      >
-        <AddIcon />
-      </Fab>
-
-      <CreateLeagueModal
-        open={isCreateModalOpen}
-        onClose={handleCloseModal}
-        cities={cities}
-        leagueGroups={leagueGroups}
-        onSubmit={handleCreateLeague}
-        onCityChange={handleCityChangeInModal}
-      />
+      {tabValue === 1 && (
+        <Fab
+          color="primary"
+          aria-label="add"
+          onClick={handleAdd}
+          sx={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+          }}
+        >
+          <AddIcon />
+        </Fab>
+      )}
 
       <CreateLeagueGroupModal
         open={isCreateGroupModalOpen}
@@ -785,26 +478,6 @@ const LeagueManagementPage: FC = () => {
         cities={cities}
         sportType={selectedSportType}
         initialData={leagueGroupToEdit}
-      />
-
-      <EditLeagueModal
-        open={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        onSubmit={handleUpdateLeague}
-        league={leagueToEdit}
-      />
-
-      <DeleteConfirmDialog
-        open={deleteDialogOpen}
-        onClose={handleCloseDeleteDialog}
-        onConfirm={handleConfirmDelete}
-        title="Удалить лигу?"
-        message={
-          leagueToDelete
-            ? `Вы уверены, что хотите удалить лигу "${leagueToDelete.name}"? Это действие нельзя отменить.`
-            : ""
-        }
-        loading={isDeleting}
       />
 
       <DeleteConfirmDialog
