@@ -1,3 +1,5 @@
+// llf-webview/src/components/SearchBar.tsx
+
 import { type FC } from "react";
 import { TextField, InputAdornment } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -22,12 +24,14 @@ const SearchBar: FC<SearchBarProps> = ({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <SearchIcon sx={{ color: "text.secondary" }} />
-          </InputAdornment>
-        ),
+      slotProps={{
+        input: {
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon sx={{ color: "text.secondary" }} />
+            </InputAdornment>
+          ),
+        },
       }}
       sx={{
         "& .MuiOutlinedInput-root": {
