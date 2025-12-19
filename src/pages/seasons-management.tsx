@@ -370,6 +370,8 @@ const SeasonsManagementPage: FC = () => {
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder="Поиск сезона..."
+          iconColor="#FFFFFF"
+          textColor="#FFFFFF"
         />
       </Box>
       <Container disableGutters maxWidth={false} sx={{ pt: 2, px: 0, pb: 10 }}>
