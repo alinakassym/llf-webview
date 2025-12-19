@@ -30,6 +30,23 @@ import {
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import { ALL_CITIES } from "../constants/leagueManagement";
+import { SportSelectRow, type Sport } from "../components/SportSelectRow";
+import { SportType, SportTypeName } from "../types/sportType";
+
+const SPORTS: Sport[] = [
+  {
+    id: SportType.Volleyball,
+    name: SportTypeName[SportType.Volleyball],
+    icon: "volleyball",
+    color: "#5060D8",
+  },
+  {
+    id: SportType.Football,
+    name: SportTypeName[SportType.Football],
+    icon: "football",
+    color: "#8450D8",
+  },
+];
 
 const SeasonsManagementPage: FC = () => {
   const dispatch = useAppDispatch();
@@ -55,6 +72,7 @@ const SeasonsManagementPage: FC = () => {
     cityId: string;
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedSportType, setSelectedSportType] = useState<string>("2");
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -260,9 +278,7 @@ const SeasonsManagementPage: FC = () => {
     (cityId: number) => {
       if (!activeToken) return;
       setModalCityId(cityId);
-      dispatch(
-        fetchLeagues({ cityId: cityId, token: activeToken }),
-      );
+      dispatch(fetchLeagues({ cityId: cityId, token: activeToken }));
     },
     [activeToken, dispatch],
   );
@@ -271,9 +287,7 @@ const SeasonsManagementPage: FC = () => {
     (cityId: number) => {
       if (!activeToken) return;
       setEditModalCityId(cityId);
-      dispatch(
-        fetchLeagues({ cityId: cityId, token: activeToken }),
-      );
+      dispatch(fetchLeagues({ cityId: cityId, token: activeToken }));
     },
     [activeToken, dispatch],
   );
@@ -307,6 +321,10 @@ const SeasonsManagementPage: FC = () => {
     }
   };
 
+  const handleSportChange = (sportId: string) => {
+    setSelectedSportType(sportId);
+  };
+
   // Если идет загрузка - показываем loader на весь экран
   if (isLoading) {
     return (
@@ -326,6 +344,31 @@ const SeasonsManagementPage: FC = () => {
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
+      <Box
+        sx={{
+          padding: "0 8px",
+          width: "100%",
+          minHeight: 48,
+          maxHeight: 48,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          borderBottom: 1,
+          borderColor: "divider",
+          background: (theme) =>
+            `linear-gradient(to right, ${theme.palette.gradient.join(", ")})`,
+        }}
+      >
+        <div style={{ marginTop: 8 }}>
+          <SportSelectRow sports={SPORTS} onSportChange={handleSportChange} />
+        </div>
+        <SearchBar
+          variant="standard"
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Поиск сезона..."
+        />
+      </Box>
       <Container disableGutters maxWidth={false} sx={{ pt: 2, px: 0, pb: 10 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {/* Отображение ошибок */}
@@ -334,13 +377,6 @@ const SeasonsManagementPage: FC = () => {
               Ошибка загрузки городов: {citiesError}
             </Alert>
           )}
-          <div style={{ paddingLeft: 16, paddingRight: 16, width: "100%" }}>
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Поиск сезона..."
-            />
-          </div>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 0 }}>
             <FilterChips

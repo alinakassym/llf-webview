@@ -3,18 +3,21 @@ import { TextField, InputAdornment } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
 interface SearchBarProps {
+  variant?: "outlined" | "filled" | "standard";
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
 }
 
 const SearchBar: FC<SearchBarProps> = ({
+  variant = "outlined",
   value,
   onChange,
   placeholder = "Поиск...",
 }) => {
   return (
     <TextField
+      variant={variant}
       fullWidth
       value={value}
       onChange={(e) => onChange(e.target.value)}
