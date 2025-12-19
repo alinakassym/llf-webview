@@ -9,6 +9,8 @@ interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  iconColor?: string;
+  textColor?: string;
 }
 
 const SearchBar: FC<SearchBarProps> = ({
@@ -16,6 +18,8 @@ const SearchBar: FC<SearchBarProps> = ({
   value,
   onChange,
   placeholder = "Поиск...",
+  iconColor = "text.secondary",
+  textColor = "text.primary",
 }) => {
   return (
     <TextField
@@ -28,12 +32,13 @@ const SearchBar: FC<SearchBarProps> = ({
         input: {
           startAdornment: (
             <InputAdornment position="start">
-              <SearchIcon sx={{ color: "text.secondary" }} />
+              <SearchIcon sx={{ color: iconColor }} />
             </InputAdornment>
           ),
         },
       }}
       sx={{
+        input: { color: textColor },
         "& .MuiOutlinedInput-root": {
           height: "44px",
           backgroundColor: "background.paper",
