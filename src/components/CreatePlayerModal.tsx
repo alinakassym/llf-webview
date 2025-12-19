@@ -217,7 +217,7 @@ const CreatePlayerModal: FC<CreatePlayerModalProps> = ({
             disabled={loading}
             fullWidth
             required
-            sx={{ input: { height: 56, padding: 0 } }}
+            sx={{ input: { height: 56, padding: "0 16px" } }}
           />
 
           <TextField

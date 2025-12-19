@@ -5,9 +5,11 @@ import { useParams } from "react-router-dom";
 import { Box, Container, Typography, CircularProgress } from "@mui/material";
 import { ShirtIcon } from "../components/icons";
 import { teamService } from "../services/teamService";
+import { playerService } from "../services/playerService";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import type { Team } from "../types/team";
+import type { PlayerProfile } from "../types/player";
 import EmptyPlayerSlot from "../components/EmptyPlayerSlot";
 import PlayerSelectionModal from "../components/PlayerSelectionModal";
 import {
@@ -15,6 +17,7 @@ import {
   VolleyballPositionName,
   VolleyballPositionAbbreviation,
 } from "../types/volleyballPosition";
+import { SportType } from "../types/sportType";
 
 const VOLLEYBALL_HOVER_BACKGROUND_COLOR = "rgba(179, 77, 68, 0.9)";
 const VOLLEYBALL_HOVER_BORDER_COLOR = "rgba(255, 255, 255, 0.5)";
@@ -29,6 +32,8 @@ const VolleyballTeamEditPage: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState<string>("");
+  const [playerProfiles, setPlayerProfiles] = useState<PlayerProfile[]>([]);
+  const [profilesLoading, setProfilesLoading] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -47,6 +52,30 @@ const VolleyballTeamEditPage: FC = () => {
     setIsModalOpen(false);
     setSelectedPosition("");
   };
+
+  // Загружаем профили игроков при открытии модального окна
+  useEffect(() => {
+    const fetchPlayerProfiles = async () => {
+      if (!isModalOpen || !activeToken) {
+        return;
+      }
+
+      try {
+        setProfilesLoading(true);
+        const profiles = await playerService.getPlayerProfiles(
+          activeToken,
+          String(SportType.Volleyball)
+        );
+        setPlayerProfiles(profiles);
+      } catch (err) {
+        console.error("Error fetching player profiles:", err);
+      } finally {
+        setProfilesLoading(false);
+      }
+    };
+
+    fetchPlayerProfiles();
+  }, [isModalOpen, activeToken]);
 
   // Загружаем данные команды и игроков
   useEffect(() => {
@@ -342,6 +371,8 @@ const VolleyballTeamEditPage: FC = () => {
         open={isModalOpen}
         onClose={handleCloseModal}
         position={selectedPosition}
+        playerProfiles={playerProfiles}
+        loading={profilesLoading}
       />
     </Box>
   );
