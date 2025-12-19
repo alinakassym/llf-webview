@@ -11,6 +11,7 @@ interface SearchBarProps {
   placeholder?: string;
   iconColor?: string;
   textColor?: string;
+  borderBottomColor?: string;
 }
 
 const SearchBar: FC<SearchBarProps> = ({
@@ -20,6 +21,7 @@ const SearchBar: FC<SearchBarProps> = ({
   placeholder = "Поиск...",
   iconColor = "text.secondary",
   textColor = "text.primary",
+  borderBottomColor,
 }) => {
   return (
     <TextField
@@ -39,6 +41,11 @@ const SearchBar: FC<SearchBarProps> = ({
       }}
       sx={{
         input: { color: textColor },
+        ...(borderBottomColor && {
+          "& .MuiInput-root::after": {
+            borderBottomColor: borderBottomColor,
+          },
+        }),
         "& .MuiOutlinedInput-root": {
           height: "44px",
           backgroundColor: "background.paper",

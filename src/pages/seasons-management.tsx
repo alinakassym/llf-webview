@@ -372,6 +372,7 @@ const SeasonsManagementPage: FC = () => {
           placeholder="Поиск сезона..."
           iconColor="#FFFFFF"
           textColor="#FFFFFF"
+          borderBottomColor="tertiary.main"
         />
       </Box>
       <Container disableGutters maxWidth={false} sx={{ pt: 2, px: 0, pb: 10 }}>
