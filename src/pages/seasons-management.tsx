@@ -228,6 +228,13 @@ const SeasonsManagementPage: FC = () => {
       throw new Error("No auth token available");
     }
     await dispatch(createSeason({ data, token: activeToken })).unwrap();
+
+    // Перезагружаем сезоны после создания
+    if (selectedCity === ALL_CITIES) {
+      dispatch(fetchSeasons({ token: activeToken, sportType: selectedSportType }));
+    } else if (selectedCityData) {
+      dispatch(fetchSeasons({ cityId: selectedCityData.id, token: activeToken, sportType: selectedSportType }));
+    }
   };
 
   const handleCloseEditModal = () => {
@@ -242,8 +249,6 @@ const SeasonsManagementPage: FC = () => {
       throw new Error("No auth token or season available");
     }
 
-    const oldCityId = editSeason.cityId;
-
     // Обновляем сезон
     await dispatch(
       updateSeason({
@@ -253,25 +258,22 @@ const SeasonsManagementPage: FC = () => {
       }),
     ).unwrap();
 
-    // Перезагружаем сезоны для старого города
-    if (oldCityId) {
+    // Перезагружаем сезоны после обновления
+    if (selectedCity === ALL_CITIES) {
+      // Если выбраны все города - перезагружаем все сезоны
       await dispatch(
         fetchSeasons({
-          cityId: oldCityId,
           token: activeToken,
+          sportType: selectedSportType,
         }),
       );
-    }
-
-    // Перезагружаем сезоны для нового города (если лига в другом городе)
-    const newLeague = editModalLeagues.find(
-      (l) => l.id === String(data.leagueId),
-    );
-    if (newLeague && Number(newLeague.cityId) !== oldCityId) {
+    } else if (selectedCityData) {
+      // Если выбран конкретный город - перезагружаем сезоны этого города
       await dispatch(
         fetchSeasons({
-          cityId: Number(newLeague.cityId),
+          cityId: selectedCityData.id,
           token: activeToken,
+          sportType: selectedSportType,
         }),
       );
     }
