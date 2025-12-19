@@ -324,9 +324,9 @@ const SeasonsManagementPage: FC = () => {
     }
   };
 
-  const handleSportChange = (sportId: string) => {
+  const handleSportChange = useCallback((sportId: string) => {
     setSelectedSportType(sportId);
-  };
+  }, []);
 
   // Если идет загрузка - показываем loader на весь экран
   if (isLoading) {
@@ -355,7 +355,7 @@ const SeasonsManagementPage: FC = () => {
           maxHeight: 48,
           display: "flex",
           alignItems: "center",
-          gap: 1,
+          gap: 2,
           borderBottom: 1,
           borderColor: "divider",
           background: (theme) =>
