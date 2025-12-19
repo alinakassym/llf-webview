@@ -114,6 +114,7 @@ const SeasonsManagementPage: FC = () => {
       dispatch(
         fetchSeasons({
           token: activeToken,
+          sportType: selectedSportType,
         }),
       );
     } else {
@@ -123,6 +124,7 @@ const SeasonsManagementPage: FC = () => {
           fetchSeasons({
             cityId: selectedCityData.id,
             token: activeToken,
+            sportType: selectedSportType,
           }),
         );
       }
@@ -133,6 +135,7 @@ const SeasonsManagementPage: FC = () => {
     activeToken,
     authLoading,
     webViewLoading,
+    selectedSportType,
     dispatch,
   ]);
 
