@@ -9,8 +9,10 @@ import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import type { Team } from "../types/team";
 import EmptyPlayerSlot from "../components/EmptyPlayerSlot";
+import PlayerSelectionModal from "../components/PlayerSelectionModal";
 import {
   VolleyballPosition,
+  VolleyballPositionName,
   VolleyballPositionAbbreviation,
 } from "../types/volleyballPosition";
 
@@ -25,12 +27,26 @@ const VolleyballTeamEditPage: FC = () => {
   const [team, setTeam] = useState<Team | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState<string>("");
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
     () => webViewToken || token,
     [webViewToken, token],
   );
+
+  // Обработчик открытия модального окна для добавления игрока
+  const handlePlayerSlotClick = (position: string) => {
+    setSelectedPosition(position);
+    setIsModalOpen(true);
+  };
+
+  // Обработчик закрытия модального окна
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedPosition("");
+  };
 
   // Загружаем данные команды и игроков
   useEffect(() => {
@@ -219,6 +235,11 @@ const VolleyballTeamEditPage: FC = () => {
                 }
                 backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
                 borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
+                onClick={() =>
+                  handlePlayerSlotClick(
+                    VolleyballPositionName[VolleyballPosition.MiddleBlocker],
+                  )
+                }
               />
               <EmptyPlayerSlot
                 label={
@@ -228,6 +249,11 @@ const VolleyballTeamEditPage: FC = () => {
                 }
                 backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
                 borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
+                onClick={() =>
+                  handlePlayerSlotClick(
+                    VolleyballPositionName[VolleyballPosition.MiddleBlocker],
+                  )
+                }
               />
             </div>
 
@@ -249,6 +275,11 @@ const VolleyballTeamEditPage: FC = () => {
                 }
                 backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
                 borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
+                onClick={() =>
+                  handlePlayerSlotClick(
+                    VolleyballPositionName[VolleyballPosition.Setter],
+                  )
+                }
               />
               <EmptyPlayerSlot
                 label={
@@ -258,6 +289,11 @@ const VolleyballTeamEditPage: FC = () => {
                 }
                 backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
                 borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
+                onClick={() =>
+                  handlePlayerSlotClick(
+                    VolleyballPositionName[VolleyballPosition.OutsideHitter],
+                  )
+                }
               />
               <EmptyPlayerSlot
                 label={
@@ -265,6 +301,11 @@ const VolleyballTeamEditPage: FC = () => {
                 }
                 backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
                 borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
+                onClick={() =>
+                  handlePlayerSlotClick(
+                    VolleyballPositionName[VolleyballPosition.Opposite],
+                  )
+                }
               />
             </div>
 
@@ -285,11 +326,23 @@ const VolleyballTeamEditPage: FC = () => {
                 }
                 backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
                 borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
+                onClick={() =>
+                  handlePlayerSlotClick(
+                    VolleyballPositionName[VolleyballPosition.Libero],
+                  )
+                }
               />
             </div>
           </Box>
         </Box>
       </Container>
+
+      {/* Модальное окно выбора игрока */}
+      <PlayerSelectionModal
+        open={isModalOpen}
+        onClose={handleCloseModal}
+        position={selectedPosition}
+      />
     </Box>
   );
 };
