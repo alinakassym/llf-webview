@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { store } from './store'
 import ThemeWrapper from './components/ThemeWrapper'
+import { ReauthProvider } from './contexts/ReauthContext'
 import App from './App'
 
 createRoot(document.getElementById('root')!).render(
@@ -11,7 +12,9 @@ createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
       <ThemeWrapper>
         <BrowserRouter>
-          <App />
+          <ReauthProvider>
+            <App />
+          </ReauthProvider>
         </BrowserRouter>
       </ThemeWrapper>
     </Provider>

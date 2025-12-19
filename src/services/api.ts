@@ -4,6 +4,13 @@ interface ApiRequestOptions extends RequestInit {
   token?: string;
 }
 
+// Глобальный callback для обработки 401 ошибок
+let onUnauthorizedCallback: (() => void) | null = null;
+
+export const setUnauthorizedCallback = (callback: () => void) => {
+  onUnauthorizedCallback = callback;
+};
+
 export const apiRequest = async <T>(
   endpoint: string,
   options: ApiRequestOptions = {}
@@ -25,6 +32,10 @@ export const apiRequest = async <T>(
   });
 
   if (!response.ok) {
+    // Обработка 401 ошибки (Unauthorized)
+    if (response.status === 401 && onUnauthorizedCallback) {
+      onUnauthorizedCallback();
+    }
     throw new Error(`API Error: ${response.status} ${response.statusText}`);
   }
 
