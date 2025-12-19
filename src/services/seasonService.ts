@@ -18,17 +18,20 @@ export interface UpdateSeasonPayload {
 }
 
 export const seasonService = {
-  getSeasonsByCityId: async (
-    cityId: string,
-    token: string
+  getSeasons: async (
+    token: string,
+    cityId?: number,
+    sportType?: string
   ): Promise<Season[]> => {
-    const response = await apiRequest<SeasonsResponse>(
-      `/seasons?cityId=${cityId}`,
-      {
-        method: "GET",
-        token,
-      }
-    );
+    const params = new URLSearchParams();
+    if (cityId !== undefined) params.append("cityId", String(cityId));
+    if (sportType) params.append("sportType", sportType);
+    const queryString = params.toString();
+    const url = queryString ? `/seasons?${queryString}` : "/seasons";
+    const response = await apiRequest<SeasonsResponse>(url, {
+      method: "GET",
+      token,
+    });
     return response.seasons;
   },
 

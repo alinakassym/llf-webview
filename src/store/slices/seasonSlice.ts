@@ -18,13 +18,14 @@ const initialState: SeasonState = {
   errorByCityId: {},
 };
 
-// Thunk для загрузки сезонов по cityId
-export const fetchSeasonsByCityId = createAsyncThunk<
-  { cityId: string; seasons: Season[] },
-  { cityId: string; token: string }
->("seasons/fetchSeasonsByCityId", async ({ cityId, token }) => {
-  const seasons = await seasonService.getSeasonsByCityId(cityId, token);
-  return { cityId, seasons };
+// Thunk для загрузки сезонов
+export const fetchSeasons = createAsyncThunk<
+  { cacheKey: string; seasons: Season[] },
+  { cityId?: number; token: string; sportType?: string }
+>("seasons/fetchSeasons", async ({ cityId, token, sportType }) => {
+  const seasons = await seasonService.getSeasons(token, cityId, sportType);
+  const cacheKey = cityId ? String(cityId) : "__ALL__";
+  return { cacheKey, seasons };
 });
 
 // Thunk для создания сезона
@@ -73,26 +74,26 @@ const seasonSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchSeasonsByCityId.pending, (state, action) => {
-        const cityId = action.meta.arg.cityId;
-        if (!state.loadingCities.includes(cityId)) {
-          state.loadingCities.push(cityId);
+      .addCase(fetchSeasons.pending, (state, action) => {
+        const cacheKey = action.meta.arg.cityId ? String(action.meta.arg.cityId) : "__ALL__";
+        if (!state.loadingCities.includes(cacheKey)) {
+          state.loadingCities.push(cacheKey);
         }
-        delete state.errorByCityId[cityId];
+        delete state.errorByCityId[cacheKey];
       })
-      .addCase(fetchSeasonsByCityId.fulfilled, (state, action) => {
-        const { cityId, seasons } = action.payload;
+      .addCase(fetchSeasons.fulfilled, (state, action) => {
+        const { cacheKey, seasons } = action.payload;
         // Сортируем сезоны по дате (от новых к старым)
-        state.itemsByCityId[cityId] = seasons.sort(
+        state.itemsByCityId[cacheKey] = seasons.sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
         );
-        state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
-        delete state.errorByCityId[cityId];
+        state.loadingCities = state.loadingCities.filter((id) => id !== cacheKey);
+        delete state.errorByCityId[cacheKey];
       })
-      .addCase(fetchSeasonsByCityId.rejected, (state, action) => {
-        const cityId = action.meta.arg.cityId;
-        state.loadingCities = state.loadingCities.filter((id) => id !== cityId);
-        state.errorByCityId[cityId] =
+      .addCase(fetchSeasons.rejected, (state, action) => {
+        const cacheKey = action.meta.arg.cityId ? String(action.meta.arg.cityId) : "__ALL__";
+        state.loadingCities = state.loadingCities.filter((id) => id !== cacheKey);
+        state.errorByCityId[cacheKey] =
           action.error.message || "Failed to load seasons";
       })
       .addCase(createSeason.fulfilled, (state, action) => {
@@ -107,13 +108,17 @@ const seasonSlice = createSlice({
         const cityId = String(newSeason.cityId);
         // Добавляем новый сезон в список сезонов города
         if (state.itemsByCityId[cityId]) {
-          state.itemsByCityId[cityId].push(newSeason);
-          // Сортируем сезоны по дате (от новых к старым)
-          state.itemsByCityId[cityId].sort(
+          state.itemsByCityId[cityId] = [...state.itemsByCityId[cityId], newSeason].sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
           );
         } else {
           state.itemsByCityId[cityId] = [newSeason];
+        }
+        // Обновляем "__ALL__" кеш если он существует
+        if (state.itemsByCityId["__ALL__"]) {
+          state.itemsByCityId["__ALL__"] = [...state.itemsByCityId["__ALL__"], newSeason].sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+          );
         }
       })
       .addCase(updateSeason.fulfilled, (state, action) => {
@@ -180,6 +185,12 @@ const seasonSlice = createSlice({
           if (state.itemsByCityId[cityId].length === 0) {
             delete state.itemsByCityId[cityId];
           }
+        }
+        // Удаляем из "__ALL__" кеша если он существует
+        if (state.itemsByCityId["__ALL__"]) {
+          state.itemsByCityId["__ALL__"] = state.itemsByCityId["__ALL__"].filter(
+            (season) => String(season.id) !== String(seasonId),
+          );
         }
       });
   },

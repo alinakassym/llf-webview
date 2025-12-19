@@ -17,9 +17,8 @@ import type { Season } from "../types/season";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
 import {
-  fetchSeasonsByCityId,
+  fetchSeasons,
   selectSeasonsByCity,
-  selectAllSeasons,
   createSeason,
   updateSeason,
   deleteSeason,
@@ -88,26 +87,23 @@ const SeasonsManagementPage: FC = () => {
 
   // Загружаем сезоны при выборе города
   useEffect(() => {
-    if (!activeToken || authLoading || webViewLoading || cities.length === 0) {
+    if (!activeToken || authLoading || webViewLoading) {
       return;
     }
 
     if (selectedCity === ALL_CITIES) {
-      // Загружаем сезоны для всех городов
-      cities.forEach((city) => {
-        dispatch(
-          fetchSeasonsByCityId({
-            cityId: String(city.id),
-            token: activeToken,
-          }),
-        );
-      });
+      // Загружаем все сезоны одним запросом без cityId
+      dispatch(
+        fetchSeasons({
+          token: activeToken,
+        }),
+      );
     } else {
       // Загружаем сезоны для конкретного города
       if (selectedCityData) {
         dispatch(
-          fetchSeasonsByCityId({
-            cityId: String(selectedCityData.id),
+          fetchSeasons({
+            cityId: selectedCityData.id,
             token: activeToken,
           }),
         );
@@ -116,7 +112,6 @@ const SeasonsManagementPage: FC = () => {
   }, [
     selectedCity,
     selectedCityData,
-    cities,
     activeToken,
     authLoading,
     webViewLoading,
@@ -126,7 +121,7 @@ const SeasonsManagementPage: FC = () => {
   // Получаем сезоны в зависимости от выбранного города
   const seasons = useAppSelector((state) =>
     selectedCity === ALL_CITIES
-      ? selectAllSeasons(state)
+      ? selectSeasonsByCity("__ALL__")(state)
       : selectedCityData
       ? selectSeasonsByCity(String(selectedCityData.id))(state)
       : [],
@@ -240,8 +235,8 @@ const SeasonsManagementPage: FC = () => {
     // Перезагружаем сезоны для старого города
     if (oldCityId) {
       await dispatch(
-        fetchSeasonsByCityId({
-          cityId: String(oldCityId),
+        fetchSeasons({
+          cityId: oldCityId,
           token: activeToken,
         }),
       );
@@ -251,10 +246,10 @@ const SeasonsManagementPage: FC = () => {
     const newLeague = editModalLeagues.find(
       (l) => l.id === String(data.leagueId),
     );
-    if (newLeague && newLeague.cityId !== String(oldCityId)) {
+    if (newLeague && Number(newLeague.cityId) !== oldCityId) {
       await dispatch(
-        fetchSeasonsByCityId({
-          cityId: String(newLeague.cityId),
+        fetchSeasons({
+          cityId: Number(newLeague.cityId),
           token: activeToken,
         }),
       );
