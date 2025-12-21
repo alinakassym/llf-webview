@@ -5,12 +5,16 @@ import { useParams } from "react-router-dom";
 import { Box, Container, Typography, CircularProgress } from "@mui/material";
 import { ShirtIcon } from "../components/icons";
 import { teamService } from "../services/teamService";
-import { playerService } from "../services/playerService";
 import { seasonService } from "../services/seasonService";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import {
+  fetchPlayerProfiles,
+  selectPlayerProfiles,
+  selectPlayerProfilesLoading,
+} from "../store/slices/playerSlice";
 import type { Team } from "../types/team";
-import type { PlayerProfile } from "../types/player";
 import type { Season } from "../types/season";
 import EmptyPlayerSlot from "../components/EmptyPlayerSlot";
 import PlayerSelectionModal from "../components/PlayerSelectionModal";
@@ -26,6 +30,7 @@ const VOLLEYBALL_HOVER_BORDER_COLOR = "rgba(255, 255, 255, 0.5)";
 
 const VolleyballTeamEditPage: FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
+  const dispatch = useAppDispatch();
   const { token, loading: authLoading } = useAuth();
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
 
@@ -34,10 +39,12 @@ const VolleyballTeamEditPage: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState<string>("");
-  const [playerProfiles, setPlayerProfiles] = useState<PlayerProfile[]>([]);
-  const [profilesLoading, setProfilesLoading] = useState(false);
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [seasonsLoading, setSeasonsLoading] = useState(false);
+
+  // Получаем playerProfiles из Redux store
+  const playerProfiles = useAppSelector(selectPlayerProfiles);
+  const profilesLoading = useAppSelector(selectPlayerProfilesLoading);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -57,27 +64,20 @@ const VolleyballTeamEditPage: FC = () => {
     setSelectedPosition("");
   };
 
-  // Загружаем профили игроков и сезоны при открытии модального окна
+  // Загружаем профили игроков через Redux при монтировании
   useEffect(() => {
-    const fetchPlayerProfiles = async () => {
-      if (!isModalOpen || !activeToken) {
-        return;
-      }
+    if (activeToken && !authLoading && !webViewLoading) {
+      dispatch(
+        fetchPlayerProfiles({
+          token: activeToken,
+          sportType: String(SportType.Volleyball),
+        })
+      );
+    }
+  }, [activeToken, authLoading, webViewLoading, dispatch]);
 
-      try {
-        setProfilesLoading(true);
-        const profiles = await playerService.getPlayerProfiles(
-          activeToken,
-          String(SportType.Volleyball)
-        );
-        setPlayerProfiles(profiles);
-      } catch (err) {
-        console.error("Error fetching player profiles:", err);
-      } finally {
-        setProfilesLoading(false);
-      }
-    };
-
+  // Загружаем сезоны при открытии модального окна
+  useEffect(() => {
     const fetchSeasons = async () => {
       if (!isModalOpen || !activeToken || !team) {
         return;
@@ -98,7 +98,6 @@ const VolleyballTeamEditPage: FC = () => {
       }
     };
 
-    fetchPlayerProfiles();
     fetchSeasons();
   }, [isModalOpen, activeToken, team]);
 
