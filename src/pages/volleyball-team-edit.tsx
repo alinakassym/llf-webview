@@ -6,10 +6,12 @@ import { Box, Container, Typography, CircularProgress } from "@mui/material";
 import { ShirtIcon } from "../components/icons";
 import { teamService } from "../services/teamService";
 import { playerService } from "../services/playerService";
+import { seasonService } from "../services/seasonService";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import type { Team } from "../types/team";
 import type { PlayerProfile } from "../types/player";
+import type { Season } from "../types/season";
 import EmptyPlayerSlot from "../components/EmptyPlayerSlot";
 import PlayerSelectionModal from "../components/PlayerSelectionModal";
 import {
@@ -34,6 +36,8 @@ const VolleyballTeamEditPage: FC = () => {
   const [selectedPosition, setSelectedPosition] = useState<string>("");
   const [playerProfiles, setPlayerProfiles] = useState<PlayerProfile[]>([]);
   const [profilesLoading, setProfilesLoading] = useState(false);
+  const [seasons, setSeasons] = useState<Season[]>([]);
+  const [seasonsLoading, setSeasonsLoading] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -53,7 +57,7 @@ const VolleyballTeamEditPage: FC = () => {
     setSelectedPosition("");
   };
 
-  // Загружаем профили игроков при открытии модального окна
+  // Загружаем профили игроков и сезоны при открытии модального окна
   useEffect(() => {
     const fetchPlayerProfiles = async () => {
       if (!isModalOpen || !activeToken) {
@@ -74,8 +78,29 @@ const VolleyballTeamEditPage: FC = () => {
       }
     };
 
+    const fetchSeasons = async () => {
+      if (!isModalOpen || !activeToken || !team) {
+        return;
+      }
+
+      try {
+        setSeasonsLoading(true);
+        const seasonsData = await seasonService.getSeasons(
+          activeToken,
+          team.cityId,
+          String(SportType.Volleyball)
+        );
+        setSeasons(seasonsData);
+      } catch (err) {
+        console.error("Error fetching seasons:", err);
+      } finally {
+        setSeasonsLoading(false);
+      }
+    };
+
     fetchPlayerProfiles();
-  }, [isModalOpen, activeToken]);
+    fetchSeasons();
+  }, [isModalOpen, activeToken, team]);
 
   // Загружаем данные команды и игроков
   useEffect(() => {
@@ -372,7 +397,9 @@ const VolleyballTeamEditPage: FC = () => {
         onClose={handleCloseModal}
         position={selectedPosition}
         playerProfiles={playerProfiles}
+        seasons={seasons}
         loading={profilesLoading}
+        seasonsLoading={seasonsLoading}
       />
     </Box>
   );

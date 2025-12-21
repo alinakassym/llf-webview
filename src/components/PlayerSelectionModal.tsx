@@ -15,13 +15,16 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { PlayerProfile } from "../types/player";
+import type { Season } from "../types/season";
 
 interface PlayerSelectionModalProps {
   open: boolean;
   onClose: () => void;
   position: string;
   playerProfiles: PlayerProfile[];
+  seasons: Season[];
   loading?: boolean;
+  seasonsLoading?: boolean;
 }
 
 const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
@@ -29,36 +32,54 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
   onClose,
   position,
   playerProfiles,
+  seasons,
   loading = false,
+  seasonsLoading = false,
 }) => {
   const [selectedProfileId, setSelectedProfileId] = useState<number>(0);
-  const [errors, setErrors] = useState<{ profileId?: string }>({});
+  const [selectedSeasonId, setSelectedSeasonId] = useState<number>(0);
+  const [errors, setErrors] = useState<{ profileId?: string; seasonId?: string }>({});
   const [submitting, setSubmitting] = useState(false);
 
   // Сбрасываем состояние при открытии/закрытии модала
   useEffect(() => {
     if (!open) {
       setSelectedProfileId(0);
+      setSelectedSeasonId(0);
       setErrors({});
       setSubmitting(false);
     }
   }, [open]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const profileId = Number(e.target.value);
     setSelectedProfileId(profileId);
 
     // Очищаем ошибку при выборе профиля
     if (errors.profileId) {
-      setErrors({});
+      setErrors((prev) => ({ ...prev, profileId: undefined }));
+    }
+  };
+
+  const handleSeasonChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const seasonId = Number(e.target.value);
+    setSelectedSeasonId(seasonId);
+
+    // Очищаем ошибку при выборе сезона
+    if (errors.seasonId) {
+      setErrors((prev) => ({ ...prev, seasonId: undefined }));
     }
   };
 
   const validate = (): boolean => {
-    const newErrors: { profileId?: string } = {};
+    const newErrors: { profileId?: string; seasonId?: string } = {};
 
     if (selectedProfileId === 0) {
       newErrors.profileId = "Выберите игрока";
+    }
+
+    if (selectedSeasonId === 0) {
+      newErrors.seasonId = "Выберите сезон";
     }
 
     setErrors(newErrors);
@@ -74,6 +95,7 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
     try {
       // TODO: Implement submit logic
       console.log("Selected profile ID:", selectedProfileId);
+      console.log("Selected season ID:", selectedSeasonId);
       handleClose();
     } catch (error) {
       console.error("Error adding player:", error);
@@ -126,10 +148,31 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
       <DialogContent>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
           <TextField
+            label="Сезон"
+            select
+            value={selectedSeasonId}
+            onChange={handleSeasonChange}
+            error={Boolean(errors.seasonId)}
+            helperText={errors.seasonId}
+            disabled={seasonsLoading || submitting}
+            fullWidth
+            required
+          >
+            <MenuItem value={0} disabled>
+              Выберите сезон
+            </MenuItem>
+            {seasons.map((season) => (
+              <MenuItem key={season.id} value={season.id}>
+                {season.name}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
             label="Игрок"
             select
             value={selectedProfileId}
-            onChange={handleChange}
+            onChange={handleProfileChange}
             error={Boolean(errors.profileId)}
             helperText={errors.profileId}
             disabled={loading || submitting}
