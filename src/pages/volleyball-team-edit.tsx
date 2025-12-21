@@ -5,7 +5,6 @@ import { useParams } from "react-router-dom";
 import { Box, Container, Typography, CircularProgress } from "@mui/material";
 import { ShirtIcon } from "../components/icons";
 import { teamService } from "../services/teamService";
-import { seasonService } from "../services/seasonService";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -14,8 +13,12 @@ import {
   selectPlayerProfiles,
   selectPlayerProfilesLoading,
 } from "../store/slices/playerSlice";
+import {
+  fetchSeasons,
+  selectSeasonsByCity,
+  selectSeasonsLoadingForCity,
+} from "../store/slices/seasonSlice";
 import type { Team } from "../types/team";
-import type { Season } from "../types/season";
 import EmptyPlayerSlot from "../components/EmptyPlayerSlot";
 import PlayerSelectionModal from "../components/PlayerSelectionModal";
 import {
@@ -39,12 +42,18 @@ const VolleyballTeamEditPage: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState<string>("");
-  const [seasons, setSeasons] = useState<Season[]>([]);
-  const [seasonsLoading, setSeasonsLoading] = useState(false);
 
   // Получаем playerProfiles из Redux store
   const playerProfiles = useAppSelector(selectPlayerProfiles);
   const profilesLoading = useAppSelector(selectPlayerProfilesLoading);
+
+  // Получаем seasons из Redux store для cityId команды
+  const seasons = useAppSelector((state) =>
+    team ? selectSeasonsByCity(String(team.cityId))(state) : []
+  );
+  const seasonsLoading = useAppSelector((state) =>
+    team ? selectSeasonsLoadingForCity(String(team.cityId))(state) : false
+  );
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -76,30 +85,18 @@ const VolleyballTeamEditPage: FC = () => {
     }
   }, [activeToken, authLoading, webViewLoading, dispatch]);
 
-  // Загружаем сезоны при открытии модального окна
+  // Загружаем сезоны через Redux после загрузки команды
   useEffect(() => {
-    const fetchSeasons = async () => {
-      if (!isModalOpen || !activeToken || !team) {
-        return;
-      }
-
-      try {
-        setSeasonsLoading(true);
-        const seasonsData = await seasonService.getSeasons(
-          activeToken,
-          team.cityId,
-          String(SportType.Volleyball)
-        );
-        setSeasons(seasonsData);
-      } catch (err) {
-        console.error("Error fetching seasons:", err);
-      } finally {
-        setSeasonsLoading(false);
-      }
-    };
-
-    fetchSeasons();
-  }, [isModalOpen, activeToken, team]);
+    if (activeToken && !authLoading && !webViewLoading && team) {
+      dispatch(
+        fetchSeasons({
+          cityId: team.cityId,
+          token: activeToken,
+          sportType: String(SportType.Volleyball),
+        })
+      );
+    }
+  }, [activeToken, authLoading, webViewLoading, team, dispatch]);
 
   // Загружаем данные команды и игроков
   useEffect(() => {
