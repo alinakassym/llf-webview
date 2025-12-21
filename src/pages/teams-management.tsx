@@ -243,11 +243,11 @@ const TeamsManagementPage: FC = () => {
     return grouped;
   }, [filteredTeams]);
 
-  const handleEdit = (teamId: string) => {
+  const handleEdit = (teamId: string, cityId?: number) => {
     // Определяем маршрут в зависимости от выбранного вида спорта
     // SportType.Volleyball = 2, SportType.Football = 1
     if (selectedSportType === "2") {
-      navigate(`/volleyball-team-edit/${teamId}`);
+      navigate(`/volleyball-team-edit/${cityId}/${teamId}`);
     } else {
       navigate(`/team-edit/${teamId}`);
     }
@@ -517,7 +517,7 @@ const TeamsManagementPage: FC = () => {
                       teamId={String(team.id)}
                       title={team.name}
                       subtitle={team.leagueName}
-                      onEdit={() => handleEdit(String(team.id))}
+                      onEdit={() => handleEdit(String(team.id), team.cityId)}
                       onDelete={() => handleDelete(String(team.id), team.name)}
                     />
                   ))}
@@ -531,7 +531,7 @@ const TeamsManagementPage: FC = () => {
                   teamId={String(team.id)}
                   title={team.name}
                   subtitle={team.leagueName}
-                  onEdit={() => handleEdit(String(team.id))}
+                  onEdit={() => handleEdit(String(team.id), team.cityId)}
                   onDelete={() => handleDelete(String(team.id), team.name)}
                 />
               ))

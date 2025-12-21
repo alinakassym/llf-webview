@@ -32,7 +32,7 @@ const VOLLEYBALL_HOVER_BACKGROUND_COLOR = "rgba(179, 77, 68, 0.9)";
 const VOLLEYBALL_HOVER_BORDER_COLOR = "rgba(255, 255, 255, 0.5)";
 
 const VolleyballTeamEditPage: FC = () => {
-  const { teamId } = useParams<{ teamId: string }>();
+  const { teamId, cityId } = useParams<{ teamId: string; cityId: string }>();
   const dispatch = useAppDispatch();
   const { token, loading: authLoading } = useAuth();
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
@@ -47,12 +47,12 @@ const VolleyballTeamEditPage: FC = () => {
   const playerProfiles = useAppSelector(selectPlayerProfiles);
   const profilesLoading = useAppSelector(selectPlayerProfilesLoading);
 
-  // Получаем seasons из Redux store для cityId команды
+  // Получаем seasons из Redux store для cityId из параметров
   const seasons = useAppSelector((state) =>
-    team ? selectSeasonsByCity(String(team.cityId))(state) : []
+    cityId ? selectSeasonsByCity(cityId)(state) : []
   );
   const seasonsLoading = useAppSelector((state) =>
-    team ? selectSeasonsLoadingForCity(String(team.cityId))(state) : false
+    cityId ? selectSeasonsLoadingForCity(cityId)(state) : false
   );
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
@@ -85,18 +85,18 @@ const VolleyballTeamEditPage: FC = () => {
     }
   }, [activeToken, authLoading, webViewLoading, dispatch]);
 
-  // Загружаем сезоны через Redux после загрузки команды
+  // Загружаем сезоны через Redux при монтировании
   useEffect(() => {
-    if (activeToken && !authLoading && !webViewLoading && team) {
+    if (activeToken && !authLoading && !webViewLoading && cityId) {
       dispatch(
         fetchSeasons({
-          cityId: team.cityId,
+          cityId: Number(cityId),
           token: activeToken,
           sportType: String(SportType.Volleyball),
         })
       );
     }
-  }, [activeToken, authLoading, webViewLoading, team, dispatch]);
+  }, [activeToken, authLoading, webViewLoading, cityId, dispatch]);
 
   // Загружаем данные команды и игроков
   useEffect(() => {
