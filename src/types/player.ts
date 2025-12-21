@@ -1,6 +1,7 @@
 export interface Player {
   id: number;
-  userId: number;
+  playerProfileId: number;
+  userId: number | null;
   fullName: string;
   dateOfBirth: string;
   teamId: number;
@@ -9,6 +10,17 @@ export interface Player {
   seasonName: string;
   number: number;
   cityName: string;
+  sportType: string;
+  age: number;
+  position: string;
+  volleyballPosition: string;
+  isProfessionalVolleyballPlayer: boolean;
+  registeredDate: string;
+  deregisteredDate: string;
+  yellowCards: number;
+  redCards: number;
+  totalGoals: number;
+  matchesPlayed: number;
 }
 
 export interface PlayerProfile {

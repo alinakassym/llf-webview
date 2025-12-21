@@ -2,7 +2,7 @@
 
 import { type FC, useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Container, Typography, CircularProgress } from "@mui/material";
+import { Box, Container, Typography, CircularProgress, MenuItem, TextField } from "@mui/material";
 import { ShirtIcon } from "../components/icons";
 import { teamService } from "../services/teamService";
 import { useAuth } from "../hooks/useAuth";
@@ -12,6 +12,8 @@ import {
   fetchPlayerProfiles,
   selectPlayerProfiles,
   selectPlayerProfilesLoading,
+  fetchPlayers,
+  selectPlayersByTeam,
 } from "../store/slices/playerSlice";
 import {
   fetchSeasons,
@@ -20,6 +22,7 @@ import {
 } from "../store/slices/seasonSlice";
 import type { Team } from "../types/team";
 import EmptyPlayerSlot from "../components/EmptyPlayerSlot";
+import PlayerSlot from "../components/PlayerSlot";
 import PlayerSelectionModal from "../components/PlayerSelectionModal";
 import {
   VolleyballPosition,
@@ -42,6 +45,7 @@ const VolleyballTeamEditPage: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState<string>("");
+  const [selectedSeasonId, setSelectedSeasonId] = useState<number>(0);
 
   // Получаем playerProfiles из Redux store
   const playerProfiles = useAppSelector(selectPlayerProfiles);
@@ -53,6 +57,11 @@ const VolleyballTeamEditPage: FC = () => {
   );
   const seasonsLoading = useAppSelector((state) =>
     cityId ? selectSeasonsLoadingForCity(cityId)(state) : false
+  );
+
+  // Получаем игроков команды из Redux store
+  const teamPlayers = useAppSelector((state) =>
+    teamId ? selectPlayersByTeam(state, teamId) : []
   );
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
@@ -98,6 +107,20 @@ const VolleyballTeamEditPage: FC = () => {
     }
   }, [activeToken, authLoading, webViewLoading, cityId, dispatch]);
 
+  // Загружаем игроков команды при выборе сезона
+  useEffect(() => {
+    if (activeToken && !authLoading && !webViewLoading && teamId && selectedSeasonId > 0) {
+      dispatch(
+        fetchPlayers({
+          teamId: teamId,
+          seasonId: String(selectedSeasonId),
+          token: activeToken,
+          sportType: String(SportType.Volleyball),
+        })
+      );
+    }
+  }, [activeToken, authLoading, webViewLoading, teamId, selectedSeasonId, dispatch]);
+
   // Загружаем данные команды и игроков
   useEffect(() => {
     const fetchTeamAndPlayers = async () => {
@@ -126,6 +149,39 @@ const VolleyballTeamEditPage: FC = () => {
 
     fetchTeamAndPlayers();
   }, [teamId, activeToken, authLoading, webViewLoading]);
+
+  // Вспомогательная функция для рендеринга слота игрока
+  const renderPlayerSlot = (volleyballPosition: VolleyballPosition) => {
+    const positionName = VolleyballPositionName[volleyballPosition];
+    const positionAbbr = VolleyballPositionAbbreviation[volleyballPosition];
+
+    // Ищем игрока на этой позиции
+    const player = teamPlayers.find(
+      (p) => p.volleyballPosition === positionName
+    );
+
+    if (player) {
+      // Есть игрок - показываем PlayerSlot
+      return (
+        <PlayerSlot
+          fullName={player.fullName}
+          label={positionAbbr}
+          backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
+          borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
+        />
+      );
+    } else {
+      // Нет игрока - показываем EmptyPlayerSlot
+      return (
+        <EmptyPlayerSlot
+          label={positionAbbr}
+          backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
+          borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
+          onClick={() => handlePlayerSlotClick(positionName)}
+        />
+      );
+    }
+  };
 
   // Показываем loader пока идет загрузка
   if (loading || authLoading || webViewLoading) {
@@ -229,6 +285,28 @@ const VolleyballTeamEditPage: FC = () => {
           </Box>
         </Box>
 
+        {/* Выбор сезона */}
+        <Box sx={{ px: 2, pt: 2, pb: 1 }}>
+          <TextField
+            label="Сезон"
+            select
+            value={selectedSeasonId}
+            onChange={(e) => setSelectedSeasonId(Number(e.target.value))}
+            fullWidth
+            size="small"
+            disabled={seasonsLoading || seasons.length === 0}
+          >
+            <MenuItem value={0} disabled>
+              Выберите сезон
+            </MenuItem>
+            {seasons.map((season) => (
+              <MenuItem key={season.id} value={season.id}>
+                {season.name}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Box>
+
         {/* Контентная область - волейбольное поле */}
         <Box
           sx={{
@@ -277,34 +355,8 @@ const VolleyballTeamEditPage: FC = () => {
                 gap: 20,
               }}
             >
-              <EmptyPlayerSlot
-                label={
-                  VolleyballPositionAbbreviation[
-                    VolleyballPosition.MiddleBlocker
-                  ]
-                }
-                backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
-                borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
-                onClick={() =>
-                  handlePlayerSlotClick(
-                    VolleyballPositionName[VolleyballPosition.MiddleBlocker],
-                  )
-                }
-              />
-              <EmptyPlayerSlot
-                label={
-                  VolleyballPositionAbbreviation[
-                    VolleyballPosition.MiddleBlocker
-                  ]
-                }
-                backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
-                borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
-                onClick={() =>
-                  handlePlayerSlotClick(
-                    VolleyballPositionName[VolleyballPosition.MiddleBlocker],
-                  )
-                }
-              />
+              {renderPlayerSlot(VolleyballPosition.MiddleBlocker)}
+              {renderPlayerSlot(VolleyballPosition.MiddleBlocker)}
             </div>
 
             {/* Средний ряд - Связующий (СВ), Нападающий (НАП), Диагональный (ДИ) - 3 карточки */}
@@ -319,44 +371,9 @@ const VolleyballTeamEditPage: FC = () => {
                 gap: 20,
               }}
             >
-              <EmptyPlayerSlot
-                label={
-                  VolleyballPositionAbbreviation[VolleyballPosition.Setter]
-                }
-                backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
-                borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
-                onClick={() =>
-                  handlePlayerSlotClick(
-                    VolleyballPositionName[VolleyballPosition.Setter],
-                  )
-                }
-              />
-              <EmptyPlayerSlot
-                label={
-                  VolleyballPositionAbbreviation[
-                    VolleyballPosition.OutsideHitter
-                  ]
-                }
-                backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
-                borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
-                onClick={() =>
-                  handlePlayerSlotClick(
-                    VolleyballPositionName[VolleyballPosition.OutsideHitter],
-                  )
-                }
-              />
-              <EmptyPlayerSlot
-                label={
-                  VolleyballPositionAbbreviation[VolleyballPosition.Opposite]
-                }
-                backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
-                borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
-                onClick={() =>
-                  handlePlayerSlotClick(
-                    VolleyballPositionName[VolleyballPosition.Opposite],
-                  )
-                }
-              />
+              {renderPlayerSlot(VolleyballPosition.Setter)}
+              {renderPlayerSlot(VolleyballPosition.OutsideHitter)}
+              {renderPlayerSlot(VolleyballPosition.Opposite)}
             </div>
 
             {/* Нижний ряд - Либеро (ЛИБ) - 1 карточка */}
@@ -370,18 +387,7 @@ const VolleyballTeamEditPage: FC = () => {
                 gap: 20,
               }}
             >
-              <EmptyPlayerSlot
-                label={
-                  VolleyballPositionAbbreviation[VolleyballPosition.Libero]
-                }
-                backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
-                borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
-                onClick={() =>
-                  handlePlayerSlotClick(
-                    VolleyballPositionName[VolleyballPosition.Libero],
-                  )
-                }
-              />
+              {renderPlayerSlot(VolleyballPosition.Libero)}
             </div>
           </Box>
         </Box>
