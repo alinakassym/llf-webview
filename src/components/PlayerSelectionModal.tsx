@@ -16,15 +16,22 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import type { PlayerProfile } from "../types/player";
 import type { Season } from "../types/season";
+import { playerService } from "../services/playerService";
+import { SportType } from "../types/sportType";
+import { VolleyballPosition } from "../types/volleyballPosition";
 
 interface PlayerSelectionModalProps {
   open: boolean;
   onClose: () => void;
-  position: string;
+  position: VolleyballPosition;
   playerProfiles: PlayerProfile[];
   seasons: Season[];
   loading?: boolean;
   seasonsLoading?: boolean;
+  teamId: string;
+  selectedSeasonId: number;
+  token: string;
+  onPlayerAdded?: () => void;
 }
 
 const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
@@ -32,20 +39,25 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
   onClose,
   position,
   playerProfiles,
-  seasons,
   loading = false,
-  seasonsLoading = false,
+  teamId,
+  selectedSeasonId,
+  token,
+  onPlayerAdded,
 }) => {
   const [selectedProfileId, setSelectedProfileId] = useState<number>(0);
-  const [selectedSeasonId, setSelectedSeasonId] = useState<number>(0);
-  const [errors, setErrors] = useState<{ profileId?: string; seasonId?: string }>({});
+  const [playerNumber, setPlayerNumber] = useState<string>("");
+  const [errors, setErrors] = useState<{
+    profileId?: string;
+    number?: string;
+  }>({});
   const [submitting, setSubmitting] = useState(false);
 
   // Сбрасываем состояние при открытии/закрытии модала
   useEffect(() => {
     if (!open) {
       setSelectedProfileId(0);
-      setSelectedSeasonId(0);
+      setPlayerNumber("");
       setErrors({});
       setSubmitting(false);
     }
@@ -61,25 +73,30 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
     }
   };
 
-  const handleSeasonChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const seasonId = Number(e.target.value);
-    setSelectedSeasonId(seasonId);
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Разрешаем только цифры
+    if (value === "" || /^\d+$/.test(value)) {
+      setPlayerNumber(value);
 
-    // Очищаем ошибку при выборе сезона
-    if (errors.seasonId) {
-      setErrors((prev) => ({ ...prev, seasonId: undefined }));
+      // Очищаем ошибку при вводе
+      if (errors.number) {
+        setErrors((prev) => ({ ...prev, number: undefined }));
+      }
     }
   };
 
   const validate = (): boolean => {
-    const newErrors: { profileId?: string; seasonId?: string } = {};
+    const newErrors: { profileId?: string; number?: string } = {};
 
     if (selectedProfileId === 0) {
       newErrors.profileId = "Выберите игрока";
     }
 
-    if (selectedSeasonId === 0) {
-      newErrors.seasonId = "Выберите сезон";
+    if (playerNumber === "") {
+      newErrors.number = "Введите номер игрока";
+    } else if (Number(playerNumber) < 1 || Number(playerNumber) > 99) {
+      newErrors.number = "Номер должен быть от 1 до 99";
     }
 
     setErrors(newErrors);
@@ -93,9 +110,23 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
 
     setSubmitting(true);
     try {
-      // TODO: Implement submit logic
-      console.log("Selected profile ID:", selectedProfileId);
-      console.log("Selected season ID:", selectedSeasonId);
+      await playerService.addPlayerToTeam(
+        {
+          playerProfileId: selectedProfileId,
+          teamId: Number(teamId),
+          seasonId: selectedSeasonId,
+          number: Number(playerNumber),
+          sportType: SportType.Volleyball,
+          volleyballPosition: position,
+        },
+        token,
+      );
+
+      // Вызываем коллбек для обновления списка игроков
+      if (onPlayerAdded) {
+        onPlayerAdded();
+      }
+
       handleClose();
     } catch (error) {
       console.error("Error adding player:", error);
@@ -148,27 +179,6 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
       <DialogContent>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
           <TextField
-            label="Сезон"
-            select
-            value={selectedSeasonId}
-            onChange={handleSeasonChange}
-            error={Boolean(errors.seasonId)}
-            helperText={errors.seasonId}
-            disabled={seasonsLoading || submitting}
-            fullWidth
-            required
-          >
-            <MenuItem value={0} disabled>
-              Выберите сезон
-            </MenuItem>
-            {seasons.map((season) => (
-              <MenuItem key={season.id} value={season.id}>
-                {season.name}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <TextField
             label="Игрок"
             select
             value={selectedProfileId}
@@ -188,6 +198,26 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
               </MenuItem>
             ))}
           </TextField>
+
+          <TextField
+            label="Номер игрока"
+            value={playerNumber}
+            onChange={handleNumberChange}
+            error={Boolean(errors.number)}
+            helperText={errors.number}
+            disabled={submitting}
+            fullWidth
+            required
+            type="text"
+            slotProps={{
+              htmlInput: {
+                inputMode: "numeric",
+                pattern: "[0-9]*",
+                maxLength: 2,
+              },
+            }}
+            placeholder="1-99"
+          />
         </Box>
       </DialogContent>
 

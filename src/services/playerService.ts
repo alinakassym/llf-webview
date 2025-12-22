@@ -17,6 +17,15 @@ export interface CreatePlayerProfilePayload {
   matchesPlayed?: number;
 }
 
+export interface AddPlayerToTeamPayload {
+  playerProfileId: number;
+  teamId: number;
+  seasonId: number;
+  number: number;
+  sportType: number;
+  volleyballPosition: number;
+}
+
 export const playerService = {
   getPlayers: async (
     token: string,
@@ -63,6 +72,18 @@ export const playerService = {
     token: string
   ): Promise<PlayerProfile> => {
     const response = await apiRequest<PlayerProfile>("/players/profiles", {
+      method: "POST",
+      token,
+      body: JSON.stringify(data),
+    });
+    return response;
+  },
+
+  addPlayerToTeam: async (
+    data: AddPlayerToTeamPayload,
+    token: string
+  ): Promise<Player> => {
+    const response = await apiRequest<Player>("/players", {
       method: "POST",
       token,
       body: JSON.stringify(data),

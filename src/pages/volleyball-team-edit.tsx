@@ -27,7 +27,6 @@ import PlayerSlot from "../components/PlayerSlot";
 import PlayerSelectionModal from "../components/PlayerSelectionModal";
 import {
   VolleyballPosition,
-  VolleyballPositionName,
   VolleyballPositionAbbreviation,
 } from "../types/volleyballPosition";
 import { SportType } from "../types/sportType";
@@ -46,7 +45,8 @@ const VolleyballTeamEditPage: FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPosition, setSelectedPosition] = useState<string>("");
+  const [selectedPosition, setSelectedPosition] =
+    useState<VolleyballPosition>(0);
   const [selectedSeasonId, setSelectedSeasonId] = useState<number>(() => {
     const saved = localStorage.getItem(`volleyball-team-${teamId}-season`);
     return saved ? Number(saved) : 0;
@@ -76,7 +76,7 @@ const VolleyballTeamEditPage: FC = () => {
   );
 
   // Обработчик открытия модального окна для добавления игрока
-  const handlePlayerSlotClick = (position: string) => {
+  const handlePlayerSlotClick = (position: VolleyballPosition) => {
     setSelectedPosition(position);
     setIsModalOpen(true);
   };
@@ -84,7 +84,7 @@ const VolleyballTeamEditPage: FC = () => {
   // Обработчик закрытия модального окна
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedPosition("");
+    setSelectedPosition(0);
   };
 
   // Загружаем профили игроков через Redux только когда выбран сезон
@@ -185,7 +185,6 @@ const VolleyballTeamEditPage: FC = () => {
 
   // Вспомогательная функция для рендеринга слота игрока
   const renderPlayerSlot = (volleyballPosition: VolleyballPosition) => {
-    const positionName = VolleyballPositionName[volleyballPosition];
     const positionAbbr = VolleyballPositionAbbreviation[volleyballPosition];
 
     // Ищем игрока на этой позиции
@@ -214,7 +213,7 @@ const VolleyballTeamEditPage: FC = () => {
           label={positionAbbr}
           backgroundColor={VOLLEYBALL_BACKGROUND_COLOR2}
           borderColor={VOLLEYBALL_BORDER_COLOR}
-          onClick={() => handlePlayerSlotClick(positionName)}
+          onClick={() => handlePlayerSlotClick(volleyballPosition)}
         />
       );
     }
@@ -481,6 +480,22 @@ const VolleyballTeamEditPage: FC = () => {
         seasons={seasons}
         loading={profilesLoading}
         seasonsLoading={seasonsLoading}
+        teamId={teamId || ""}
+        selectedSeasonId={selectedSeasonId}
+        token={activeToken || ""}
+        onPlayerAdded={() => {
+          // Перезагружаем список игроков команды после добавления
+          if (activeToken && teamId && selectedSeasonId > 0) {
+            dispatch(
+              fetchPlayers({
+                teamId: teamId,
+                seasonId: String(selectedSeasonId),
+                token: activeToken,
+                sportType: String(SportType.Volleyball),
+              }),
+            );
+          }
+        }}
       />
     </Box>
   );
