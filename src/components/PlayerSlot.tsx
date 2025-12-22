@@ -21,6 +21,12 @@ const PlayerSlot: FC<PlayerSlotProps> = ({
   backgroundColor = "rgba(42, 128, 25, 0.8)",
   borderColor = "rgba(255, 255, 255, 0.5)",
 }) => {
+  const formatName = (name: string): string => {
+    const parts = name.trim().split(/\s+/);
+    if (parts.length < 2) return name;
+    return `${parts[0]} ${parts[1][0]}.`;
+  };
+
   return (
     <Box
       onClick={onClick}
@@ -52,8 +58,8 @@ const PlayerSlot: FC<PlayerSlotProps> = ({
       {/* Иконка игрока */}
       <Box
         sx={{
-          width: 40,
-          height: 40,
+          width: 30,
+          height: 30,
           borderRadius: "50%",
           backgroundColor: "rgba(255, 255, 255, 0.2)",
           display: "flex",
@@ -63,7 +69,7 @@ const PlayerSlot: FC<PlayerSlotProps> = ({
       >
         <PersonIcon
           sx={{
-            fontSize: 20,
+            fontSize: 14,
             color: "#FFFFFF",
           }}
         />
@@ -72,8 +78,8 @@ const PlayerSlot: FC<PlayerSlotProps> = ({
       {/* Имя игрока */}
       <Typography
         sx={{
-          fontSize: "8px",
-          fontWeight: 500,
+          fontSize: "10px",
+          fontWeight: 600,
           color: "#FFFFFF",
           textAlign: "center",
           lineHeight: 1.2,
@@ -84,14 +90,14 @@ const PlayerSlot: FC<PlayerSlotProps> = ({
           px: 0.5,
         }}
       >
-        {fullName}
+        {formatName(fullName)}
       </Typography>
 
       {/* Позиция */}
       <Typography
         sx={{
-          fontSize: "9px",
-          fontWeight: 600,
+          fontSize: "8px",
+          fontWeight: 500,
           color: "#FFFFFF",
           textTransform: "uppercase",
           letterSpacing: "0.5px",

@@ -50,8 +50,8 @@ const EmptyPlayerSlot: FC<EmptyPlayerSlotProps> = ({
       {/* Иконка добавления игрока */}
       <Box
         sx={{
-          width: 40,
-          height: 40,
+          width: 30,
+          height: 30,
           borderRadius: "50%",
           backgroundColor: "rgba(255, 255, 255, 0.2)",
           display: "flex",
@@ -61,7 +61,7 @@ const EmptyPlayerSlot: FC<EmptyPlayerSlotProps> = ({
       >
         <PersonAddIcon
           sx={{
-            fontSize: 20,
+            fontSize: 14,
             color: "#FFFFFF",
           }}
         />
@@ -70,8 +70,8 @@ const EmptyPlayerSlot: FC<EmptyPlayerSlotProps> = ({
       {/* Позиция */}
       <Typography
         sx={{
-          fontSize: "10px",
-          fontWeight: 600,
+          fontSize: "8px",
+          fontWeight: 500,
           color: "#FFFFFF",
           textTransform: "uppercase",
           letterSpacing: "0.5px",
