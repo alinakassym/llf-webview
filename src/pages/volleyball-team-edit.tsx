@@ -75,6 +75,21 @@ const VolleyballTeamEditPage: FC = () => {
     [webViewToken, token],
   );
 
+  // Фильтруем профили игроков, исключая тех кто уже в команде
+  const availablePlayerProfiles = useMemo(() => {
+    // Получаем ID профилей игроков которые уже в команде
+    const teamPlayerProfileIds = new Set(
+      teamPlayers
+        .map((player) => player.playerProfileId)
+        .filter((id): id is number => id !== undefined)
+    );
+
+    // Возвращаем только тех игроков которых нет в команде
+    return playerProfiles.filter(
+      (profile) => profile.id !== undefined && !teamPlayerProfileIds.has(profile.id)
+    );
+  }, [playerProfiles, teamPlayers]);
+
   // Обработчик открытия модального окна для добавления игрока
   const handlePlayerSlotClick = (position: VolleyballPosition) => {
     setSelectedPosition(position);
@@ -482,7 +497,7 @@ const VolleyballTeamEditPage: FC = () => {
         open={isModalOpen}
         onClose={handleCloseModal}
         position={selectedPosition}
-        playerProfiles={playerProfiles}
+        playerProfiles={availablePlayerProfiles}
         seasons={seasons}
         loading={profilesLoading}
         seasonsLoading={seasonsLoading}
