@@ -184,16 +184,22 @@ const VolleyballTeamEditPage: FC = () => {
   }, [teamId, activeToken, authLoading, webViewLoading]);
 
   // Вспомогательная функция для рендеринга слота игрока
-  const renderPlayerSlot = (volleyballPosition: VolleyballPosition) => {
+  const renderPlayerSlot = (
+    volleyballPosition: VolleyballPosition,
+    index: number = 0,
+  ) => {
     const positionAbbr = VolleyballPositionAbbreviation[volleyballPosition];
 
-    // Ищем игрока на этой позиции
-    const player = teamPlayers.find(
+    // Ищем всех игроков на этой позиции
+    const playersAtPosition = teamPlayers.filter(
       (p) =>
         VolleyballPosition[
           p.volleyballPosition as unknown as keyof typeof VolleyballPosition
         ] === volleyballPosition,
     );
+
+    // Берем игрока по индексу
+    const player = playersAtPosition[index];
 
     if (player) {
       // Есть игрок - показываем PlayerSlot
@@ -432,8 +438,8 @@ const VolleyballTeamEditPage: FC = () => {
                   gap: 20,
                 }}
               >
-                {renderPlayerSlot(VolleyballPosition.MiddleBlocker)}
-                {renderPlayerSlot(VolleyballPosition.MiddleBlocker)}
+                {renderPlayerSlot(VolleyballPosition.MiddleBlocker, 0)}
+                {renderPlayerSlot(VolleyballPosition.MiddleBlocker, 1)}
               </div>
 
               {/* Средний ряд - Связующий (СВ), Нападающий (НАП), Диагональный (ДИ) - 3 карточки */}
