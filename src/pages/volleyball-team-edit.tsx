@@ -85,9 +85,9 @@ const VolleyballTeamEditPage: FC = () => {
     setSelectedPosition("");
   };
 
-  // Загружаем профили игроков через Redux при монтировании
+  // Загружаем профили игроков через Redux только когда выбран сезон
   useEffect(() => {
-    if (activeToken && !authLoading && !webViewLoading) {
+    if (activeToken && !authLoading && !webViewLoading && selectedSeasonId > 0) {
       dispatch(
         fetchPlayerProfiles({
           token: activeToken,
@@ -95,7 +95,7 @@ const VolleyballTeamEditPage: FC = () => {
         })
       );
     }
-  }, [activeToken, authLoading, webViewLoading, dispatch]);
+  }, [activeToken, authLoading, webViewLoading, selectedSeasonId, dispatch]);
 
   // Загружаем сезоны через Redux при монтировании
   useEffect(() => {
@@ -239,7 +239,7 @@ const VolleyballTeamEditPage: FC = () => {
         top: 0,
         right: 0,
         minHeight: "100vh",
-        backgroundColor: "surface",
+        backgroundColor: "background.default",
       }}
     >
       <Container disableGutters maxWidth={false} sx={{ px: 0, pt: 0, pb: 10 }}>
@@ -300,7 +300,7 @@ const VolleyballTeamEditPage: FC = () => {
         </Box>
 
         {/* Выбор сезона */}
-        <Box sx={{ px: 2, pt: 2, pb: 1 }}>
+        <Box sx={{ px: 2, pt: 2, pb: 0 }}>
           <TextField
             label="Сезон"
             select
