@@ -1,3 +1,5 @@
+import type { VolleyballPosition } from "./volleyballPosition";
+
 export interface Player {
   id: number;
   playerProfileId: number;
@@ -13,7 +15,7 @@ export interface Player {
   sportType: string;
   age: number;
   position: string;
-  volleyballPosition: string;
+  volleyballPosition: VolleyballPosition;
   isProfessionalVolleyballPlayer: boolean;
   registeredDate: string;
   deregisteredDate: string;

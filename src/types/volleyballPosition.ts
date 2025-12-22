@@ -1,3 +1,5 @@
+// llf-webview/src/types/volleyballPosition.ts
+
 export const VolleyballPosition = {
   Unknown: 0,
   Setter: 1, // Связующий
@@ -12,7 +14,10 @@ export type VolleyballPosition =
   (typeof VolleyballPosition)[keyof typeof VolleyballPosition];
 
 // Сокращения позиций для отображения на поле
-export const VolleyballPositionAbbreviation: Record<VolleyballPosition, string> = {
+export const VolleyballPositionAbbreviation: Record<
+  VolleyballPosition,
+  string
+> = {
   [VolleyballPosition.Unknown]: "?",
   [VolleyballPosition.Setter]: "СВ",
   [VolleyballPosition.OutsideHitter]: "НАП",

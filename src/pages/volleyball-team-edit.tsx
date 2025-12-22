@@ -157,11 +157,15 @@ const VolleyballTeamEditPage: FC = () => {
 
     // Ищем игрока на этой позиции
     const player = teamPlayers.find(
-      (p) => p.volleyballPosition === positionName
+      (p) =>
+        VolleyballPosition[
+          p.volleyballPosition as unknown as keyof typeof VolleyballPosition
+        ] === volleyballPosition,
     );
 
     if (player) {
       // Есть игрок - показываем PlayerSlot
+
       return (
         <PlayerSlot
           fullName={player.fullName}
