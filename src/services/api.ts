@@ -36,7 +36,35 @@ export const apiRequest = async <T>(
     if (response.status === 401 && onUnauthorizedCallback) {
       onUnauthorizedCallback();
     }
-    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+
+    // Пытаемся получить тело ответа с сообщением об ошибке
+    let errorData: unknown = null;
+    try {
+      const errorText = await response.text();
+      if (errorText && errorText.trim().length > 0) {
+        errorData = JSON.parse(errorText);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      // Если не удалось распарсить, игнорируем
+    }
+
+    // Создаём ошибку с дополнительной информацией
+    const error: unknown = new Error(
+      typeof errorData === "object" &&
+      errorData !== null &&
+      "error" in errorData
+        ? (errorData as { error: string }).error
+        : `API Error: ${response.status} ${response.statusText}`,
+    );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (error as any).response = {
+      status: response.status,
+      statusText: response.statusText,
+      data: errorData,
+    };
+
+    throw error;
   }
 
   // Если ответ пустой (например, DELETE запрос), не пытаемся парсить JSON

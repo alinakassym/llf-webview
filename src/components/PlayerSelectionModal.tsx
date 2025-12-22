@@ -113,26 +113,43 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
     }
 
     setSubmitting(true);
-    const result = await playerService.addPlayerToTeam(
-      {
-        playerProfileId: selectedProfileId,
-        teamId: Number(teamId),
-        seasonId: selectedSeasonId,
-        number: Number(playerNumber),
-        sportType: SportType.Volleyball,
-        volleyballPosition: position,
-      },
-      token,
-    );
-    console.log("Add player result:", result);
+    try {
+      const result = await playerService.addPlayerToTeam(
+        {
+          playerProfileId: selectedProfileId,
+          teamId: Number(teamId),
+          seasonId: selectedSeasonId,
+          number: Number(playerNumber),
+          sportType: SportType.Volleyball,
+          volleyballPosition: position,
+        },
+        token,
+      );
+      console.log("Add player result:", result);
 
-    // Вызываем коллбек для обновления списка игроков
-    if (onPlayerAdded) {
-      onPlayerAdded();
+      // Вызываем коллбек для обновления списка игроков
+      if (onPlayerAdded) {
+        onPlayerAdded();
+      }
+
+      handleClose();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Error adding player:", error?.response);
+      console.log("Error data:", error?.response?.data);
+
+      // Извлекаем сообщение об ошибке из ответа бэкенда
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Не удалось добавить игрока";
+
+      console.log("Extracted error message:", errorMessage);
+      setSnackbarMessage(errorMessage);
+      setSnackbarOpen(true);
+    } finally {
+      setSubmitting(false);
     }
-
-    handleClose();
-    setSubmitting(false);
   };
 
   const handleCloseSnackbar = () => {
