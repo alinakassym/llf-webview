@@ -60,7 +60,7 @@ const App: FC = () => {
         <Route path="/teams-management" element={<TeamsManagementPage />} />
         <Route path="/team-edit/:teamId" element={<TeamEditPage />} />
         <Route path="/volleyball-team-edit/:cityId/:teamId" element={<VolleyballTeamEditPage />} />
-        <Route path="/season-edit/:cityId/:seasonId/:sportType" element={<SeasonEditPage />} />
+        <Route path="/season-edit/:seasonId/:sportType" element={<SeasonEditPage />} />
         <Route path="/competition-plan" element={<CompetitionPlanPage />} />
         <Route path="/regulations" element={<RegulationsPage />} />
         <Route path="/rules" element={<RulesPage />} />

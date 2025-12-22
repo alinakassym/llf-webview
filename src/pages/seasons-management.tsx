@@ -180,12 +180,8 @@ const SeasonsManagementPage: FC = () => {
   }, [selectedCity, filteredSeasons]);
 
   const handleEdit = (seasonId: string) => {
-    // Находим сезон по ID
-    const season = seasons.find((s) => String(s.id) === seasonId);
-    if (season) {
-      // Переходим на страницу редактирования сезона
-      navigate(`/season-edit/${season.cityId}/${seasonId}/${selectedSportType}`);
-    }
+    // Переходим на страницу редактирования сезона
+    navigate(`/season-edit/${seasonId}/${selectedSportType}`);
   };
 
   const handleDelete = (seasonId: string, seasonName: string) => {

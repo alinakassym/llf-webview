@@ -35,6 +35,14 @@ export const seasonService = {
     return response.seasons;
   },
 
+  getSeasonById: async (seasonId: string, token: string): Promise<Season> => {
+    const response = await apiRequest<Season>(`/seasons/${seasonId}`, {
+      method: "GET",
+      token,
+    });
+    return response;
+  },
+
   createSeason: async (
     data: CreateSeasonPayload,
     token: string

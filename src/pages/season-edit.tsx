@@ -17,17 +17,14 @@ import EditSeasonModal, {
 } from "../components/EditSeasonModal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
-import {
-  fetchSeasons,
-  selectSeasonsByCity,
-  updateSeason,
-} from "../store/slices/seasonSlice";
+import { updateSeason } from "../store/slices/seasonSlice";
 import { fetchLeagues, selectLeaguesByCity } from "../store/slices/leagueSlice";
+import { seasonService } from "../services/seasonService";
+import type { Season } from "../types/season";
 
 const SeasonEditPage: FC = () => {
-  const { seasonId, cityId, sportType } = useParams<{
+  const { seasonId, sportType } = useParams<{
     seasonId: string;
-    cityId: string;
     sportType: string;
   }>();
   const dispatch = useAppDispatch();
@@ -36,6 +33,7 @@ const SeasonEditPage: FC = () => {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [season, setSeason] = useState<Season | null>(null);
 
   const activeToken = webViewToken || token;
 
@@ -44,16 +42,9 @@ const SeasonEditPage: FC = () => {
     (state) => state.cities,
   );
 
-  const seasons = useAppSelector((state) =>
-    cityId ? selectSeasonsByCity(cityId)(state) : [],
-  );
-
   const leagues = useAppSelector((state) =>
-    cityId ? selectLeaguesByCity(cityId)(state) : [],
+    season ? selectLeaguesByCity(String(season.cityId))(state) : [],
   );
-
-  // Находим текущий сезон
-  const season = seasons.find((s) => String(s.id) === seasonId) || null;
 
   // Загружаем города при монтировании
   useEffect(() => {
@@ -62,38 +53,54 @@ const SeasonEditPage: FC = () => {
     }
   }, [activeToken, authLoading, webViewLoading, dispatch]);
 
-  // Загружаем сезоны для города
+  // Загружаем сезон по ID
   useEffect(() => {
-    if (activeToken && !authLoading && !webViewLoading && cityId && sportType) {
-      dispatch(
-        fetchSeasons({
-          cityId: Number(cityId),
-          token: activeToken,
-          sportType,
-        }),
-      );
-    }
-  }, [activeToken, authLoading, webViewLoading, cityId, sportType, dispatch]);
+    const loadSeason = async () => {
+      if (activeToken && !authLoading && !webViewLoading && seasonId) {
+        try {
+          setLoading(true);
+          const loadedSeason = await seasonService.getSeasonById(
+            seasonId,
+            activeToken
+          );
+          setSeason(loadedSeason);
+        } catch (error) {
+          console.error("Error loading season:", error);
+          setSeason(null);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
 
-  // Загружаем лиги для города
+    loadSeason();
+  }, [activeToken, authLoading, webViewLoading, seasonId]);
+
+  // Загружаем лиги для города сезона
   useEffect(() => {
-    if (activeToken && !authLoading && !webViewLoading && cityId && sportType) {
+    if (
+      activeToken &&
+      !authLoading &&
+      !webViewLoading &&
+      season &&
+      sportType
+    ) {
       dispatch(
         fetchLeagues({
-          cityId: Number(cityId),
+          cityId: season.cityId,
           token: activeToken,
           sportType,
-        }),
+        })
       );
     }
-  }, [activeToken, authLoading, webViewLoading, cityId, sportType, dispatch]);
-
-  // Устанавливаем loading false когда данные загружены
-  useEffect(() => {
-    if (!citiesLoading && season) {
-      setLoading(false);
-    }
-  }, [citiesLoading, season]);
+  }, [
+    activeToken,
+    authLoading,
+    webViewLoading,
+    season,
+    sportType,
+    dispatch,
+  ]);
 
   const handleOpenEditModal = () => {
     setIsEditModalOpen(true);
@@ -116,17 +123,24 @@ const SeasonEditPage: FC = () => {
   };
 
   const handleUpdateSeason = async (data: EditSeasonData) => {
-    if (!activeToken || !seasonId || !cityId) return;
+    if (!activeToken || !seasonId || !season) return;
 
     try {
       await dispatch(
         updateSeason({
           seasonId,
-          cityId,
+          cityId: String(season.cityId),
           data,
           token: activeToken,
         }),
       ).unwrap();
+
+      // Reload season after update
+      const updatedSeason = await seasonService.getSeasonById(
+        seasonId,
+        activeToken
+      );
+      setSeason(updatedSeason);
 
       handleCloseEditModal();
     } catch (error) {
