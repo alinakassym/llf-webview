@@ -283,18 +283,30 @@ const SeasonsManagementPage: FC = () => {
     (cityId: number) => {
       if (!activeToken) return;
       setModalCityId(cityId);
-      dispatch(fetchLeagues({ cityId: cityId, token: activeToken }));
+      dispatch(
+        fetchLeagues({
+          cityId: cityId,
+          token: activeToken,
+          sportType: selectedSportType,
+        })
+      );
     },
-    [activeToken, dispatch],
+    [activeToken, selectedSportType, dispatch],
   );
 
   const handleCityChangeInEditModal = useCallback(
     (cityId: number) => {
       if (!activeToken) return;
       setEditModalCityId(cityId);
-      dispatch(fetchLeagues({ cityId: cityId, token: activeToken }));
+      dispatch(
+        fetchLeagues({
+          cityId: cityId,
+          token: activeToken,
+          sportType: selectedSportType,
+        })
+      );
     },
-    [activeToken, dispatch],
+    [activeToken, selectedSportType, dispatch],
   );
 
   const handleCloseDeleteDialog = () => {
