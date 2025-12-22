@@ -45,7 +45,10 @@ const VolleyballTeamEditPage: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState<string>("");
-  const [selectedSeasonId, setSelectedSeasonId] = useState<number>(0);
+  const [selectedSeasonId, setSelectedSeasonId] = useState<number>(() => {
+    const saved = localStorage.getItem(`volleyball-team-${teamId}-season`);
+    return saved ? Number(saved) : 0;
+  });
 
   // Получаем playerProfiles из Redux store
   const playerProfiles = useAppSelector(selectPlayerProfiles);
@@ -106,6 +109,13 @@ const VolleyballTeamEditPage: FC = () => {
       );
     }
   }, [activeToken, authLoading, webViewLoading, cityId, dispatch]);
+
+  // Сохраняем выбранный сезон в localStorage
+  useEffect(() => {
+    if (selectedSeasonId > 0 && teamId) {
+      localStorage.setItem(`volleyball-team-${teamId}-season`, String(selectedSeasonId));
+    }
+  }, [selectedSeasonId, teamId]);
 
   // Загружаем игроков команды при выборе сезона
   useEffect(() => {
