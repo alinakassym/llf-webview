@@ -3,6 +3,7 @@
 import { type FC, useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { Box, Container, Typography, CircularProgress, MenuItem, TextField } from "@mui/material";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { ShirtIcon } from "../components/icons";
 import { teamService } from "../services/teamService";
 import { useAuth } from "../hooks/useAuth";
@@ -56,15 +57,15 @@ const VolleyballTeamEditPage: FC = () => {
 
   // Получаем seasons из Redux store для cityId из параметров
   const seasons = useAppSelector((state) =>
-    cityId ? selectSeasonsByCity(cityId)(state) : []
+    cityId ? selectSeasonsByCity(cityId)(state) : [],
   );
   const seasonsLoading = useAppSelector((state) =>
-    cityId ? selectSeasonsLoadingForCity(cityId)(state) : false
+    cityId ? selectSeasonsLoadingForCity(cityId)(state) : false,
   );
 
   // Получаем игроков команды из Redux store
   const teamPlayers = useAppSelector((state) =>
-    teamId ? selectPlayersByTeam(state, teamId) : []
+    teamId ? selectPlayersByTeam(state, teamId) : [],
   );
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
@@ -87,12 +88,17 @@ const VolleyballTeamEditPage: FC = () => {
 
   // Загружаем профили игроков через Redux только когда выбран сезон
   useEffect(() => {
-    if (activeToken && !authLoading && !webViewLoading && selectedSeasonId > 0) {
+    if (
+      activeToken &&
+      !authLoading &&
+      !webViewLoading &&
+      selectedSeasonId > 0
+    ) {
       dispatch(
         fetchPlayerProfiles({
           token: activeToken,
           sportType: String(SportType.Volleyball),
-        })
+        }),
       );
     }
   }, [activeToken, authLoading, webViewLoading, selectedSeasonId, dispatch]);
@@ -105,7 +111,7 @@ const VolleyballTeamEditPage: FC = () => {
           cityId: Number(cityId),
           token: activeToken,
           sportType: String(SportType.Volleyball),
-        })
+        }),
       );
     }
   }, [activeToken, authLoading, webViewLoading, cityId, dispatch]);
@@ -113,23 +119,39 @@ const VolleyballTeamEditPage: FC = () => {
   // Сохраняем выбранный сезон в localStorage
   useEffect(() => {
     if (selectedSeasonId > 0 && teamId) {
-      localStorage.setItem(`volleyball-team-${teamId}-season`, String(selectedSeasonId));
+      localStorage.setItem(
+        `volleyball-team-${teamId}-season`,
+        String(selectedSeasonId),
+      );
     }
   }, [selectedSeasonId, teamId]);
 
   // Загружаем игроков команды при выборе сезона
   useEffect(() => {
-    if (activeToken && !authLoading && !webViewLoading && teamId && selectedSeasonId > 0) {
+    if (
+      activeToken &&
+      !authLoading &&
+      !webViewLoading &&
+      teamId &&
+      selectedSeasonId > 0
+    ) {
       dispatch(
         fetchPlayers({
           teamId: teamId,
           seasonId: String(selectedSeasonId),
           token: activeToken,
           sportType: String(SportType.Volleyball),
-        })
+        }),
       );
     }
-  }, [activeToken, authLoading, webViewLoading, teamId, selectedSeasonId, dispatch]);
+  }, [
+    activeToken,
+    authLoading,
+    webViewLoading,
+    teamId,
+    selectedSeasonId,
+    dispatch,
+  ]);
 
   // Загружаем данные команды и игроков
   useEffect(() => {
@@ -345,65 +367,102 @@ const VolleyballTeamEditPage: FC = () => {
           />
 
           {/* Контейнер для игроков - позиционируется поверх поля */}
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "100%",
-              maxWidth: 500,
-              height: "100%",
-              pointerEvents: "none",
-            }}
-          >
-            {/* Верхний ряд - Блокирующие (БЛ) - 2 карточки */}
-            <div
-              style={{
-                position: "relative",
-                top: "6%",
-                marginBottom: 28,
-                width: "100%",
+          {selectedSeasonId === 0 ? (
+            <Box
+              sx={{
+                position: "absolute",
+                top: "20%",
+                left: "50%",
+                padding: 2,
                 display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
                 justifyContent: "center",
-                gap: 20,
+                gap: 1,
+                width: 200,
+                textAlign: "center",
+                backgroundColor: VOLLEYBALL_HOVER_BACKGROUND_COLOR,
+                border: `2px dashed ${VOLLEYBALL_HOVER_BORDER_COLOR}`,
+                borderRadius: 2,
+                transition: "all 0.2s ease",
+                pointerEvents: "auto",
+                transform: "translate(-50%, -50%)",
+                opacity: 0.8,
               }}
             >
-              {renderPlayerSlot(VolleyballPosition.MiddleBlocker)}
-              {renderPlayerSlot(VolleyballPosition.MiddleBlocker)}
-            </div>
+              <ArrowUpwardIcon sx={{ color: "#FFFFFF" }} />
+              <Typography
+                variant="body2"
+                sx={{
+                  lineHeight: 1,
+                  color: "#FFFFFF",
+                  fontWeight: 500,
+                }}
+              >
+                Выберите сезон
+              </Typography>
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "100%",
+                maxWidth: 500,
+                height: "100%",
+                pointerEvents: "none",
+              }}
+            >
+              {/* Верхний ряд - Блокирующие (БЛ) - 2 карточки */}
+              <div
+                style={{
+                  position: "relative",
+                  top: "6%",
+                  marginBottom: 28,
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 20,
+                }}
+              >
+                {renderPlayerSlot(VolleyballPosition.MiddleBlocker)}
+                {renderPlayerSlot(VolleyballPosition.MiddleBlocker)}
+              </div>
 
-            {/* Средний ряд - Связующий (СВ), Нападающий (НАП), Диагональный (ДИ) - 3 карточки */}
-            <div
-              style={{
-                position: "relative",
-                top: "6%",
-                marginBottom: 28,
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-                gap: 20,
-              }}
-            >
-              {renderPlayerSlot(VolleyballPosition.Setter)}
-              {renderPlayerSlot(VolleyballPosition.OutsideHitter)}
-              {renderPlayerSlot(VolleyballPosition.Opposite)}
-            </div>
+              {/* Средний ряд - Связующий (СВ), Нападающий (НАП), Диагональный (ДИ) - 3 карточки */}
+              <div
+                style={{
+                  position: "relative",
+                  top: "6%",
+                  marginBottom: 28,
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 20,
+                }}
+              >
+                {renderPlayerSlot(VolleyballPosition.Setter)}
+                {renderPlayerSlot(VolleyballPosition.OutsideHitter)}
+                {renderPlayerSlot(VolleyballPosition.Opposite)}
+              </div>
 
-            {/* Нижний ряд - Либеро (ЛИБ) - 1 карточка */}
-            <div
-              style={{
-                position: "relative",
-                top: "6%",
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-                gap: 20,
-              }}
-            >
-              {renderPlayerSlot(VolleyballPosition.Libero)}
-            </div>
-          </Box>
+              {/* Нижний ряд - Либеро (ЛИБ) - 1 карточка */}
+              <div
+                style={{
+                  position: "relative",
+                  top: "6%",
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 20,
+                }}
+              >
+                {renderPlayerSlot(VolleyballPosition.Libero)}
+              </div>
+            </Box>
+          )}
         </Box>
       </Container>
 
