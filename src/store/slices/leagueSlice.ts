@@ -1,3 +1,5 @@
+// llf-webview/src/store/slices/leagueSlice.ts
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { League } from "../../types/league";
 import {
@@ -22,14 +24,22 @@ const initialState: LeagueState = {
 export const fetchLeagues = createAsyncThunk<
   { cacheKey: string; leagues: League[] },
   { cityId?: number; leagueGroupId?: number; token: string; sportType?: string }
->("leagues/fetchLeagues", async ({ cityId, leagueGroupId, token, sportType }) => {
-  const leagues = await leagueService.getLeagues(token, cityId, leagueGroupId, sportType);
+>(
+  "leagues/fetchLeagues",
+  async ({ cityId, leagueGroupId, token, sportType }) => {
+    const leagues = await leagueService.getLeagues(
+      token,
+      cityId,
+      leagueGroupId,
+      sportType,
+    );
 
-  // Создаём ключ кеша на основе параметров запроса
-  const cacheKey = cityId ? String(cityId) : "__ALL__";
+    // Создаём ключ кеша на основе параметров запроса
+    const cacheKey = cityId ? String(cityId) : "__ALL__";
 
-  return { cacheKey, leagues };
-});
+    return { cacheKey, leagues };
+  },
+);
 
 // Thunk для создания лиги
 export const createLeague = createAsyncThunk<
@@ -70,7 +80,7 @@ const leagueSlice = createSlice({
     clearLeaguesForCity: (state, action: { payload: string }) => {
       delete state.itemsByCityId[action.payload];
       state.loadingCities = state.loadingCities.filter(
-        (cityId) => cityId !== action.payload
+        (cityId) => cityId !== action.payload,
       );
       delete state.errorByCityId[action.payload];
     },
@@ -89,14 +99,20 @@ const leagueSlice = createSlice({
       .addCase(fetchLeagues.fulfilled, (state, action) => {
         const { cacheKey, leagues } = action.payload;
         // Сортируем лиги по полю order
-        state.itemsByCityId[cacheKey] = leagues.sort((a, b) => a.order - b.order);
-        state.loadingCities = state.loadingCities.filter((id) => id !== cacheKey);
+        state.itemsByCityId[cacheKey] = leagues.sort(
+          (a, b) => a.order - b.order,
+        );
+        state.loadingCities = state.loadingCities.filter(
+          (id) => id !== cacheKey,
+        );
       })
       .addCase(fetchLeagues.rejected, (state, action) => {
         const cacheKey = action.meta.arg.cityId
           ? String(action.meta.arg.cityId)
           : "__ALL__";
-        state.loadingCities = state.loadingCities.filter((id) => id !== cacheKey);
+        state.loadingCities = state.loadingCities.filter(
+          (id) => id !== cacheKey,
+        );
         state.errorByCityId[cacheKey] =
           action.error.message || "Failed to load leagues";
       })
@@ -144,7 +160,7 @@ const leagueSlice = createSlice({
         // Удаляем лигу из всех кешей
         Object.keys(state.itemsByCityId).forEach((cacheKey) => {
           state.itemsByCityId[cacheKey] = state.itemsByCityId[cacheKey].filter(
-            (league) => league.id !== leagueId
+            (league) => league.id !== leagueId,
           );
         });
       });

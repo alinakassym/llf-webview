@@ -15,14 +15,15 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { City } from "../types/city";
-import type { League } from "../types/league";
-import { leagueService } from "../services/leagueService";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { fetchLeagues, selectLeaguesByCity } from "../store/slices/leagueSlice";
 
 interface CreateTeamModalProps {
   open: boolean;
   onClose: () => void;
   cities: City[];
   token: string;
+  sportType: string;
   onSubmit: (data: CreateTeamData) => Promise<void>;
 }
 
@@ -37,8 +38,10 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
   onClose,
   cities,
   token,
+  sportType,
   onSubmit,
 }) => {
+  const dispatch = useAppDispatch();
   const [formData, setFormData] = useState<CreateTeamData>({
     name: "",
     cityId: 0,
@@ -47,34 +50,25 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
   const [errors, setErrors] = useState<
     Partial<Record<keyof CreateTeamData, string>>
   >({});
-  const [leagues, setLeagues] = useState<League[]>([]);
-  const [leaguesLoading, setLeaguesLoading] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Загружаем лиги при изменении города
-  useEffect(() => {
-    const loadLeagues = async () => {
-      if (formData.cityId > 0 && token) {
-        setLeaguesLoading(true);
-        try {
-          const loadedLeagues = await leagueService.getLeaguesByCityId(
-            String(formData.cityId),
-            token,
-          );
-          setLeagues(loadedLeagues);
-        } catch (error) {
-          console.error("Error loading leagues:", error);
-          setLeagues([]);
-        } finally {
-          setLeaguesLoading(false);
-        }
-      } else {
-        setLeagues([]);
-      }
-    };
+  // Получаем лиги из Redux store
+  const leagues = useAppSelector((state) =>
+    formData.cityId > 0 ? selectLeaguesByCity(String(formData.cityId))(state) : []
+  );
 
-    loadLeagues();
-  }, [formData.cityId, token]);
+  // Загружаем лиги при изменении города или вида спорта
+  useEffect(() => {
+    if (formData.cityId > 0 && token && sportType) {
+      dispatch(
+        fetchLeagues({
+          cityId: formData.cityId,
+          token,
+          sportType,
+        })
+      );
+    }
+  }, [formData.cityId, token, sportType, dispatch]);
 
   const handleChange =
     (field: keyof CreateTeamData) =>
@@ -123,7 +117,6 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
         leagueId: "",
       });
       setErrors({});
-      setLeagues([]);
       setLoading(false);
       onClose();
     }
@@ -221,7 +214,7 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
             onChange={handleChange("leagueId")}
             error={Boolean(errors.leagueId)}
             helperText={errors.leagueId}
-            disabled={formData.cityId === 0 || leaguesLoading || loading}
+            disabled={formData.cityId === 0 || loading}
             fullWidth
             required
           >

@@ -593,6 +593,7 @@ const TeamsManagementPage: FC = () => {
         onClose={handleCloseModal}
         cities={cities}
         token={activeToken || ""}
+        sportType={selectedSportType}
         onSubmit={handleCreateTeam}
       />
 
