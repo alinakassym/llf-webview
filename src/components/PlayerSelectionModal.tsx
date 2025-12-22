@@ -12,6 +12,8 @@ import {
   MenuItem,
   CircularProgress,
   IconButton,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { PlayerProfile } from "../types/player";
@@ -52,6 +54,8 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
     number?: string;
   }>({});
   const [submitting, setSubmitting] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   // Сбрасываем состояние при открытии/закрытии модала
   useEffect(() => {
@@ -109,30 +113,30 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
     }
 
     setSubmitting(true);
-    try {
-      await playerService.addPlayerToTeam(
-        {
-          playerProfileId: selectedProfileId,
-          teamId: Number(teamId),
-          seasonId: selectedSeasonId,
-          number: Number(playerNumber),
-          sportType: SportType.Volleyball,
-          volleyballPosition: position,
-        },
-        token,
-      );
+    const result = await playerService.addPlayerToTeam(
+      {
+        playerProfileId: selectedProfileId,
+        teamId: Number(teamId),
+        seasonId: selectedSeasonId,
+        number: Number(playerNumber),
+        sportType: SportType.Volleyball,
+        volleyballPosition: position,
+      },
+      token,
+    );
+    console.log("Add player result:", result);
 
-      // Вызываем коллбек для обновления списка игроков
-      if (onPlayerAdded) {
-        onPlayerAdded();
-      }
-
-      handleClose();
-    } catch (error) {
-      console.error("Error adding player:", error);
-    } finally {
-      setSubmitting(false);
+    // Вызываем коллбек для обновления списка игроков
+    if (onPlayerAdded) {
+      onPlayerAdded();
     }
+
+    handleClose();
+    setSubmitting(false);
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
   };
 
   const handleClose = () => {
@@ -234,6 +238,22 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
           {submitting ? <CircularProgress size={24} /> : "Добавить"}
         </Button>
       </DialogActions>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={5000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="error"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Dialog>
   );
 };
