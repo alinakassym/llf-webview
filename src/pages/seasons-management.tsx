@@ -1,6 +1,7 @@
 // llf-webview/src/pages/seasons-management.tsx
 
 import { type FC, useState, useMemo, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box, Fab, Container, CircularProgress, Alert } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchBar from "../components/SearchBar";
@@ -9,9 +10,6 @@ import AllCitiesSeasonsList from "../components/AllCitiesSeasonsList";
 import CreateSeasonModal, {
   type CreateSeasonData,
 } from "../components/CreateSeasonModal";
-import EditSeasonModal, {
-  type EditSeasonData,
-} from "../components/EditSeasonModal";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import type { Season } from "../types/season";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -20,7 +18,6 @@ import {
   fetchSeasons,
   selectSeasonsByCity,
   createSeason,
-  updateSeason,
   deleteSeason,
 } from "../store/slices/seasonSlice";
 import {
@@ -49,6 +46,7 @@ const SPORTS: Sport[] = [
 ];
 
 const SeasonsManagementPage: FC = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { token, loading: authLoading } = useAuth();
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
@@ -62,9 +60,6 @@ const SeasonsManagementPage: FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [modalCityId, setModalCityId] = useState<number>(0);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editSeason, setEditSeason] = useState<Season | null>(null);
-  const [editModalCityId, setEditModalCityId] = useState<number>(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [seasonToDelete, setSeasonToDelete] = useState<{
     id: string;
@@ -153,13 +148,6 @@ const SeasonsManagementPage: FC = () => {
     modalCityId > 0 ? selectLeaguesByCity(String(modalCityId))(state) : [],
   );
 
-  // Получаем лиги для модала редактирования
-  const editModalLeagues = useAppSelector((state) =>
-    editModalCityId > 0
-      ? selectLeaguesByCity(String(editModalCityId))(state)
-      : [],
-  );
-
   const filteredSeasons = useMemo(() => {
     return seasons.filter((season: Season) => {
       const matchesSearch = (season.name || "")
@@ -195,9 +183,8 @@ const SeasonsManagementPage: FC = () => {
     // Находим сезон по ID
     const season = seasons.find((s) => String(s.id) === seasonId);
     if (season) {
-      setEditSeason(season);
-      setEditModalCityId(season.cityId);
-      setIsEditModalOpen(true);
+      // Переходим на страницу редактирования сезона
+      navigate(`/season-edit/${season.cityId}/${seasonId}/${selectedSportType}`);
     }
   };
 
@@ -237,67 +224,10 @@ const SeasonsManagementPage: FC = () => {
     }
   };
 
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false);
-    setEditSeason(null);
-    setEditModalCityId(0);
-  };
-
-  const handleUpdateSeason = async (data: EditSeasonData) => {
-    console.log("Updating season with data:", data);
-    if (!activeToken || !editSeason) {
-      throw new Error("No auth token or season available");
-    }
-
-    // Обновляем сезон
-    await dispatch(
-      updateSeason({
-        seasonId: String(editSeason.id),
-        data,
-        token: activeToken,
-      }),
-    ).unwrap();
-
-    // Перезагружаем сезоны после обновления
-    if (selectedCity === ALL_CITIES) {
-      // Если выбраны все города - перезагружаем все сезоны
-      await dispatch(
-        fetchSeasons({
-          token: activeToken,
-          sportType: selectedSportType,
-        }),
-      );
-    } else if (selectedCityData) {
-      // Если выбран конкретный город - перезагружаем сезоны этого города
-      await dispatch(
-        fetchSeasons({
-          cityId: selectedCityData.id,
-          token: activeToken,
-          sportType: selectedSportType,
-        }),
-      );
-    }
-  };
-
   const handleCityChangeInModal = useCallback(
     (cityId: number) => {
       if (!activeToken) return;
       setModalCityId(cityId);
-      dispatch(
-        fetchLeagues({
-          cityId: cityId,
-          token: activeToken,
-          sportType: selectedSportType,
-        })
-      );
-    },
-    [activeToken, selectedSportType, dispatch],
-  );
-
-  const handleCityChangeInEditModal = useCallback(
-    (cityId: number) => {
-      if (!activeToken) return;
-      setEditModalCityId(cityId);
       dispatch(
         fetchLeagues({
           cityId: cityId,
@@ -436,26 +366,6 @@ const SeasonsManagementPage: FC = () => {
         leagues={modalLeagues}
         onSubmit={handleCreateSeason}
         onCityChange={handleCityChangeInModal}
-      />
-
-      <EditSeasonModal
-        open={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        cities={cities}
-        leagues={editModalLeagues}
-        onSubmit={handleUpdateSeason}
-        onCityChange={handleCityChangeInEditModal}
-        season={
-          editSeason
-            ? {
-                id: String(editSeason.id),
-                name: editSeason.name,
-                date: editSeason.date,
-                leagueId: editSeason.leagueId,
-                cityId: editSeason.cityId,
-              }
-            : null
-        }
       />
 
       <DeleteConfirmDialog
