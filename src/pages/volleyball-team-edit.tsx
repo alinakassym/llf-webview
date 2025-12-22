@@ -32,8 +32,9 @@ import {
 } from "../types/volleyballPosition";
 import { SportType } from "../types/sportType";
 
-const VOLLEYBALL_HOVER_BACKGROUND_COLOR = "rgba(179, 77, 68, 0.9)";
-const VOLLEYBALL_HOVER_BORDER_COLOR = "rgba(255, 255, 255, 0.5)";
+const VOLLEYBALL_BACKGROUND_COLOR = "rgba(179, 77, 68, 0.9)";
+const VOLLEYBALL_BACKGROUND_COLOR2 = "rgba(179, 77, 68, 0.6)";
+const VOLLEYBALL_BORDER_COLOR = "rgba(255, 255, 255, 0.5)";
 
 const VolleyballTeamEditPage: FC = () => {
   const { teamId, cityId } = useParams<{ teamId: string; cityId: string }>();
@@ -202,8 +203,8 @@ const VolleyballTeamEditPage: FC = () => {
         <PlayerSlot
           fullName={player.fullName}
           label={positionAbbr}
-          backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
-          borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
+          backgroundColor={VOLLEYBALL_BACKGROUND_COLOR}
+          borderColor={VOLLEYBALL_BORDER_COLOR}
         />
       );
     } else {
@@ -211,8 +212,8 @@ const VolleyballTeamEditPage: FC = () => {
       return (
         <EmptyPlayerSlot
           label={positionAbbr}
-          backgroundColor={VOLLEYBALL_HOVER_BACKGROUND_COLOR}
-          borderColor={VOLLEYBALL_HOVER_BORDER_COLOR}
+          backgroundColor={VOLLEYBALL_BACKGROUND_COLOR2}
+          borderColor={VOLLEYBALL_BORDER_COLOR}
           onClick={() => handlePlayerSlotClick(positionName)}
         />
       );
@@ -264,7 +265,11 @@ const VolleyballTeamEditPage: FC = () => {
         backgroundColor: "background.default",
       }}
     >
-      <Container disableGutters maxWidth={false} sx={{ px: 0, pt: 0, pb: 10 }}>
+      <Container
+        disableGutters
+        maxWidth={false}
+        sx={{ height: "100vh", px: 0, pt: 0, pb: 10 }}
+      >
         {/* Шапка с градиентом */}
         <Box
           sx={{
@@ -347,6 +352,7 @@ const VolleyballTeamEditPage: FC = () => {
         <Box
           sx={{
             position: "relative",
+            height: "100vh",
           }}
         >
           {/* Изображение поля */}
@@ -381,8 +387,8 @@ const VolleyballTeamEditPage: FC = () => {
                 gap: 1,
                 width: 200,
                 textAlign: "center",
-                backgroundColor: VOLLEYBALL_HOVER_BACKGROUND_COLOR,
-                border: `2px dashed ${VOLLEYBALL_HOVER_BORDER_COLOR}`,
+                backgroundColor: VOLLEYBALL_BACKGROUND_COLOR,
+                border: `2px dashed ${VOLLEYBALL_BORDER_COLOR}`,
                 borderRadius: 2,
                 transition: "all 0.2s ease",
                 pointerEvents: "auto",
