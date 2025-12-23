@@ -14,10 +14,14 @@ import {
   Alert,
 } from "@mui/material";
 import LockResetIcon from "@mui/icons-material/LockReset";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { app } from "../firebaseConfig";
+
+const auth = getAuth(app);
 
 interface ReauthModalProps {
   open: boolean;
-  onSuccess: (token: string) => void;
+  onSuccess: () => void;
   onCancel: () => void;
 }
 
@@ -33,27 +37,7 @@ const ReauthModal: FC<ReauthModalProps> = ({ open, onSuccess, onCancel }) => {
     setError(null);
 
     try {
-      const response = await fetch(
-        "https://api.steppe.dev/scoreapp/api/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Неверный email или пароль");
-      }
-
-      const data = await response.json();
-      const token = data.token;
-
-      if (!token) {
-        throw new Error("Токен не получен");
-      }
+      await signInWithEmailAndPassword(auth, email, password);
 
       // Очищаем форму
       setEmail("");
@@ -61,12 +45,13 @@ const ReauthModal: FC<ReauthModalProps> = ({ open, onSuccess, onCancel }) => {
       setError(null);
 
       // Уведомляем родителя об успешной авторизации
-      onSuccess(token);
+      onSuccess();
     } catch (err) {
-      console.error("Reauth error:", err);
-      setError(
-        err instanceof Error ? err.message : "Ошибка повторной авторизации"
-      );
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Произошла ошибка при входе");
+      }
     } finally {
       setLoading(false);
     }
@@ -85,9 +70,11 @@ const ReauthModal: FC<ReauthModalProps> = ({ open, onSuccess, onCancel }) => {
       onClose={handleCancel}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 2,
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 2,
+          },
         },
       }}
     >

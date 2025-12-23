@@ -1,6 +1,5 @@
 import { type FC, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-import { getAuth, signInWithCustomToken } from "firebase/auth";
 import HomePage from "./pages";
 import CompetitionPlanPage from "./pages/competition-plan";
 import RegulationsPage from "./pages/regulations";
@@ -30,16 +29,10 @@ const App: FC = () => {
   }, [showReauthModal]);
 
   // Обработчик успешной повторной авторизации
-  const handleReauthSuccess = async (token: string) => {
-    try {
-      const auth = getAuth();
-      await signInWithCustomToken(auth, token);
-      hideReauthModal();
-      // Перезагружаем текущую страницу для повторной загрузки данных
-      window.location.reload();
-    } catch (error) {
-      console.error("Error signing in with custom token:", error);
-    }
+  const handleReauthSuccess = () => {
+    hideReauthModal();
+    // Перезагружаем текущую страницу для повторной загрузки данных
+    window.location.reload();
   };
 
   const handleReauthCancel = () => {
