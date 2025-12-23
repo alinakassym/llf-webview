@@ -22,7 +22,9 @@ import { fetchCities } from "../store/slices/citySlice";
 import { updateSeason } from "../store/slices/seasonSlice";
 import { fetchLeagues, selectLeaguesByCity } from "../store/slices/leagueSlice";
 import { seasonService } from "../services/seasonService";
+import { tourService } from "../services/tourService";
 import type { Season } from "../types/season";
+import type { Tour } from "../types/tour";
 
 const SeasonEditPage: FC = () => {
   const { seasonId, sportType } = useParams<{
@@ -37,6 +39,7 @@ const SeasonEditPage: FC = () => {
   const [loading, setLoading] = useState(true);
   const [season, setSeason] = useState<Season | null>(null);
   const [modalCityId, setModalCityId] = useState<number>(0);
+  const [tours, setTours] = useState<Tour[]>([]);
 
   const activeToken = webViewToken || token;
 
@@ -71,6 +74,10 @@ const SeasonEditPage: FC = () => {
             activeToken,
           );
           setSeason(loadedSeason);
+
+          // Загружаем туры для сезона
+          const loadedTours = await tourService.getTours(seasonId, activeToken);
+          setTours(loadedTours);
         } catch (error) {
           console.error("Error loading season:", error);
           setSeason(null);
@@ -145,9 +152,31 @@ const SeasonEditPage: FC = () => {
     }
   };
 
-  const handleAddTour = () => {
-    // TODO: Реализация добавления тура
-    console.log("Add tour");
+  const handleAddTour = async () => {
+    if (!activeToken || !seasonId || !season) return;
+
+    try {
+      // Вычисляем номер следующего тура
+      const nextTourNumber = tours.length > 0
+        ? Math.max(...tours.map(tour => tour.number)) + 1
+        : 1;
+
+      const newTour = await tourService.createTour(
+        {
+          seasonId: season.id,
+          number: nextTourNumber,
+          name: null,
+          startDate: null,
+          endDate: null,
+        },
+        activeToken,
+      );
+
+      // Добавляем новый тур в список
+      setTours((prevTours) => [...prevTours, newTour]);
+    } catch (error) {
+      console.error("Error creating tour:", error);
+    }
   };
 
   // Показываем loader
