@@ -10,13 +10,19 @@ export interface CreateTourPayload {
 }
 
 export const tourService = {
-  createTour: async (data: CreateTourPayload, token: string): Promise<Tour> => {
-    const response = await apiRequest<Tour>(`/seasons/${data.seasonId}/tours`, {
-      method: "POST",
-      token,
-      body: JSON.stringify(data),
-    });
-    return response;
+  createTour: async (
+    data: CreateTourPayload,
+    token: string,
+  ): Promise<Tour[]> => {
+    const response = await apiRequest<{ tours: Tour[] }>(
+      `/seasons/${data.seasonId}/tours`,
+      {
+        method: "POST",
+        token,
+        body: JSON.stringify(data),
+      },
+    );
+    return response.tours;
   },
 
   getTours: async (seasonId: string, token: string): Promise<Tour[]> => {
@@ -25,7 +31,7 @@ export const tourService = {
       {
         method: "GET",
         token,
-      }
+      },
     );
     return response.tours;
   },

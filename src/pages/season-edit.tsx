@@ -44,7 +44,7 @@ const SeasonEditPage: FC = () => {
   const activeToken = webViewToken || token;
 
   // Получаем данные из Redux
-   
+
   const { cities } = useAppSelector((state) => state.cities);
 
   // Используем modalCityId если модал открыт, иначе cityId сезона
@@ -157,9 +157,10 @@ const SeasonEditPage: FC = () => {
 
     try {
       // Вычисляем номер следующего тура
-      const nextTourNumber = tours.length > 0
-        ? Math.max(...tours.map(tour => tour.number)) + 1
-        : 1;
+      const nextTourNumber =
+        tours.length > 0
+          ? Math.max(...tours.map((tour) => tour.number)) + 1
+          : 1;
 
       const newTour = await tourService.createTour(
         {
@@ -172,8 +173,8 @@ const SeasonEditPage: FC = () => {
         activeToken,
       );
 
-      // Добавляем новый тур в список
-      setTours((prevTours) => [...prevTours, newTour]);
+      // Обновляем список туров
+      setTours(newTour);
     } catch (error) {
       console.error("Error creating tour:", error);
     }
