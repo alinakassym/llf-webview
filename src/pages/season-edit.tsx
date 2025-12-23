@@ -177,7 +177,9 @@ const SeasonEditPage: FC = () => {
       );
 
       // Обновляем список туров
-      setTours(updatedTours);
+      if (updatedTours && Array.isArray(updatedTours)) {
+        setTours(updatedTours);
+      }
     } catch (error) {
       console.error("Error creating tour:", error);
       throw error;
@@ -185,7 +187,7 @@ const SeasonEditPage: FC = () => {
   };
 
   // Вычисляем номер следующего тура
-  const nextTourNumber = tours.length > 0
+  const nextTourNumber = tours && tours.length > 0
     ? Math.max(...tours.map((tour) => tour.number || 0)) + 1
     : 1;
 
