@@ -2,16 +2,22 @@
 
 import { type FC } from "react";
 import { Box, Typography } from "@mui/material";
-import ManagementItemCard from "./ManagementItemCard";
+import TourCard from "./TourCard";
 import type { Tour } from "../types/tour";
 
 interface ToursListProps {
   tours: Tour[];
   onEdit?: (tourId: number) => void;
   onDelete?: (tourId: number, tourName: string) => void;
+  onAddMatch?: (tourId: number) => void;
 }
 
-const ToursList: FC<ToursListProps> = ({ tours, onEdit, onDelete }) => {
+const ToursList: FC<ToursListProps> = ({
+  tours,
+  onEdit,
+  onDelete,
+  onAddMatch,
+}) => {
   const formatDateRange = (startDate: string | null, endDate: string | null) => {
     if (!startDate && !endDate) return "";
 
@@ -43,16 +49,18 @@ const ToursList: FC<ToursListProps> = ({ tours, onEdit, onDelete }) => {
     <Box sx={{ display: "flex", flexDirection: "column" }}>
       {tours.length > 0 ? (
         tours.map((tour) => (
-          <ManagementItemCard
+          <TourCard
             key={tour.id}
             title={tour.name || `Тур ${tour.number}`}
             subtitle={formatDateRange(tour.startDate, tour.endDate)}
+            matches={tour.matches || []}
             onEdit={onEdit ? () => onEdit(tour.id) : undefined}
             onDelete={
               onDelete
                 ? () => onDelete(tour.id, tour.name || `Тур ${tour.number}`)
                 : undefined
             }
+            onAddMatch={onAddMatch ? () => onAddMatch(tour.id) : undefined}
           />
         ))
       ) : (

@@ -202,6 +202,11 @@ const SeasonEditPage: FC = () => {
     alert("Функционал удаления тура в разработке");
   };
 
+  const handleAddMatch = (tourId: number) => {
+    console.log("Add match to tour with ID:", tourId);
+    alert("Функционал добавления матча в разработке");
+  };
+
   // Показываем loader
   if (loading || authLoading || webViewLoading) {
     return (
@@ -322,6 +327,7 @@ const SeasonEditPage: FC = () => {
             tours={tours}
             onEdit={handleEditTour}
             onDelete={handleDeleteTour}
+            onAddMatch={handleAddMatch}
           />
         </Box>
       </Container>
