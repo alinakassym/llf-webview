@@ -38,6 +38,7 @@ const SeasonEditPage: FC = () => {
   const activeToken = webViewToken || token;
 
   // Получаем данные из Redux
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { cities, loading: citiesLoading } = useAppSelector(
     (state) => state.cities,
   );
@@ -61,7 +62,7 @@ const SeasonEditPage: FC = () => {
           setLoading(true);
           const loadedSeason = await seasonService.getSeasonById(
             seasonId,
-            activeToken
+            activeToken,
           );
           setSeason(loadedSeason);
         } catch (error) {
@@ -76,33 +77,17 @@ const SeasonEditPage: FC = () => {
     loadSeason();
   }, [activeToken, authLoading, webViewLoading, seasonId]);
 
-  // Загружаем лиги для города сезона
-  useEffect(() => {
-    if (
-      activeToken &&
-      !authLoading &&
-      !webViewLoading &&
-      season &&
-      sportType
-    ) {
+  const handleOpenEditModal = () => {
+    // Загружаем лиги для города сезона при открытии модалки
+    if (activeToken && season && sportType) {
       dispatch(
         fetchLeagues({
           cityId: season.cityId,
           token: activeToken,
           sportType,
-        })
+        }),
       );
     }
-  }, [
-    activeToken,
-    authLoading,
-    webViewLoading,
-    season,
-    sportType,
-    dispatch,
-  ]);
-
-  const handleOpenEditModal = () => {
     setIsEditModalOpen(true);
   };
 
@@ -129,7 +114,6 @@ const SeasonEditPage: FC = () => {
       await dispatch(
         updateSeason({
           seasonId,
-          cityId: String(season.cityId),
           data,
           token: activeToken,
         }),
@@ -138,7 +122,7 @@ const SeasonEditPage: FC = () => {
       // Reload season after update
       const updatedSeason = await seasonService.getSeasonById(
         seasonId,
-        activeToken
+        activeToken,
       );
       setSeason(updatedSeason);
 
