@@ -20,6 +20,7 @@ import EditSeasonModal, {
 import CreateTourModal, {
   type CreateTourData,
 } from "../components/CreateTourModal";
+import ToursList from "../components/ToursList";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
 import { updateSeason } from "../store/slices/seasonSlice";
@@ -191,6 +192,16 @@ const SeasonEditPage: FC = () => {
     ? Math.max(...tours.map((tour) => tour.number || 0)) + 1
     : 1;
 
+  const handleEditTour = (tourId: number) => {
+    console.log("Edit tour with ID:", tourId);
+    alert("Функционал редактирования тура в разработке");
+  };
+
+  const handleDeleteTour = (tourId: number, tourName: string) => {
+    console.log("Delete tour with ID:", tourId, tourName);
+    alert("Функционал удаления тура в разработке");
+  };
+
   // Показываем loader
   if (loading || authLoading || webViewLoading) {
     return (
@@ -299,9 +310,11 @@ const SeasonEditPage: FC = () => {
 
         {/* Контент страницы */}
         <Box sx={{ px: 2, pt: 2 }}>
-          <Typography variant="body1">
-            Здесь будет контент страницы редактирования сезона
-          </Typography>
+          <ToursList
+            tours={tours}
+            onEdit={handleEditTour}
+            onDelete={handleDeleteTour}
+          />
         </Box>
       </Container>
 
