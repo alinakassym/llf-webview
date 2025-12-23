@@ -89,7 +89,7 @@ const CreateTourModal: FC<CreateTourModalProps> = ({
 
       await onSubmit({
         number: formData.number,
-        name: formData.name.trim() || null,
+        name: formData.name?.trim() || null,
         startDate: startDateIso,
         endDate: endDateIso,
       });

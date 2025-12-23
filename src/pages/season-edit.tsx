@@ -185,8 +185,9 @@ const SeasonEditPage: FC = () => {
   };
 
   // Вычисляем номер следующего тура
-  const nextTourNumber =
-    tours.length > 0 ? Math.max(...tours.map((tour) => tour.number)) + 1 : 1;
+  const nextTourNumber = tours.length > 0
+    ? Math.max(...tours.map((tour) => tour.number || 0)) + 1
+    : 1;
 
   // Показываем loader
   if (loading || authLoading || webViewLoading) {
