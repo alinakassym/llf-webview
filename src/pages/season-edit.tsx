@@ -201,7 +201,8 @@ const SeasonEditPage: FC = () => {
           sx={{
             background: (theme) =>
               `linear-gradient(to right, ${theme.palette.gradient.join(", ")})`,
-            px: 2,
+            pl: 2,
+            pr: 1,
             pb: 2,
           }}
         >
@@ -212,7 +213,7 @@ const SeasonEditPage: FC = () => {
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "space-between",
-              pt: 2,
+              pt: 1,
             }}
           >
             <Typography
@@ -228,7 +229,7 @@ const SeasonEditPage: FC = () => {
               onClick={handleOpenEditModal}
               sx={{
                 color: "#FFFFFF",
-                padding: 0.5,
+                padding: 2,
               }}
               size="small"
             >
