@@ -17,6 +17,9 @@ import { useWebViewToken } from "../hooks/useWebViewToken";
 import EditSeasonModal, {
   type EditSeasonData,
 } from "../components/EditSeasonModal";
+import CreateTourModal, {
+  type CreateTourData,
+} from "../components/CreateTourModal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
 import { updateSeason } from "../store/slices/seasonSlice";
@@ -36,6 +39,7 @@ const SeasonEditPage: FC = () => {
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateTourModalOpen, setIsCreateTourModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [season, setSeason] = useState<Season | null>(null);
   const [modalCityId, setModalCityId] = useState<number>(0);
@@ -152,33 +156,37 @@ const SeasonEditPage: FC = () => {
     }
   };
 
-  const handleAddTour = async () => {
+  const handleAddTour = () => {
+    setIsCreateTourModalOpen(true);
+  };
+
+  const handleCloseCreateTourModal = () => {
+    setIsCreateTourModalOpen(false);
+  };
+
+  const handleCreateTour = async (data: CreateTourData) => {
     if (!activeToken || !seasonId || !season) return;
 
     try {
-      // Вычисляем номер следующего тура
-      const nextTourNumber =
-        tours.length > 0
-          ? Math.max(...tours.map((tour) => tour.number)) + 1
-          : 1;
-
-      const newTour = await tourService.createTour(
+      const updatedTours = await tourService.createTour(
         {
           seasonId: season.id,
-          number: nextTourNumber,
-          name: null,
-          startDate: null,
-          endDate: null,
+          ...data,
         },
         activeToken,
       );
 
       // Обновляем список туров
-      setTours(newTour);
+      setTours(updatedTours);
     } catch (error) {
       console.error("Error creating tour:", error);
+      throw error;
     }
   };
+
+  // Вычисляем номер следующего тура
+  const nextTourNumber =
+    tours.length > 0 ? Math.max(...tours.map((tour) => tour.number)) + 1 : 1;
 
   // Показываем loader
   if (loading || authLoading || webViewLoading) {
@@ -313,6 +321,14 @@ const SeasonEditPage: FC = () => {
               }
             : null
         }
+      />
+
+      {/* Модальное окно создания тура */}
+      <CreateTourModal
+        open={isCreateTourModalOpen}
+        onClose={handleCloseCreateTourModal}
+        onSubmit={handleCreateTour}
+        nextTourNumber={nextTourNumber}
       />
 
       {/* Кнопка добавления тура */}
