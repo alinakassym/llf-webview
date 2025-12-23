@@ -286,7 +286,7 @@ const SeasonsManagementPage: FC = () => {
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
+    <Box sx={{ minHeight: "100vh", backgroundColor: "surface" }}>
       <Box
         sx={{
           padding: "0 8px",

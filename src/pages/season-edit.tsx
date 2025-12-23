@@ -8,8 +8,10 @@ import {
   Typography,
   CircularProgress,
   IconButton,
+  Fab,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import EditSeasonModal, {
@@ -39,10 +41,8 @@ const SeasonEditPage: FC = () => {
   const activeToken = webViewToken || token;
 
   // Получаем данные из Redux
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { cities, loading: citiesLoading } = useAppSelector(
-    (state) => state.cities,
-  );
+   
+  const { cities } = useAppSelector((state) => state.cities);
 
   // Используем modalCityId если модал открыт, иначе cityId сезона
   const leagues = useAppSelector((state) =>
@@ -145,6 +145,11 @@ const SeasonEditPage: FC = () => {
     }
   };
 
+  const handleAddTour = () => {
+    // TODO: Реализация добавления тура
+    console.log("Add tour");
+  };
+
   // Показываем loader
   if (loading || authLoading || webViewLoading) {
     return (
@@ -171,7 +176,7 @@ const SeasonEditPage: FC = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "background.default",
+          backgroundColor: "surface",
         }}
       >
         <Typography color="error">Сезон не найден</Typography>
@@ -187,7 +192,7 @@ const SeasonEditPage: FC = () => {
         top: 0,
         right: 0,
         minHeight: "100vh",
-        backgroundColor: "background.default",
+        backgroundColor: "surface",
       }}
     >
       <Container disableGutters maxWidth={false} sx={{ px: 0, pt: 0, pb: 10 }}>
@@ -278,6 +283,20 @@ const SeasonEditPage: FC = () => {
             : null
         }
       />
+
+      {/* Кнопка добавления тура */}
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={handleAddTour}
+        sx={{
+          position: "fixed",
+          bottom: 24,
+          right: 24,
+        }}
+      >
+        <AddIcon />
+      </Fab>
     </Box>
   );
 };
