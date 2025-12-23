@@ -286,7 +286,13 @@ const SeasonsManagementPage: FC = () => {
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "surface" }}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundColor: "surface",
+        overflow: "hidden",
+      }}
+    >
       <Box
         sx={{
           padding: "0 8px",
@@ -315,8 +321,14 @@ const SeasonsManagementPage: FC = () => {
           borderBottomColor="tertiary.main"
         />
       </Box>
-      <Container disableGutters maxWidth={false} sx={{ pt: 2, px: 0, pb: 10 }}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Container disableGutters maxWidth={false} sx={{ pt: 2, px: 0, pb: 0 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
           {/* Отображение ошибок */}
           {citiesError && (
             <Alert severity="error" sx={{ mb: 1 }}>
@@ -332,7 +344,14 @@ const SeasonsManagementPage: FC = () => {
             />
           </Box>
 
-          <Box sx={{ px: 2 }}>
+          <Box
+            sx={{
+              px: 2,
+              pb: 8,
+              height: "calc(100vh - 112px)",
+              overflowY: "auto",
+            }}
+          >
             <AllCitiesSeasonsList
               seasonsByCity={seasonsByGroup}
               onEdit={handleEdit}

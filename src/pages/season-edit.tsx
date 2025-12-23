@@ -309,7 +309,15 @@ const SeasonEditPage: FC = () => {
         </Box>
 
         {/* Контент страницы */}
-        <Box sx={{ px: 2, pt: 2 }}>
+        <Box
+          sx={{
+            px: 2,
+            pt: 2,
+            pb: 10,
+            height: "calc(100vh - 126px)",
+            overflowY: "auto",
+          }}
+        >
           <ToursList
             tours={tours}
             onEdit={handleEditTour}
