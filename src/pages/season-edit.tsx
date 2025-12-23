@@ -34,6 +34,7 @@ const SeasonEditPage: FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [season, setSeason] = useState<Season | null>(null);
+  const [modalCityId, setModalCityId] = useState<number>(0);
 
   const activeToken = webViewToken || token;
 
@@ -43,8 +44,13 @@ const SeasonEditPage: FC = () => {
     (state) => state.cities,
   );
 
+  // Используем modalCityId если модал открыт, иначе cityId сезона
   const leagues = useAppSelector((state) =>
-    season ? selectLeaguesByCity(String(season.cityId))(state) : [],
+    modalCityId > 0
+      ? selectLeaguesByCity(String(modalCityId))(state)
+      : season
+      ? selectLeaguesByCity(String(season.cityId))(state)
+      : [],
   );
 
   // Загружаем города при монтировании
@@ -78,24 +84,30 @@ const SeasonEditPage: FC = () => {
   }, [activeToken, authLoading, webViewLoading, seasonId]);
 
   const handleOpenEditModal = () => {
-    // Загружаем лиги для города сезона при открытии модалки
-    if (activeToken && season && sportType) {
-      dispatch(
-        fetchLeagues({
-          cityId: season.cityId,
-          token: activeToken,
-          sportType,
-        }),
-      );
+    // Устанавливаем город сезона как текущий для модала
+    if (season) {
+      setModalCityId(season.cityId);
+      // Загружаем лиги для города сезона при открытии модалки
+      if (activeToken && sportType) {
+        dispatch(
+          fetchLeagues({
+            cityId: season.cityId,
+            token: activeToken,
+            sportType,
+          }),
+        );
+      }
     }
     setIsEditModalOpen(true);
   };
 
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
+    setModalCityId(0);
   };
 
   const handleCityChange = (newCityId: number) => {
+    setModalCityId(newCityId);
     if (activeToken && sportType) {
       dispatch(
         fetchLeagues({

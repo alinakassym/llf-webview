@@ -1,6 +1,6 @@
 // llf-webview/src/components/EditSeasonModal.tsx
 
-import { type FC, useState, useEffect, useRef } from "react";
+import { type FC, useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -58,7 +58,6 @@ const EditSeasonModal: FC<EditSeasonModalProps> = ({
   const [errors, setErrors] = useState<
     Partial<Record<keyof EditSeasonData | "cityId", string>>
   >({});
-  const prevCityIdRef = useRef<number>(0);
 
   // Заполняем форму данными сезона при открытии
   useEffect(() => {
@@ -73,22 +72,9 @@ const EditSeasonModal: FC<EditSeasonModalProps> = ({
         leagueId: season.leagueId,
       });
       setSelectedCityId(season.cityId);
-      prevCityIdRef.current = season.cityId;
-
-      // Загружаем лиги для города сезона
-      onCityChange(season.cityId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [season?.id, open]);
-
-  // Загружаем лиги при изменении города
-  useEffect(() => {
-    if (selectedCityId > 0 && selectedCityId !== prevCityIdRef.current) {
-      prevCityIdRef.current = selectedCityId;
-      onCityChange(selectedCityId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCityId]);
 
   const handleChange =
     (field: keyof EditSeasonData | "cityId") =>
@@ -98,6 +84,10 @@ const EditSeasonModal: FC<EditSeasonModalProps> = ({
         setSelectedCityId(cityId);
         // Сбрасываем выбранную лигу при смене города
         setFormData((prev) => ({ ...prev, leagueId: 0 }));
+        // Загружаем лиги для выбранного города
+        if (cityId > 0) {
+          onCityChange(cityId);
+        }
       } else if (field === "name" || field === "date") {
         setFormData((prev) => ({ ...prev, [field]: e.target.value }));
       } else {
@@ -164,7 +154,6 @@ const EditSeasonModal: FC<EditSeasonModalProps> = ({
     setSelectedCityId(0);
     setErrors({});
     setLoading(false);
-    prevCityIdRef.current = 0;
     onClose();
   };
 
