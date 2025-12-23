@@ -239,6 +239,12 @@ const SeasonEditPage: FC = () => {
                 color: "rgba(255, 255, 255, 0.8)",
               }}
             >
+              {new Date(season.date).toLocaleDateString("ru-RU", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })}{" "}
+              <br />
               {season.leagueName} • {season.cityName}
             </Typography>
           </Box>
