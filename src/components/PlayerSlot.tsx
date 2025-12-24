@@ -24,18 +24,18 @@ const PlayerSlot: FC<PlayerSlotProps> = ({
   const formatName = (name: string): string => {
     const parts = name.trim().split(/\s+/);
     if (parts.length < 2) return name;
-    return `${parts[0]} ${parts[1][0]}.`;
+    return `${parts[0]}\n${parts[1]}`;
   };
 
   return (
     <Box
       onClick={onClick}
       sx={{
+        py: 1,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
-        gap: 0.5,
+        justifyContent: "space-around",
         width: 80,
         height: 100,
         backgroundColor: backgroundColor,
@@ -78,21 +78,21 @@ const PlayerSlot: FC<PlayerSlotProps> = ({
       {/* Имя игрока */}
       <Typography
         sx={{
+          maxWidth: "100%",
+          px: 0.5,
           fontSize: "10px",
           fontWeight: 600,
-          color: "#FFFFFF",
           textAlign: "center",
           lineHeight: 1.2,
-          maxWidth: "100%",
+          color: "#FFFFFF",
+          textOverflow: "unset",
+          whiteSpace: "break-spaces",
+          wordBreak: "break-all",
           overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-          px: 0.5,
         }}
       >
         {formatName(fullName)}
       </Typography>
-
       {/* Позиция */}
       <Typography
         sx={{
