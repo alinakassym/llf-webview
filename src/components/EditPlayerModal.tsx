@@ -24,7 +24,10 @@ interface EditPlayerModalProps {
   onClose: () => void;
   sportType: number;
   player: PlayerProfile | null;
-  onSubmit: (playerId: number, data: EditPlayerData) => Promise<void>;
+  onSubmit: (
+    playerId: number | undefined,
+    data: EditPlayerData,
+  ) => Promise<void>;
 }
 
 export interface EditPlayerData {
@@ -33,9 +36,9 @@ export interface EditPlayerData {
   lastName: string;
   middleName: string;
   dateOfBirth: string;
-  sportType: number;
-  position: number;
-  volleyballPosition?: number;
+  sportType: number | string;
+  position: number | string;
+  volleyballPosition?: number | string;
   isProfessionalVolleyballPlayer?: boolean;
   yellowCards?: number;
   redCards?: number;
@@ -61,7 +64,7 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
   // Определяем начальную позицию в зависимости от вида спорта
   const getInitialPosition = () => {
     if (sportType === SportType.Volleyball) {
-      return VolleyballPosition.OutsideHitter;
+      return VolleyballPosition.Unknown;
     }
     return PlayerRole.Forward;
   };
@@ -110,10 +113,18 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
   // Получаем список позиций в зависимости от вида спорта
   const getPositionOptions = (): Array<{ value: number; label: string }> => {
     if (sportType === SportType.Volleyball) {
-      return Object.entries(VolleyballPositionName).map(([value, label]) => ({
-        value: Number(value),
-        label,
-      }));
+      return Object.entries(VolleyballPositionName).map(([key, label]) => {
+        if (Number(key) !== VolleyballPosition.Unknown) {
+          return {
+            value: Number(key),
+            label,
+          };
+        }
+        return {
+          value: Number(key),
+          label,
+        };
+      });
     }
     return Object.entries(positionLabels).map(([value, label]) => ({
       value: Number(value),
@@ -127,6 +138,7 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
       const value = e.target.value;
 
       if (field === "position") {
+        console.log("Changing position to:", value);
         setFormData((prev) => ({ ...prev, [field]: Number(value) }));
       } else {
         setFormData((prev) => ({ ...prev, [field]: value }));

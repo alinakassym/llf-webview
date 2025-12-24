@@ -195,32 +195,34 @@ const EditTourModal: FC<EditTourModalProps> = ({
           <TextField
             label="Дата начала"
             type="date"
-            value={
-              formData.startDate
-                ? formData.startDate.split("T")[0]
-                : ""
-            }
+            value={formData.startDate ? formData.startDate.split("T")[0] : ""}
             onChange={handleChange("startDate")}
             disabled={loading}
             fullWidth
             slotProps={{
               inputLabel: { shrink: true },
             }}
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "56px",
+              },
+            }}
           />
 
           <TextField
             label="Дата окончания"
             type="date"
-            value={
-              formData.endDate
-                ? formData.endDate.split("T")[0]
-                : ""
-            }
+            value={formData.endDate ? formData.endDate.split("T")[0] : ""}
             onChange={handleChange("endDate")}
             disabled={loading}
             fullWidth
             slotProps={{
               inputLabel: { shrink: true },
+            }}
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "56px",
+              },
             }}
           />
         </Box>

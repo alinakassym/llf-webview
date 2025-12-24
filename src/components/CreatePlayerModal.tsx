@@ -239,7 +239,14 @@ const CreatePlayerModal: FC<CreatePlayerModalProps> = ({
             disabled={loading}
             fullWidth
             required
-            sx={{ input: { height: 56, padding: "0 16px" } }}
+            slotProps={{
+              inputLabel: { shrink: true },
+            }}
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "56px",
+              },
+            }}
           />
 
           <TextField
