@@ -24,10 +24,7 @@ interface EditPlayerModalProps {
   onClose: () => void;
   sportType: number;
   player: PlayerProfile | null;
-  onSubmit: (
-    playerId: number | undefined,
-    data: EditPlayerData,
-  ) => Promise<void>;
+  onSubmit: (playerId: number, data: EditPlayerData) => Promise<void>;
 }
 
 export interface EditPlayerData {
@@ -36,7 +33,23 @@ export interface EditPlayerData {
   lastName: string;
   middleName: string;
   dateOfBirth: string;
-  sportType: number | string;
+  sportType: number;
+  position: number;
+  volleyballPosition?: number;
+  isProfessionalVolleyballPlayer?: boolean;
+  yellowCards?: number;
+  redCards?: number;
+  totalGoals?: number;
+  matchesPlayed?: number;
+}
+
+interface FormData {
+  userId: number | null;
+  firstName: string;
+  lastName: string;
+  middleName: string;
+  dateOfBirth: string;
+  sportType: number;
   position: number | string;
   volleyballPosition?: number | string;
   isProfessionalVolleyballPlayer?: boolean;
@@ -69,13 +82,13 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
     return PlayerRole.Forward;
   };
 
-  const [formData, setFormData] = useState<EditPlayerData>({
+  const [formData, setFormData] = useState<FormData>({
     userId: null,
     firstName: "",
     lastName: "",
     middleName: "",
     dateOfBirth: "",
-    sportType: sportType,
+    sportType: Number(sportType),
     position: getInitialPosition(),
     volleyballPosition: undefined,
     isProfessionalVolleyballPlayer: false,
@@ -84,13 +97,14 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
     totalGoals: 0,
     matchesPlayed: 0,
   });
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof EditPlayerData, string>>
-  >({});
+  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>(
+    {},
+  );
   const [loading, setLoading] = useState(false);
 
   // Заполняем форму данными игрока при открытии модала
   useEffect(() => {
+    console.log("Editing player:", player);
     if (player) {
       setFormData({
         userId: player.userId || null,
@@ -98,9 +112,9 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
         lastName: player.lastName,
         middleName: player.middleName || "",
         dateOfBirth: player.dateOfBirth ? player.dateOfBirth.split("T")[0] : "",
-        sportType: player.sportType,
-        position: player.position,
-        volleyballPosition: player.volleyballPosition,
+        sportType: Number(player.sportType),
+        position: player.position, // Оставляем как есть (string), конвертируем при submit
+        volleyballPosition: player.volleyballPosition, // Оставляем как есть (string), конвертируем при submit
         isProfessionalVolleyballPlayer: player.isProfessionalVolleyballPlayer,
         yellowCards: player.yellowCards || 0,
         redCards: player.redCards || 0,
@@ -113,36 +127,28 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
   // Получаем список позиций в зависимости от вида спорта
   const getPositionOptions = (): Array<{ value: number; label: string }> => {
     if (sportType === SportType.Volleyball) {
-      return Object.entries(VolleyballPositionName).map(([key, label]) => {
-        if (Number(key) !== VolleyballPosition.Unknown) {
-          return {
-            value: Number(key),
-            label,
-          };
-        }
-        return {
-          value: Number(key),
+      return Object.entries(VolleyballPositionName)
+        .map(([value, label]) => ({
+          value: Number(value),
           label,
-        };
-      });
+        }))
+        .filter((option) => !isNaN(option.value));
     }
-    return Object.entries(positionLabels).map(([value, label]) => ({
-      value: Number(value),
-      label,
-    }));
+    return Object.entries(positionLabels)
+      .map(([value, label]) => ({
+        value: Number(value),
+        label,
+      }))
+      .filter((option) => !isNaN(option.value));
   };
 
   const handleChange =
-    (field: keyof EditPlayerData) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
 
-      if (field === "position") {
-        console.log("Changing position to:", value);
-        setFormData((prev) => ({ ...prev, [field]: Number(value) }));
-      } else {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-      }
+      // Position и volleyballPosition сохраняем как есть (string или number)
+      // Конвертация в number произойдет при submit
+      setFormData((prev) => ({ ...prev, [field]: value }));
 
       // Очищаем ошибку при изменении поля
       if (errors[field]) {
@@ -175,7 +181,7 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
         lastName: "",
         middleName: "",
         dateOfBirth: "",
-        sportType: sportType,
+        sportType: Number(sportType),
         position: getInitialPosition(),
         volleyballPosition: undefined,
         isProfessionalVolleyballPlayer: false,
@@ -191,7 +197,7 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
   };
 
   const handleSubmit = async () => {
-    if (!validate() || !player) {
+    if (!validate() || !player || !player.id) {
       return;
     }
 
@@ -200,10 +206,17 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
       // Конвертируем дату из формата YYYY-MM-DD в RFC 3339
       const dateTime = `${formData.dateOfBirth}T16:06:36.427Z`;
 
-      await onSubmit(player.id, {
+      // Конвертируем position и volleyballPosition в number
+      const submitData: EditPlayerData = {
         ...formData,
         dateOfBirth: dateTime,
-      });
+        position: Number(formData.position),
+        volleyballPosition: formData.volleyballPosition
+          ? Number(formData.volleyballPosition)
+          : undefined,
+      };
+
+      await onSubmit(player.id, submitData);
       handleClose();
     } catch (error) {
       console.error("Error updating player:", error);
@@ -299,8 +312,8 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
           <TextField
             label="Позиция"
             select
-            value={formData.position}
-            onChange={handleChange("position")}
+            value={formData.volleyballPosition}
+            onChange={handleChange("volleyballPosition")}
             disabled={loading}
             fullWidth
             required
