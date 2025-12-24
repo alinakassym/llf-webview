@@ -20,6 +20,9 @@ import EditSeasonModal, {
 import CreateTourModal, {
   type CreateTourData,
 } from "../components/CreateTourModal";
+import CreateMatchModal, {
+  type CreateMatchData,
+} from "../components/CreateMatchModal";
 import ToursList from "../components/ToursList";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
@@ -27,8 +30,11 @@ import { updateSeason } from "../store/slices/seasonSlice";
 import { fetchLeagues, selectLeaguesByCity } from "../store/slices/leagueSlice";
 import { seasonService } from "../services/seasonService";
 import { tourService } from "../services/tourService";
+import { matchService } from "../services/matchService";
+import { teamService } from "../services/teamService";
 import type { Season } from "../types/season";
 import type { Tour } from "../types/tour";
+import type { Team } from "../types/team";
 
 const SeasonEditPage: FC = () => {
   const { seasonId, sportType } = useParams<{
@@ -41,10 +47,14 @@ const SeasonEditPage: FC = () => {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateTourModalOpen, setIsCreateTourModalOpen] = useState(false);
+  const [isCreateMatchModalOpen, setIsCreateMatchModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [teamsLoading, setTeamsLoading] = useState(false);
   const [season, setSeason] = useState<Season | null>(null);
   const [modalCityId, setModalCityId] = useState<number>(0);
   const [tours, setTours] = useState<Tour[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [selectedTourId, setSelectedTourId] = useState<number | null>(null);
 
   const activeToken = webViewToken || token;
 
@@ -202,9 +212,50 @@ const SeasonEditPage: FC = () => {
     alert("Функционал удаления тура в разработке");
   };
 
-  const handleAddMatch = (tourId: number) => {
-    console.log("Add match to tour with ID:", tourId);
-    alert("Функционал добавления матча в разработке");
+  const handleAddMatch = async (tourId: number) => {
+    setSelectedTourId(tourId);
+
+    // Загружаем команды для выбранного тура
+    if (activeToken && season && sportType) {
+      try {
+        setTeamsLoading(true);
+        const loadedTeams = await teamService.getTeams(
+          activeToken,
+          season.cityId,
+          season.leagueId,
+          sportType
+        );
+        setTeams(loadedTeams);
+        setIsCreateMatchModalOpen(true);
+      } catch (error) {
+        console.error("Error loading teams:", error);
+      } finally {
+        setTeamsLoading(false);
+      }
+    }
+  };
+
+  const handleCloseCreateMatchModal = () => {
+    setIsCreateMatchModalOpen(false);
+    setSelectedTourId(null);
+    setTeams([]);
+  };
+
+  const handleCreateMatch = async (data: CreateMatchData) => {
+    if (!activeToken || !selectedTourId || !seasonId) return;
+
+    try {
+      await matchService.createMatch(selectedTourId, data, activeToken);
+
+      // Перезагружаем туры для обновления списка матчей
+      const loadedTours = await tourService.getTours(seasonId, activeToken);
+      setTours(loadedTours);
+
+      handleCloseCreateMatchModal();
+    } catch (error) {
+      console.error("Error creating match:", error);
+      throw error;
+    }
   };
 
   // Показываем loader
@@ -360,6 +411,19 @@ const SeasonEditPage: FC = () => {
         onSubmit={handleCreateTour}
         nextTourNumber={nextTourNumber}
       />
+
+      {/* Модальное окно создания матча */}
+      {selectedTourId && (
+        <CreateMatchModal
+          open={isCreateMatchModalOpen}
+          onClose={handleCloseCreateMatchModal}
+          onSubmit={handleCreateMatch}
+          tourId={selectedTourId}
+          sportType={Number(sportType)}
+          teams={teams}
+          loading={teamsLoading}
+        />
+      )}
 
       {/* Кнопка добавления тура */}
       <Fab

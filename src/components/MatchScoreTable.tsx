@@ -46,18 +46,10 @@ const MatchScoreTable: FC<MatchScoreTableProps> = ({ match }) => {
       </TableHead>
       <TableBody>
         <TableRow>
-          <TableCell sx={{ fontWeight: 500 }}>
-            {match.team1Name}
-          </TableCell>
-          <TableCell align="center">
-            {match.team1Set1Score}
-          </TableCell>
-          <TableCell align="center">
-            {match.team1Set2Score}
-          </TableCell>
-          <TableCell align="center">
-            {match.team1Set3Score}
-          </TableCell>
+          <TableCell sx={{ fontWeight: 500 }}>{match.team1Name}</TableCell>
+          <TableCell align="center">{match.team1Set1Score ?? "0"}</TableCell>
+          <TableCell align="center">{match.team1Set2Score ?? "0"}</TableCell>
+          <TableCell align="center">{match.team1Set3Score ?? "0"}</TableCell>
           <TableCell
             align="center"
             sx={{
@@ -69,18 +61,10 @@ const MatchScoreTable: FC<MatchScoreTableProps> = ({ match }) => {
           </TableCell>
         </TableRow>
         <TableRow>
-          <TableCell sx={{ fontWeight: 500 }}>
-            {match.team2Name}
-          </TableCell>
-          <TableCell align="center">
-            {match.team2Set1Score}
-          </TableCell>
-          <TableCell align="center">
-            {match.team2Set2Score}
-          </TableCell>
-          <TableCell align="center">
-            {match.team2Set3Score}
-          </TableCell>
+          <TableCell sx={{ fontWeight: 500 }}>{match.team2Name}</TableCell>
+          <TableCell align="center">{match?.team2Set1Score ?? "0"}</TableCell>
+          <TableCell align="center">{match.team2Set2Score ?? "0"}</TableCell>
+          <TableCell align="center">{match.team2Set3Score ?? "0"}</TableCell>
           <TableCell
             align="center"
             sx={{

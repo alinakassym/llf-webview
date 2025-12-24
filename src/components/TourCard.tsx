@@ -151,9 +151,7 @@ const TourCard: FC<TourCardProps> = ({
                 {match.location && ` • ${match.location}`}
               </Typography>
 
-              {(match.team1Score > 0 || match.team2Score > 0) && (
-                <MatchScoreTable match={match} />
-              )}
+              <MatchScoreTable match={match} />
             </Box>
           ))}
         </Box>
