@@ -9,6 +9,14 @@ export interface CreateTourPayload {
   endDate?: string | null;
 }
 
+export interface UpdateTourPayload {
+  seasonId: number;
+  number: number;
+  name?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+}
+
 export const tourService = {
   createTour: async (
     data: CreateTourPayload,
@@ -34,5 +42,20 @@ export const tourService = {
       },
     );
     return response.tours;
+  },
+
+  updateTour: async (
+    tourId: number,
+    data: UpdateTourPayload,
+    token: string,
+  ): Promise<void> => {
+    await apiRequest<void>(
+      `/seasons/tours/${tourId}`,
+      {
+        method: "PUT",
+        token,
+        body: JSON.stringify(data),
+      },
+    );
   },
 };

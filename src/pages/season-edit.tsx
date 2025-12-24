@@ -20,6 +20,9 @@ import EditSeasonModal, {
 import CreateTourModal, {
   type CreateTourData,
 } from "../components/CreateTourModal";
+import EditTourModal, {
+  type EditTourData,
+} from "../components/EditTourModal";
 import CreateMatchModal, {
   type CreateMatchData,
 } from "../components/CreateMatchModal";
@@ -47,6 +50,7 @@ const SeasonEditPage: FC = () => {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateTourModalOpen, setIsCreateTourModalOpen] = useState(false);
+  const [isEditTourModalOpen, setIsEditTourModalOpen] = useState(false);
   const [isCreateMatchModalOpen, setIsCreateMatchModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [teamsLoading, setTeamsLoading] = useState(false);
@@ -55,6 +59,7 @@ const SeasonEditPage: FC = () => {
   const [tours, setTours] = useState<Tour[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTourId, setSelectedTourId] = useState<number | null>(null);
+  const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
 
   const activeToken = webViewToken || token;
 
@@ -203,8 +208,33 @@ const SeasonEditPage: FC = () => {
     : 1;
 
   const handleEditTour = (tourId: number) => {
-    console.log("Edit tour with ID:", tourId);
-    alert("Функционал редактирования тура в разработке");
+    const tour = tours.find((t) => t.id === tourId);
+    if (tour) {
+      setSelectedTour(tour);
+      setIsEditTourModalOpen(true);
+    }
+  };
+
+  const handleCloseEditTourModal = () => {
+    setIsEditTourModalOpen(false);
+    setSelectedTour(null);
+  };
+
+  const handleUpdateTour = async (data: EditTourData) => {
+    if (!activeToken || !selectedTour || !seasonId) return;
+
+    try {
+      await tourService.updateTour(selectedTour.id, data, activeToken);
+
+      // Перезагружаем туры для обновления списка
+      const loadedTours = await tourService.getTours(seasonId, activeToken);
+      setTours(loadedTours);
+
+      handleCloseEditTourModal();
+    } catch (error) {
+      console.error("Error updating tour:", error);
+      throw error;
+    }
   };
 
   const handleDeleteTour = (tourId: number, tourName: string) => {
@@ -380,7 +410,7 @@ const SeasonEditPage: FC = () => {
             px: 2,
             pt: 2,
             pb: 10,
-            height: "calc(100vh - 126px)",
+            height: "calc(100vh - 86px)",
             overflowY: "auto",
           }}
         >
@@ -422,6 +452,14 @@ const SeasonEditPage: FC = () => {
         onClose={handleCloseCreateTourModal}
         onSubmit={handleCreateTour}
         nextTourNumber={nextTourNumber}
+      />
+
+      {/* Модальное окно редактирования тура */}
+      <EditTourModal
+        open={isEditTourModalOpen}
+        onClose={handleCloseEditTourModal}
+        onSubmit={handleUpdateTour}
+        tour={selectedTour}
       />
 
       {/* Модальное окно создания матча */}
