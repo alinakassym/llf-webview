@@ -21,8 +21,8 @@ export const tourService = {
   createTour: async (
     data: CreateTourPayload,
     token: string,
-  ): Promise<Tour[]> => {
-    const response = await apiRequest<{ tours: Tour[] }>(
+  ): Promise<Tour> => {
+    const response = await apiRequest<Tour>(
       `/seasons/${data.seasonId}/tours`,
       {
         method: "POST",
@@ -30,7 +30,7 @@ export const tourService = {
         body: JSON.stringify(data),
       },
     );
-    return response.tours;
+    return response;
   },
 
   getTours: async (seasonId: string, token: string): Promise<Tour[]> => {

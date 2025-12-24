@@ -191,7 +191,7 @@ const SeasonEditPage: FC = () => {
     if (!activeToken || !seasonId || !season) return;
 
     try {
-      const updatedTours = await tourService.createTour(
+      const newTour = await tourService.createTour(
         {
           seasonId: season.id,
           ...data,
@@ -199,10 +199,10 @@ const SeasonEditPage: FC = () => {
         activeToken,
       );
 
-      // Обновляем список туров
-      if (updatedTours && Array.isArray(updatedTours)) {
-        setTours(updatedTours);
-      }
+      // Добавляем новый тур к существующему списку
+      setTours((prevTours) => [...prevTours, newTour]);
+
+      handleCloseCreateTourModal();
     } catch (error) {
       console.error("Error creating tour:", error);
       throw error;
