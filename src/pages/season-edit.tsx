@@ -26,6 +26,7 @@ import EditTourModal, {
 import CreateMatchModal, {
   type CreateMatchData,
 } from "../components/CreateMatchModal";
+import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import ToursList from "../components/ToursList";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
@@ -60,6 +61,12 @@ const SeasonEditPage: FC = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTourId, setSelectedTourId] = useState<number | null>(null);
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [tourToDelete, setTourToDelete] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const activeToken = webViewToken || token;
 
@@ -238,8 +245,39 @@ const SeasonEditPage: FC = () => {
   };
 
   const handleDeleteTour = (tourId: number, tourName: string) => {
-    console.log("Delete tour with ID:", tourId, tourName);
-    alert("Функционал удаления тура в разработке");
+    setTourToDelete({
+      id: tourId,
+      name: tourName,
+    });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    if (!isDeleting) {
+      setDeleteDialogOpen(false);
+      setTourToDelete(null);
+    }
+  };
+
+  const handleConfirmDeleteTour = async () => {
+    if (!tourToDelete || !activeToken || !seasonId) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await tourService.deleteTour(tourToDelete.id, activeToken);
+
+      // Перезагружаем туры для обновления списка
+      const loadedTours = await tourService.getTours(seasonId, activeToken);
+      setTours(loadedTours);
+
+      handleCloseDeleteDialog();
+    } catch (error) {
+      console.error("Error deleting tour:", error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleAddMatch = async (tourId: number) => {
@@ -460,6 +498,20 @@ const SeasonEditPage: FC = () => {
         onClose={handleCloseEditTourModal}
         onSubmit={handleUpdateTour}
         tour={selectedTour}
+      />
+
+      {/* Диалог подтверждения удаления тура */}
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDeleteTour}
+        title="Удалить тур?"
+        message={
+          tourToDelete
+            ? `Вы уверены, что хотите удалить тур "${tourToDelete.name}"? Это действие нельзя отменить.`
+            : ""
+        }
+        loading={isDeleting}
       />
 
       {/* Модальное окно создания матча */}

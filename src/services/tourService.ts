@@ -58,4 +58,14 @@ export const tourService = {
       },
     );
   },
+
+  deleteTour: async (tourId: number, token: string): Promise<void> => {
+    await apiRequest<void>(
+      `/seasons/tours/${tourId}`,
+      {
+        method: "DELETE",
+        token,
+      },
+    );
+  },
 };
