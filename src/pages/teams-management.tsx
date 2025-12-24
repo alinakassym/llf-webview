@@ -16,8 +16,12 @@ import CreateTeamModal, {
 import CreatePlayerModal, {
   type CreatePlayerData,
 } from "../components/CreatePlayerModal";
+import EditPlayerModal, {
+  type EditPlayerData,
+} from "../components/EditPlayerModal";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import type { Team } from "../types/team";
+import type { PlayerProfile } from "../types/player";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import type { RootState } from "../store";
 import { fetchCities } from "../store/slices/citySlice";
@@ -93,6 +97,8 @@ const TeamsManagementPage: FC = () => {
   const [selectedSportType, setSelectedSportType] = useState<string>("2");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreatePlayerModalOpen, setIsCreatePlayerModalOpen] = useState(false);
+  const [isEditPlayerModalOpen, setIsEditPlayerModalOpen] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerProfile | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<{
     id: string;
@@ -302,10 +308,35 @@ const TeamsManagementPage: FC = () => {
     alert(`Просмотр профиля игрока в разработке (fullName: ${fullName})`);
   };
 
-  const handlePlayerEdit = (userId: number) => {
-    // TODO: Implement player edit functionality
-    console.log("Edit player:", userId);
-    navigate(`/player-edit/${userId}`);
+  const handlePlayerEdit = (playerId: number) => {
+    const player = filteredPlayers.find((p) => p.id === playerId);
+    if (player) {
+      setSelectedPlayer(player);
+      setIsEditPlayerModalOpen(true);
+    }
+  };
+
+  const handleCloseEditPlayerModal = () => {
+    setIsEditPlayerModalOpen(false);
+    setSelectedPlayer(null);
+  };
+
+  const handleUpdatePlayer = async (playerId: number, data: EditPlayerData) => {
+    if (!activeToken) return;
+
+    try {
+      await playerService.updatePlayerProfile(playerId, data, activeToken);
+
+      // Перезагружаем список игроков после обновления
+      dispatch(
+        fetchPlayerProfiles({ token: activeToken, sportType: selectedSportType })
+      );
+
+      handleCloseEditPlayerModal();
+    } catch (error) {
+      console.error("Error updating player:", error);
+      throw error;
+    }
   };
 
   const handlePlayerDelete = (playerId: number) => {
@@ -644,6 +675,14 @@ const TeamsManagementPage: FC = () => {
         token={activeToken || ""}
         sportType={Number(selectedSportType)}
         onSubmit={handleCreatePlayer}
+      />
+
+      <EditPlayerModal
+        open={isEditPlayerModalOpen}
+        onClose={handleCloseEditPlayerModal}
+        sportType={Number(selectedSportType)}
+        player={selectedPlayer}
+        onSubmit={handleUpdatePlayer}
       />
 
       <DeleteConfirmDialog
