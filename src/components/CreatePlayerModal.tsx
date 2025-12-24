@@ -89,9 +89,6 @@ const CreatePlayerModal: FC<CreatePlayerModalProps> = ({
     if (!formData.lastName.trim()) {
       newErrors.lastName = "Фамилия обязательна";
     }
-    if (!formData.middleName.trim()) {
-      newErrors.middleName = "Отчество обязательно";
-    }
     if (!formData.dateOfBirth) {
       newErrors.dateOfBirth = "Дата рождения обязательна";
     }
@@ -204,7 +201,6 @@ const CreatePlayerModal: FC<CreatePlayerModalProps> = ({
             helperText={errors.middleName}
             disabled={loading}
             fullWidth
-            required
           />
 
           <TextField
