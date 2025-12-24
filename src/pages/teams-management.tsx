@@ -333,7 +333,7 @@ const TeamsManagementPage: FC = () => {
 
     setIsDeletingPlayer(true);
     try {
-      await playerService.deletePlayer(playerToDelete.id, activeToken);
+      await playerService.deletePlayerProfile(playerToDelete.id, activeToken);
 
       // Перезагружаем список игроков после удаления
       dispatch(
