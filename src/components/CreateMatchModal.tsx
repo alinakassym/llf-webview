@@ -313,7 +313,9 @@ const CreateMatchModal: FC<CreateMatchModalProps> = ({
               onChange={handleChange("team1Score")}
               disabled={isLoading}
               fullWidth
-              inputProps={{ min: 0 }}
+              slotProps={{
+                htmlInput: { min: 0 },
+              }}
             />
             <TextField
               label="Счёт команды 2"
@@ -322,7 +324,9 @@ const CreateMatchModal: FC<CreateMatchModalProps> = ({
               onChange={handleChange("team2Score")}
               disabled={isLoading}
               fullWidth
-              inputProps={{ min: 0 }}
+              slotProps={{
+                htmlInput: { min: 0 },
+              }}
             />
           </Box>
 
@@ -338,7 +342,9 @@ const CreateMatchModal: FC<CreateMatchModalProps> = ({
               onChange={handleChange("team1Set1Score")}
               disabled={isLoading}
               fullWidth
-              inputProps={{ min: 0 }}
+              slotProps={{
+                htmlInput: { min: 0 },
+              }}
             />
             <TextField
               label="Команда 2 - Сет 1"
@@ -347,7 +353,9 @@ const CreateMatchModal: FC<CreateMatchModalProps> = ({
               onChange={handleChange("team2Set1Score")}
               disabled={isLoading}
               fullWidth
-              inputProps={{ min: 0 }}
+              slotProps={{
+                htmlInput: { min: 0 },
+              }}
             />
           </Box>
 
@@ -359,7 +367,9 @@ const CreateMatchModal: FC<CreateMatchModalProps> = ({
               onChange={handleChange("team1Set2Score")}
               disabled={isLoading}
               fullWidth
-              inputProps={{ min: 0 }}
+              slotProps={{
+                htmlInput: { min: 0 },
+              }}
             />
             <TextField
               label="Команда 2 - Сет 2"
@@ -368,7 +378,9 @@ const CreateMatchModal: FC<CreateMatchModalProps> = ({
               onChange={handleChange("team2Set2Score")}
               disabled={isLoading}
               fullWidth
-              inputProps={{ min: 0 }}
+              slotProps={{
+                htmlInput: { min: 0 },
+              }}
             />
           </Box>
 
@@ -380,7 +392,9 @@ const CreateMatchModal: FC<CreateMatchModalProps> = ({
               onChange={handleChange("team1Set3Score")}
               disabled={isLoading}
               fullWidth
-              inputProps={{ min: 0 }}
+              slotProps={{
+                htmlInput: { min: 0 },
+              }}
             />
             <TextField
               label="Команда 2 - Сет 3"
@@ -389,7 +403,9 @@ const CreateMatchModal: FC<CreateMatchModalProps> = ({
               onChange={handleChange("team2Set3Score")}
               disabled={isLoading}
               fullWidth
-              inputProps={{ min: 0 }}
+              slotProps={{
+                htmlInput: { min: 0 },
+              }}
             />
           </Box>
 
@@ -401,7 +417,9 @@ const CreateMatchModal: FC<CreateMatchModalProps> = ({
               onChange={handleChange("team1SetsWon")}
               disabled={isLoading}
               fullWidth
-              inputProps={{ min: 0 }}
+              slotProps={{
+                htmlInput: { min: 0 },
+              }}
             />
             <TextField
               label="Команда 2 - Выигранные сеты"
@@ -410,7 +428,9 @@ const CreateMatchModal: FC<CreateMatchModalProps> = ({
               onChange={handleChange("team2SetsWon")}
               disabled={isLoading}
               fullWidth
-              inputProps={{ min: 0 }}
+              slotProps={{
+                htmlInput: { min: 0 },
+              }}
             />
           </Box>
         </Box>
