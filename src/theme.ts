@@ -11,6 +11,8 @@ declare module "@mui/material/styles" {
     customBackground: string;
     dark: string;
     bgOpacity: string;
+    opacity: string;
+    overlayOpacity: string;
   }
   interface PaletteOptions {
     tertiary?: PaletteOptions["primary"];
@@ -20,6 +22,8 @@ declare module "@mui/material/styles" {
     customBackground?: string;
     dark?: string;
     bgOpacity?: string;
+    opacity?: string;
+    overlayOpacity?: string;
   }
 }
 
@@ -45,6 +49,8 @@ export const createAppTheme = (mode: PaletteMode) =>
       customBackground: mode === "light" ? "#F9FAFE" : "rgba(39, 27, 56, 1)",
       dark: "#271B38",
       bgOpacity: mode === "light" ? "rgba(255, 255, 255, 0.4)" : "rgba(39, 27, 56, 0.4)",
+      opacity: mode === "light" ? "rgba(0, 0, 0, 0.2)" : "rgba(255, 255, 255, 0.2)",
+      overlayOpacity: mode === "light" ? "rgba(255, 255, 255, 0.8)" : "rgba(39, 27, 56, 0.8)",
     },
     shape: {
       borderRadius: 8,
