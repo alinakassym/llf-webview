@@ -13,7 +13,7 @@ export interface Match {
   dateTime: string;
   location: string;
   team1Id: number;
-  teamName: string;
+  team1Name: string;
   team2Id: number;
   team2Name: string;
   tourId: number;
