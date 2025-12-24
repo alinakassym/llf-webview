@@ -260,7 +260,7 @@ const SeasonEditPage: FC = () => {
               `linear-gradient(to right, ${theme.palette.gradient.join(", ")})`,
             pl: 2,
             pr: 1,
-            pb: 2,
+            pb: 1,
           }}
         >
           {/* Название сезона и иконка редактирования */}
@@ -268,9 +268,8 @@ const SeasonEditPage: FC = () => {
             sx={{
               display: "flex",
               flexDirection: "row",
-              alignItems: "center",
+              alignItems: "flex-start",
               justifyContent: "space-between",
-              pt: 1,
             }}
           >
             <Typography
@@ -278,6 +277,7 @@ const SeasonEditPage: FC = () => {
               sx={{
                 color: "#FFFFFF",
                 fontWeight: 700,
+                lineHeight: 1,
               }}
             >
               {season.name}
@@ -286,7 +286,7 @@ const SeasonEditPage: FC = () => {
               onClick={handleOpenEditModal}
               sx={{
                 color: "#FFFFFF",
-                padding: 2,
+                padding: 1,
               }}
               size="small"
             >
@@ -295,7 +295,7 @@ const SeasonEditPage: FC = () => {
           </Box>
 
           {/* Дополнительная информация */}
-          <Box sx={{ mt: 1 }}>
+          <Box>
             <Typography
               sx={{
                 fontSize: "14px",
