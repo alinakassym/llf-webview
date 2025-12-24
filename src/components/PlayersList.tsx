@@ -9,13 +9,15 @@ import { PlayerRole, PlayerRoleAbbreviation } from "../types/playerRole";
 interface PlayersListProps {
   players: PlayerProfile[];
   onPlayerClick: (fullName: string) => void;
-  onEdit?: (userId: number) => void;
-  onDelete?: (userId: number) => void;
+  onEdit?: (id: number) => void;
+  onDelete?: (id: number) => void;
 }
 
 // Получение сокращенного обозначения позиции
-const getPositionAbbreviation = (position: PlayerRole): string => {
-  return PlayerRoleAbbreviation[position] || "—";
+const getPositionAbbreviation = (position: PlayerRole | string): string => {
+  return typeof position === "string" && position in PlayerRoleAbbreviation
+    ? PlayerRoleAbbreviation[position as unknown as PlayerRole]
+    : "—";
 };
 
 const PlayersList: FC<PlayersListProps> = ({
@@ -42,13 +44,21 @@ const PlayersList: FC<PlayersListProps> = ({
     <Box>
       {players.map((player) => (
         <PlayerPreviewCard
-          key={player.userId}
+          key={player.id}
           fullName={player.fullName}
           age={player.age}
           position={getPositionAbbreviation(player.position)}
           onClick={() => onPlayerClick(player.fullName)}
-          onEdit={onEdit ? () => onEdit(player.userId) : undefined}
-          onDelete={onDelete ? () => onDelete(player.userId) : undefined}
+          onEdit={
+            onEdit && player.id != null
+              ? () => onEdit(player.id as number)
+              : undefined
+          }
+          onDelete={
+            onDelete && player.id !== null
+              ? () => onDelete(player.id!)
+              : undefined
+          }
         />
       ))}
     </Box>

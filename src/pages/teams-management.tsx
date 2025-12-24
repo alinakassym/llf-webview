@@ -34,6 +34,7 @@ import {
   selectPlayerProfiles,
   createPlayerProfile,
 } from "../store/slices/playerSlice";
+import { playerService } from "../services/playerService";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import { ALL_CITIES } from "../constants/leagueManagement";
@@ -98,6 +99,12 @@ const TeamsManagementPage: FC = () => {
     name: string;
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deletePlayerDialogOpen, setDeletePlayerDialogOpen] = useState(false);
+  const [playerToDelete, setPlayerToDelete] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+  const [isDeletingPlayer, setIsDeletingPlayer] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -301,10 +308,44 @@ const TeamsManagementPage: FC = () => {
     navigate(`/player-edit/${userId}`);
   };
 
-  const handlePlayerDelete = (userId: number) => {
-    // TODO: Implement player delete functionality
-    console.log("Delete player:", userId);
-    alert("Удаление игрока в разработке");
+  const handlePlayerDelete = (playerId: number) => {
+    const player = filteredPlayers.find((p) => p.id === playerId);
+    if (player) {
+      setPlayerToDelete({
+        id: playerId,
+        name: `${player.firstName} ${player.lastName}`,
+      });
+      setDeletePlayerDialogOpen(true);
+    }
+  };
+
+  const handleCloseDeletePlayerDialog = () => {
+    if (!isDeletingPlayer) {
+      setDeletePlayerDialogOpen(false);
+      setPlayerToDelete(null);
+    }
+  };
+
+  const handleConfirmDeletePlayer = async () => {
+    if (!playerToDelete || !activeToken) {
+      return;
+    }
+
+    setIsDeletingPlayer(true);
+    try {
+      await playerService.deletePlayer(playerToDelete.id, activeToken);
+
+      // Перезагружаем список игроков после удаления
+      dispatch(
+        fetchPlayerProfiles({ token: activeToken, sportType: selectedSportType })
+      );
+
+      handleCloseDeletePlayerDialog();
+    } catch (error) {
+      console.error("Error deleting player:", error);
+    } finally {
+      setIsDeletingPlayer(false);
+    }
   };
 
   const handleAdd = () => {
@@ -616,6 +657,19 @@ const TeamsManagementPage: FC = () => {
             : ""
         }
         loading={isDeleting}
+      />
+
+      <DeleteConfirmDialog
+        open={deletePlayerDialogOpen}
+        onClose={handleCloseDeletePlayerDialog}
+        onConfirm={handleConfirmDeletePlayer}
+        title="Удалить игрока?"
+        message={
+          playerToDelete
+            ? `Вы уверены, что хотите удалить игрока "${playerToDelete.name}"? Это действие нельзя отменить.`
+            : ""
+        }
+        loading={isDeletingPlayer}
       />
     </Box>
   );

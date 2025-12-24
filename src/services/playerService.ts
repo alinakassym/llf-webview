@@ -90,4 +90,21 @@ export const playerService = {
     });
     return response;
   },
+
+  deletePlayer: async (playerId: number, token: string): Promise<void> => {
+    await apiRequest<void>(`/players/${playerId}`, {
+      method: "DELETE",
+      token,
+    });
+  },
+
+  deletePlayerProfile: async (
+    profileId: number,
+    token: string
+  ): Promise<void> => {
+    await apiRequest<void>(`/players/profiles/${profileId}`, {
+      method: "DELETE",
+      token,
+    });
+  },
 };
