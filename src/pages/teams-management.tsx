@@ -601,6 +601,7 @@ const TeamsManagementPage: FC = () => {
         open={isCreatePlayerModalOpen}
         onClose={handleClosePlayerModal}
         token={activeToken || ""}
+        sportType={Number(selectedSportType)}
         onSubmit={handleCreatePlayer}
       />
 

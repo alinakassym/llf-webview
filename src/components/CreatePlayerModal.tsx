@@ -15,11 +15,14 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { PlayerRole } from "../types/playerRole";
+import { VolleyballPosition, VolleyballPositionName } from "../types/volleyballPosition";
+import { SportType } from "../types/sportType";
 
 interface CreatePlayerModalProps {
   open: boolean;
   onClose: () => void;
   token: string;
+  sportType: number;
   onSubmit: (data: CreatePlayerData) => Promise<void>;
 }
 
@@ -38,7 +41,7 @@ export interface CreatePlayerData {
   matchesPlayed?: number;
 }
 
-// Полные названия позиций для выбора
+// Полные названия позиций для выбора (футбол)
 const positionLabels: Record<PlayerRole, string> = {
   [PlayerRole.Goalkeeper]: "Вратарь",
   [PlayerRole.Defender]: "Защитник",
@@ -49,19 +52,42 @@ const positionLabels: Record<PlayerRole, string> = {
 const CreatePlayerModal: FC<CreatePlayerModalProps> = ({
   open,
   onClose,
+  sportType,
   onSubmit,
 }) => {
+  // Определяем начальную позицию в зависимости от вида спорта
+  const getInitialPosition = () => {
+    if (sportType === SportType.Volleyball) {
+      return VolleyballPosition.OutsideHitter;
+    }
+    return PlayerRole.Forward;
+  };
+
   const [formData, setFormData] = useState<CreatePlayerData>({
     firstName: "",
     lastName: "",
     middleName: "",
     dateOfBirth: "",
-    position: PlayerRole.Forward,
+    position: getInitialPosition(),
   });
   const [errors, setErrors] = useState<
     Partial<Record<keyof CreatePlayerData, string>>
   >({});
   const [loading, setLoading] = useState(false);
+
+  // Получаем список позиций в зависимости от вида спорта
+  const getPositionOptions = (): Array<{ value: number; label: string }> => {
+    if (sportType === SportType.Volleyball) {
+      return Object.entries(VolleyballPositionName).map(([value, label]) => ({
+        value: Number(value),
+        label,
+      }));
+    }
+    return Object.entries(positionLabels).map(([value, label]) => ({
+      value: Number(value),
+      label,
+    }));
+  };
 
   const handleChange =
     (field: keyof CreatePlayerData) =>
@@ -104,7 +130,7 @@ const CreatePlayerModal: FC<CreatePlayerModalProps> = ({
         lastName: "",
         middleName: "",
         dateOfBirth: "",
-        position: PlayerRole.Forward,
+        position: getInitialPosition(),
       });
       setErrors({});
       setLoading(false);
@@ -225,8 +251,8 @@ const CreatePlayerModal: FC<CreatePlayerModalProps> = ({
             fullWidth
             required
           >
-            {Object.entries(positionLabels).map(([value, label]) => (
-              <MenuItem key={value} value={Number(value)}>
+            {getPositionOptions().map(({ value, label }) => (
+              <MenuItem key={value} value={value}>
                 {label}
               </MenuItem>
             ))}
