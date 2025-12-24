@@ -10,6 +10,8 @@ interface ToursListProps {
   onEdit?: (tourId: number) => void;
   onDelete?: (tourId: number, tourName: string) => void;
   onAddMatch?: (tourId: number) => void;
+  onEditMatch?: (matchId: number) => void;
+  onDeleteMatch?: (matchId: number, matchTitle: string) => void;
 }
 
 const ToursList: FC<ToursListProps> = ({
@@ -17,6 +19,8 @@ const ToursList: FC<ToursListProps> = ({
   onEdit,
   onDelete,
   onAddMatch,
+  onEditMatch,
+  onDeleteMatch,
 }) => {
   const formatDateRange = (startDate: string | null, endDate: string | null) => {
     if (!startDate && !endDate) return "";
@@ -61,6 +65,8 @@ const ToursList: FC<ToursListProps> = ({
                 : undefined
             }
             onAddMatch={onAddMatch ? () => onAddMatch(tour.id) : undefined}
+            onEditMatch={onEditMatch}
+            onDeleteMatch={onDeleteMatch}
           />
         ))
       ) : (

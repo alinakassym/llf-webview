@@ -21,6 +21,8 @@ interface TourCardProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onAddMatch?: () => void;
+  onEditMatch?: (matchId: number) => void;
+  onDeleteMatch?: (matchId: number, matchTitle: string) => void;
 }
 
 const TourCard: FC<TourCardProps> = ({
@@ -30,6 +32,8 @@ const TourCard: FC<TourCardProps> = ({
   onEdit,
   onDelete,
   onAddMatch,
+  onEditMatch,
+  onDeleteMatch,
 }) => {
   const formatDateTime = (dateTime: string) => {
     const date = new Date(dateTime);
@@ -142,14 +146,69 @@ const TourCard: FC<TourCardProps> = ({
                 marginBottom: 1,
               }}
             >
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ fontSize: "10px" }}
+              {/* Заголовок матча с кнопками */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: 0.5,
+                }}
               >
-                {formatDateTime(match.dateTime)}
-                {match.location && ` • ${match.location}`}
-              </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: "10px" }}
+                >
+                  {formatDateTime(match.dateTime)}
+                  {match.location && ` • ${match.location}`}
+                </Typography>
+
+                <Box sx={{ display: "flex", gap: 0.5 }}>
+                  <IconButton
+                    onClick={() =>
+                      onEditMatch && onEditMatch(match.id)
+                    }
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: "6px",
+                      backgroundColor: "surface",
+                      color: "primary.main",
+                      "&:hover": {
+                        backgroundColor: "surface",
+                        opacity: 0.8,
+                      },
+                    }}
+                  >
+                    <EditIcon sx={{ fontSize: 12 }} />
+                  </IconButton>
+
+                  <IconButton
+                    onClick={() =>
+                      onDeleteMatch &&
+                      onDeleteMatch(
+                        match.id,
+                        `${match.team1Name} vs ${match.team2Name}`
+                      )
+                    }
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: "6px",
+                      backgroundColor: "surface",
+                      color: "#ef4444",
+                      "&:hover": {
+                        backgroundColor: "surface",
+                        opacity: 0.8,
+                      },
+                    }}
+                  >
+                    <DeleteIcon sx={{ fontSize: 12 }} />
+                  </IconButton>
+                </Box>
+              </Box>
 
               <MatchScoreTable match={match} />
             </Box>

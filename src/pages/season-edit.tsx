@@ -258,6 +258,16 @@ const SeasonEditPage: FC = () => {
     }
   };
 
+  const handleEditMatch = (matchId: number) => {
+    console.log("Edit match with ID:", matchId);
+    alert(`Функционал редактирования матча #${matchId} в разработке`);
+  };
+
+  const handleDeleteMatch = (matchId: number, matchTitle: string) => {
+    console.log("Delete match with ID:", matchId, matchTitle);
+    alert(`Функционал удаления матча "${matchTitle}" в разработке`);
+  };
+
   // Показываем loader
   if (loading || authLoading || webViewLoading) {
     return (
@@ -379,6 +389,8 @@ const SeasonEditPage: FC = () => {
             onEdit={handleEditTour}
             onDelete={handleDeleteTour}
             onAddMatch={handleAddMatch}
+            onEditMatch={handleEditMatch}
+            onDeleteMatch={handleDeleteMatch}
           />
         </Box>
       </Container>
