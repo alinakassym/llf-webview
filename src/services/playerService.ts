@@ -26,6 +26,22 @@ export interface AddPlayerToTeamPayload {
   volleyballPosition: number;
 }
 
+export interface UpdatePlayerProfilePayload {
+  userId?: number | null;
+  firstName: string;
+  lastName: string;
+  middleName: string;
+  dateOfBirth: string;
+  sportType: number;
+  position: number;
+  volleyballPosition?: number;
+  isProfessionalVolleyballPlayer?: boolean;
+  yellowCards?: number;
+  redCards?: number;
+  totalGoals?: number;
+  matchesPlayed?: number;
+}
+
 export const playerService = {
   getPlayers: async (
     token: string,
@@ -95,6 +111,18 @@ export const playerService = {
     await apiRequest<void>(`/players/${playerId}`, {
       method: "DELETE",
       token,
+    });
+  },
+
+  updatePlayerProfile: async (
+    profileId: number,
+    data: UpdatePlayerProfilePayload,
+    token: string
+  ): Promise<void> => {
+    await apiRequest<void>(`/players/profiles/${profileId}`, {
+      method: "PUT",
+      token,
+      body: JSON.stringify(data),
     });
   },
 
