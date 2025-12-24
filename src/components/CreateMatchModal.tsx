@@ -409,30 +409,6 @@ const CreateMatchModal: FC<CreateMatchModalProps> = ({
             />
           </Box>
 
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <TextField
-              label="Команда 1 - Выигранные сеты"
-              type="number"
-              value={formData.team1SetsWon}
-              onChange={handleChange("team1SetsWon")}
-              disabled={isLoading}
-              fullWidth
-              slotProps={{
-                htmlInput: { min: 0 },
-              }}
-            />
-            <TextField
-              label="Команда 2 - Выигранные сеты"
-              type="number"
-              value={formData.team2SetsWon}
-              onChange={handleChange("team2SetsWon")}
-              disabled={isLoading}
-              fullWidth
-              slotProps={{
-                htmlInput: { min: 0 },
-              }}
-            />
-          </Box>
         </Box>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
