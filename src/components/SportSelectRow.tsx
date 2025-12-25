@@ -28,7 +28,7 @@ export type Sport = {
 
 interface SportSelectRowProps {
   sports: Sport[];
-  onSportChange?: (sportId: string) => void;
+  onSportChange?: (sportId: number) => void;
 }
 
 export const SportSelectRow: FC<SportSelectRowProps> = ({
@@ -55,7 +55,7 @@ export const SportSelectRow: FC<SportSelectRowProps> = ({
     }
     // Вызываем callback если он передан
     if (onSportChange) {
-      onSportChange(selectedSportId);
+      onSportChange(Number(selectedSportId));
     }
   }, [selectedSportId, onSportChange]);
 

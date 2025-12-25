@@ -26,7 +26,7 @@ const EMPTY_LEAGUES: League[] = [];
 // Thunk для загрузки лиг
 export const fetchLeagues = createAsyncThunk<
   { cacheKey: string; leagues: League[] },
-  { cityId?: number; leagueGroupId?: number; token: string; sportType?: string }
+  { cityId?: number; leagueGroupId?: number; token: string; sportType?: number }
 >(
   "leagues/fetchLeagues",
   async ({ cityId, leagueGroupId, token, sportType }) => {

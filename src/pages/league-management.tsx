@@ -84,7 +84,7 @@ const LeagueManagementPage: FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [searchGroupQuery, setSearchGroupQuery] = useState("");
   const [selectedCityForGroups, setSelectedCityForGroups] = useState<string>(ALL_CITIES);
-  const [selectedSportType, setSelectedSportType] = useState<string>("2");
+  const [selectedSportType, setSelectedSportType] = useState<number>(2);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);
   const [leagueGroupToEdit, setLeagueGroupToEdit] = useState<{
@@ -92,7 +92,7 @@ const LeagueManagementPage: FC = () => {
     name: string;
     order: number;
     cityId: number;
-    sportType: string;
+    sportType: number;
   } | null>(null);
   const [deleteGroupDialogOpen, setDeleteGroupDialogOpen] = useState(false);
   const [leagueGroupToDelete, setLeagueGroupToDelete] = useState<{
@@ -177,7 +177,7 @@ const LeagueManagementPage: FC = () => {
     setTabValue(newValue);
   };
 
-  const handleSportChange = (sportId: string) => {
+  const handleSportChange = (sportId: number) => {
     setSelectedSportType(sportId);
   };
 

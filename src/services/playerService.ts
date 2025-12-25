@@ -47,12 +47,12 @@ export const playerService = {
     token: string,
     teamId?: string,
     seasonId?: string,
-    sportType?: string
+    sportType?: number,
   ): Promise<Player[]> => {
     const params = new URLSearchParams();
     if (teamId) params.append("teamId", teamId);
     if (seasonId) params.append("seasonId", seasonId);
-    if (sportType) params.append("sportType", sportType);
+    if (sportType) params.append("sportType", String(sportType));
 
     const queryString = params.toString();
     const url = queryString ? `/players?${queryString}` : "/players";
@@ -66,10 +66,10 @@ export const playerService = {
 
   getPlayerProfiles: async (
     token: string,
-    sportType?: string
+    sportType?: number,
   ): Promise<PlayerProfile[]> => {
     const params = new URLSearchParams();
-    if (sportType) params.append("sportType", sportType);
+    if (sportType) params.append("sportType", String(sportType));
 
     const queryString = params.toString();
     const url = queryString
@@ -85,7 +85,7 @@ export const playerService = {
 
   createPlayerProfile: async (
     data: CreatePlayerProfilePayload,
-    token: string
+    token: string,
   ): Promise<PlayerProfile> => {
     const response = await apiRequest<PlayerProfile>("/players/profiles", {
       method: "POST",
@@ -97,7 +97,7 @@ export const playerService = {
 
   addPlayerToTeam: async (
     data: AddPlayerToTeamPayload,
-    token: string
+    token: string,
   ): Promise<Player> => {
     const response = await apiRequest<Player>("/players", {
       method: "POST",
@@ -117,7 +117,7 @@ export const playerService = {
   updatePlayerProfile: async (
     profileId: number,
     data: UpdatePlayerProfilePayload,
-    token: string
+    token: string,
   ): Promise<void> => {
     await apiRequest<void>(`/players/profiles/${profileId}`, {
       method: "PUT",
@@ -128,7 +128,7 @@ export const playerService = {
 
   deletePlayerProfile: async (
     profileId: number,
-    token: string
+    token: string,
   ): Promise<void> => {
     await apiRequest<void>(`/players/profiles/${profileId}`, {
       method: "DELETE",

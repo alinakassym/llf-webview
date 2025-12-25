@@ -10,7 +10,7 @@ export interface LeagueGroup {
   order: number;
   cityId: number;
   cityName: string;
-  sportType: string;
+  sportType: number;
 }
 
 interface LeagueGroupsState {
@@ -31,14 +31,14 @@ const initialState: LeagueGroupsState = {
 
 export const fetchLeagueGroups = createAsyncThunk<
   LeagueGroup[],
-  { token: string; cityId?: string; sportType?: string }
+  { token: string; cityId?: string; sportType?: number }
 >("leagueGroups/fetchLeagueGroups", async ({ token, cityId, sportType }) => {
   const queryParams = new URLSearchParams();
   if (cityId) {
     queryParams.append("cityId", cityId);
   }
   if (sportType) {
-    queryParams.append("sportType", sportType);
+    queryParams.append("sportType", sportType.toString());
   }
   const endpoint = queryParams.toString()
     ? `/leagues/groups?${queryParams.toString()}`
@@ -54,14 +54,14 @@ export interface CreateLeagueGroupData {
   name: string;
   order: number;
   cityId: number;
-  sportType: string;
+  sportType: number;
 }
 
 export interface UpdateLeagueGroupData {
   name: string;
   order: number;
   cityId: number;
-  sportType: string;
+  sportType: number;
 }
 
 export const createLeagueGroup = createAsyncThunk<

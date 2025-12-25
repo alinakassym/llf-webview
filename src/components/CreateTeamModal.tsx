@@ -25,7 +25,7 @@ interface CreateTeamModalProps {
   onClose: () => void;
   cities: City[];
   token: string;
-  sportType: string;
+  sportType: number;
   onSubmit: (data: CreateTeamData) => Promise<void>;
 }
 

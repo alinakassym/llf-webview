@@ -12,7 +12,7 @@ export interface Player {
   seasonName: string;
   number: number;
   cityName: string;
-  sportType: string;
+  sportType: number;
   age: number;
   position: string;
   volleyballPosition: VolleyballPosition;
@@ -34,7 +34,7 @@ export interface PlayerProfile {
   fullName: string;
   dateOfBirth: string;
   age: number;
-  sportType: string;
+  sportType: number;
   position: string;
   volleyballPosition: string;
   isProfessionalVolleyballPlayer: boolean;

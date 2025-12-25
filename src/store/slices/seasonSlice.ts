@@ -24,7 +24,7 @@ const EMPTY_SEASONS: Season[] = [];
 // Thunk для загрузки сезонов
 export const fetchSeasons = createAsyncThunk<
   { cacheKey: string; seasons: Season[] },
-  { cityId?: number; token: string; sportType?: string }
+  { cityId?: number; token: string; sportType?: number }
 >("seasons/fetchSeasons", async ({ cityId, token, sportType }) => {
   const seasons = await seasonService.getSeasons(token, cityId, sportType);
   const cacheKey = cityId ? String(cityId) : "__ALL__";

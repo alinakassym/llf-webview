@@ -33,9 +33,14 @@ const initialState: PlayerState = {
 // Thunk для загрузки игроков по команде
 export const fetchPlayers = createAsyncThunk<
   { teamId: string | undefined; players: Player[] },
-  { teamId?: string; token: string; seasonId?: string; sportType?: string }
+  { teamId?: string; token: string; seasonId?: string; sportType?: number }
 >("players/fetchPlayers", async ({ teamId, token, seasonId, sportType }) => {
-  const players = await playerService.getPlayers(token, teamId, seasonId, sportType);
+  const players = await playerService.getPlayers(
+    token,
+    teamId,
+    seasonId,
+    sportType,
+  );
   return { teamId, players };
 });
 
@@ -51,7 +56,7 @@ export const fetchAllPlayers = createAsyncThunk<
 // Thunk для загрузки профилей игроков
 export const fetchPlayerProfiles = createAsyncThunk<
   PlayerProfile[],
-  { token: string; sportType?: string }
+  { token: string; sportType?: number }
 >("players/fetchPlayerProfiles", async ({ token, sportType }) => {
   const profiles = await playerService.getPlayerProfiles(token, sportType);
   return profiles;

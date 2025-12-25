@@ -21,10 +21,7 @@ import {
   createSeason,
   deleteSeason,
 } from "../store/slices/seasonSlice";
-import {
-  fetchLeagues,
-  selectLeaguesByCity,
-} from "../store/slices/leagueSlice";
+import { fetchLeagues, selectLeaguesByCity } from "../store/slices/leagueSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import { ALL_CITIES } from "../constants/leagueManagement";
@@ -72,7 +69,7 @@ const SeasonsManagementPage: FC = () => {
     cityId: string;
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [selectedSportType, setSelectedSportType] = useState<string>("2");
+  const [selectedSportType, setSelectedSportType] = useState<number>(2);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -153,7 +150,7 @@ const SeasonsManagementPage: FC = () => {
   const modalLeagues = useAppSelector((state) =>
     modalCityId > 0
       ? selectLeaguesByCity(String(modalCityId))(state)
-      : EMPTY_LEAGUES
+      : EMPTY_LEAGUES,
   );
 
   const filteredSeasons = useMemo(() => {
@@ -222,9 +219,17 @@ const SeasonsManagementPage: FC = () => {
 
     // Перезагружаем сезоны после создания
     if (selectedCity === ALL_CITIES) {
-      dispatch(fetchSeasons({ token: activeToken, sportType: selectedSportType }));
+      dispatch(
+        fetchSeasons({ token: activeToken, sportType: selectedSportType }),
+      );
     } else if (selectedCityData) {
-      dispatch(fetchSeasons({ cityId: selectedCityData.id, token: activeToken, sportType: selectedSportType }));
+      dispatch(
+        fetchSeasons({
+          cityId: selectedCityData.id,
+          token: activeToken,
+          sportType: selectedSportType,
+        }),
+      );
     }
   };
 
@@ -237,7 +242,7 @@ const SeasonsManagementPage: FC = () => {
           cityId: cityId,
           token: activeToken,
           sportType: selectedSportType,
-        })
+        }),
       );
     },
     [activeToken, selectedSportType, dispatch],
@@ -272,7 +277,7 @@ const SeasonsManagementPage: FC = () => {
     }
   };
 
-  const handleSportChange = useCallback((sportId: string) => {
+  const handleSportChange = useCallback((sportId: number) => {
     setSelectedSportType(sportId);
   }, []);
 

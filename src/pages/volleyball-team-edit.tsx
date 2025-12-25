@@ -126,7 +126,7 @@ const VolleyballTeamEditPage: FC = () => {
       dispatch(
         fetchPlayerProfiles({
           token: activeToken,
-          sportType: String(SportType.Volleyball),
+          sportType: SportType.Volleyball,
         }),
       );
     }
@@ -139,7 +139,7 @@ const VolleyballTeamEditPage: FC = () => {
         fetchSeasons({
           cityId: Number(cityId),
           token: activeToken,
-          sportType: String(SportType.Volleyball),
+          sportType: SportType.Volleyball,
         }),
       );
     }
@@ -169,7 +169,7 @@ const VolleyballTeamEditPage: FC = () => {
           teamId: teamId,
           seasonId: String(selectedSeasonId),
           token: activeToken,
-          sportType: String(SportType.Volleyball),
+          sportType: SportType.Volleyball,
         }),
       );
     }
@@ -525,7 +525,7 @@ const VolleyballTeamEditPage: FC = () => {
                 teamId: teamId,
                 seasonId: String(selectedSeasonId),
                 token: activeToken,
-                sportType: String(SportType.Volleyball),
+                sportType: SportType.Volleyball,
               }),
             );
           }

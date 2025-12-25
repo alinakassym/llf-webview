@@ -5,5 +5,5 @@ export interface Team {
   leagueName: string;
   cityId: number;
   cityName: string;
-  sportType: string;
+  sportType: number;
 }

@@ -21,7 +21,7 @@ const EMPTY_TEAMS: Team[] = [];
 // Thunk для загрузки команд
 export const fetchTeams = createAsyncThunk<
   { cacheKey: string; teams: Team[] },
-  { cityId?: number; token: string; leagueId?: number; sportType?: string }
+  { cityId?: number; token: string; leagueId?: number; sportType?: number }
 >("teams/fetchTeams", async ({ cityId, token, leagueId, sportType }) => {
   const teams = await teamService.getTeams(token, cityId, leagueId, sportType);
 

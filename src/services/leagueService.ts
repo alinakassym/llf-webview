@@ -10,7 +10,7 @@ export interface CreateLeaguePayload {
   order: number;
   cityId: number;
   leagueGroupId: number;
-  sportType: string;
+  sportType: number;
 }
 
 export interface UpdateLeaguePayload {
@@ -18,7 +18,7 @@ export interface UpdateLeaguePayload {
   order: number;
   cityId: number;
   leagueGroupId: number;
-  sportType: string;
+  sportType: number;
 }
 
 export const leagueService = {
@@ -26,12 +26,13 @@ export const leagueService = {
     token: string,
     cityId?: number,
     leagueGroupId?: number,
-    sportType?: string
+    sportType?: number,
   ): Promise<League[]> => {
     const params = new URLSearchParams();
     if (cityId !== undefined) params.append("cityId", String(cityId));
-    if (leagueGroupId !== undefined) params.append("leagueGroupId", String(leagueGroupId));
-    if (sportType) params.append("sportType", sportType);
+    if (leagueGroupId !== undefined)
+      params.append("leagueGroupId", String(leagueGroupId));
+    if (sportType) params.append("sportType", String(sportType));
 
     const queryString = params.toString();
     const url = queryString ? `/leagues?${queryString}` : "/leagues";
@@ -45,7 +46,7 @@ export const leagueService = {
 
   createLeague: async (
     data: CreateLeaguePayload,
-    token: string
+    token: string,
   ): Promise<League> => {
     const response = await apiRequest<League>("/leagues", {
       method: "POST",
@@ -58,7 +59,7 @@ export const leagueService = {
   updateLeague: async (
     leagueId: string,
     data: UpdateLeaguePayload,
-    token: string
+    token: string,
   ): Promise<void> => {
     await apiRequest<void>(`/leagues/${leagueId}`, {
       method: "PUT",
@@ -67,10 +68,7 @@ export const leagueService = {
     });
   },
 
-  deleteLeague: async (
-    leagueId: string,
-    token: string
-  ): Promise<void> => {
+  deleteLeague: async (leagueId: string, token: string): Promise<void> => {
     await apiRequest<void>(`/leagues/${leagueId}`, {
       method: "DELETE",
       token,

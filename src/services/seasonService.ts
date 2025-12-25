@@ -21,11 +21,11 @@ export const seasonService = {
   getSeasons: async (
     token: string,
     cityId?: number,
-    sportType?: string
+    sportType?: number,
   ): Promise<Season[]> => {
     const params = new URLSearchParams();
     if (cityId !== undefined) params.append("cityId", String(cityId));
-    if (sportType) params.append("sportType", sportType);
+    if (sportType) params.append("sportType", String(sportType));
     const queryString = params.toString();
     const url = queryString ? `/seasons?${queryString}` : "/seasons";
     const response = await apiRequest<SeasonsResponse>(url, {
@@ -45,7 +45,7 @@ export const seasonService = {
 
   createSeason: async (
     data: CreateSeasonPayload,
-    token: string
+    token: string,
   ): Promise<Season> => {
     const response = await apiRequest<Season>("/seasons", {
       method: "POST",
@@ -58,7 +58,7 @@ export const seasonService = {
   updateSeason: async (
     seasonId: string,
     data: UpdateSeasonPayload,
-    token: string
+    token: string,
   ): Promise<Season> => {
     const response = await apiRequest<Season>(`/seasons/${seasonId}`, {
       method: "PUT",

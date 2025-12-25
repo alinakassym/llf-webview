@@ -21,13 +21,13 @@ interface EditLeagueGroupModalProps {
   onClose: () => void;
   onSubmit: (id: number, data: EditLeagueGroupData) => Promise<void>;
   cities: City[];
-  sportType: string;
+  sportType: number;
   initialData: {
     id: number;
     name: string;
     order: number;
     cityId: number;
-    sportType: string;
+    sportType: number;
   } | null;
 }
 
@@ -35,7 +35,7 @@ export interface EditLeagueGroupData {
   name: string;
   order: number;
   cityId: number;
-  sportType: string;
+  sportType: number;
 }
 
 const EditLeagueGroupModal: FC<EditLeagueGroupModalProps> = ({
@@ -72,7 +72,7 @@ const EditLeagueGroupModal: FC<EditLeagueGroupModalProps> = ({
   const handleChange =
     (field: keyof EditLeagueGroupData) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (field === "name" || field === "sportType") {
+      if (field === "name") {
         setFormData((prev) => ({ ...prev, [field]: e.target.value }));
       } else {
         const numValue = Number(e.target.value);
@@ -165,9 +165,7 @@ const EditLeagueGroupModal: FC<EditLeagueGroupModalProps> = ({
 
       <DialogContent dividers>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <p style={{ margin: 0 }}>
-            {sportType === "2" ? "Волейбол" : "Футбол"}
-          </p>
+          <p style={{ margin: 0 }}>{sportType === 2 ? "Волейбол" : "Футбол"}</p>
           <TextField
             label="Название группы"
             fullWidth

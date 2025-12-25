@@ -31,7 +31,7 @@ export interface CreateLeagueData {
   order: number;
   cityId: number;
   leagueGroupId: number;
-  sportType: string;
+  sportType: number;
 }
 
 const CreateLeagueModal: FC<CreateLeagueModalProps> = ({
@@ -47,10 +47,12 @@ const CreateLeagueModal: FC<CreateLeagueModalProps> = ({
     order: 1,
     cityId: 0,
     leagueGroupId: 0,
-    sportType: "2",
+    sportType: 2,
   });
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<Partial<Record<keyof CreateLeagueData, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CreateLeagueData, string>>
+  >({});
   const prevCityIdRef = useRef<number>(0);
 
   // Загружаем группы лиг при изменении города
@@ -61,25 +63,25 @@ const CreateLeagueModal: FC<CreateLeagueModalProps> = ({
     }
   }, [formData.cityId, onCityChange]);
 
-  const handleChange = (field: keyof CreateLeagueData) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    // При изменении города сбрасываем выбранную группу лиги
-    if (field === "cityId") {
-      const cityId = Number(e.target.value);
-      setFormData((prev) => ({ ...prev, cityId, leagueGroupId: 0 }));
-    } else if (field === "name") {
-      setFormData((prev) => ({ ...prev, name: e.target.value }));
-    } else {
-      const numValue = Number(e.target.value);
-      setFormData((prev) => ({ ...prev, [field]: numValue }));
-    }
+  const handleChange =
+    (field: keyof CreateLeagueData) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      // При изменении города сбрасываем выбранную группу лиги
+      if (field === "cityId") {
+        const cityId = Number(e.target.value);
+        setFormData((prev) => ({ ...prev, cityId, leagueGroupId: 0 }));
+      } else if (field === "name") {
+        setFormData((prev) => ({ ...prev, name: e.target.value }));
+      } else {
+        const numValue = Number(e.target.value);
+        setFormData((prev) => ({ ...prev, [field]: numValue }));
+      }
 
-    // Очищаем ошибку при изменении поля
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+      // Очищаем ошибку при изменении поля
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof CreateLeagueData, string>> = {};
@@ -120,7 +122,7 @@ const CreateLeagueModal: FC<CreateLeagueModalProps> = ({
       order: 1,
       cityId: 0,
       leagueGroupId: 0,
-      sportType: "2",
+      sportType: 2,
     });
     setErrors({});
     setLoading(false);

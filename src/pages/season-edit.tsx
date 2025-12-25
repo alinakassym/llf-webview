@@ -53,6 +53,7 @@ const SeasonEditPage: FC = () => {
     seasonId: string;
     sportType: string;
   }>();
+
   const dispatch = useAppDispatch();
   const { token, loading: authLoading } = useAuth();
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
@@ -93,9 +94,7 @@ const SeasonEditPage: FC = () => {
   const selectLeagues = useMemo(() => {
     const cityId = modalCityId > 0 ? modalCityId : season?.cityId || 0;
     return (state: RootState) =>
-      cityId > 0
-        ? selectLeaguesByCity(String(cityId))(state)
-        : EMPTY_LEAGUES;
+      cityId > 0 ? selectLeaguesByCity(String(cityId))(state) : EMPTY_LEAGUES;
   }, [modalCityId, season?.cityId]);
 
   // Используем modalCityId если модал открыт, иначе cityId сезона
@@ -145,7 +144,7 @@ const SeasonEditPage: FC = () => {
           fetchLeagues({
             cityId: season.cityId,
             token: activeToken,
-            sportType,
+            sportType: Number(sportType),
           }),
         );
       }
@@ -165,7 +164,7 @@ const SeasonEditPage: FC = () => {
         fetchLeagues({
           cityId: newCityId,
           token: activeToken,
-          sportType,
+          sportType: Number(sportType),
         }),
       );
     }
@@ -228,9 +227,10 @@ const SeasonEditPage: FC = () => {
   };
 
   // Вычисляем номер следующего тура
-  const nextTourNumber = tours && tours.length > 0
-    ? Math.max(...tours.map((tour) => tour.number || 0)) + 1
-    : 1;
+  const nextTourNumber =
+    tours && tours.length > 0
+      ? Math.max(...tours.map((tour) => tour.number || 0)) + 1
+      : 1;
 
   const handleEditTour = (tourId: number) => {
     const tour = tours.find((t) => t.id === tourId);
@@ -315,7 +315,7 @@ const SeasonEditPage: FC = () => {
         activeToken,
         season.cityId,
         season.leagueId,
-        sportType
+        sportType,
       );
       setTeams(loadedTeams);
     } catch (error) {

@@ -34,7 +34,7 @@ interface LeaguesTabProps {
   cities: City[];
   citiesError: string | null;
   activeToken: string | null;
-  selectedSportType: string;
+  selectedSportType: number;
   onCityChangeInModal: (cityId: number) => void;
 }
 
@@ -61,7 +61,7 @@ const LeaguesTab: FC<LeaguesTabProps> = ({
     order: number;
     cityId: number;
     leagueGroupId: number;
-    sportType: string;
+    sportType: number;
   } | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [leagueToDelete, setLeagueToDelete] = useState<{
@@ -145,7 +145,13 @@ const LeaguesTab: FC<LeaguesTabProps> = ({
         );
       }
     }
-  }, [selectedCity, selectedCityData, activeToken, selectedSportType, dispatch]);
+  }, [
+    selectedCity,
+    selectedCityData,
+    activeToken,
+    selectedSportType,
+    dispatch,
+  ]);
 
   // Получаем лиги в зависимости от выбранного города
   const leaguesSelector = useMemo(
