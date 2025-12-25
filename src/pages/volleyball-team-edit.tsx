@@ -9,6 +9,7 @@ import { teamService } from "../services/teamService";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+import type { RootState } from "../store";
 import {
   fetchPlayerProfiles,
   selectPlayerProfiles,
@@ -22,6 +23,7 @@ import {
   selectSeasonsLoadingForCity,
 } from "../store/slices/seasonSlice";
 import type { Team } from "../types/team";
+import type { Season } from "../types/season";
 import EmptyPlayerSlot from "../components/EmptyPlayerSlot";
 import PlayerSlot from "../components/PlayerSlot";
 import PlayerSelectionModal from "../components/PlayerSelectionModal";
@@ -30,6 +32,9 @@ import {
   VolleyballPositionAbbreviation,
 } from "../types/volleyballPosition";
 import { SportType } from "../types/sportType";
+
+// Константа для пустого массива чтобы избежать создания нового reference
+const EMPTY_SEASONS: Season[] = [];
 
 const VOLLEYBALL_BACKGROUND_COLOR = "rgba(179, 77, 68, 0.9)";
 const VOLLEYBALL_BACKGROUND_COLOR2 = "rgba(179, 77, 68, 0.6)";
@@ -56,13 +61,21 @@ const VolleyballTeamEditPage: FC = () => {
   const playerProfiles = useAppSelector(selectPlayerProfiles);
   const profilesLoading = useAppSelector(selectPlayerProfilesLoading);
 
+  // Создаём мемоизированный селектор чтобы избежать создания новой функции на каждый рендер
+  const selectSeasons = useMemo(
+    () => (state: RootState) =>
+      cityId ? selectSeasonsByCity(cityId)(state) : EMPTY_SEASONS,
+    [cityId]
+  );
+  const selectSeasonsLoading = useMemo(
+    () => (state: RootState) =>
+      cityId ? selectSeasonsLoadingForCity(cityId)(state) : false,
+    [cityId]
+  );
+
   // Получаем seasons из Redux store для cityId из параметров
-  const seasons = useAppSelector((state) =>
-    cityId ? selectSeasonsByCity(cityId)(state) : [],
-  );
-  const seasonsLoading = useAppSelector((state) =>
-    cityId ? selectSeasonsLoadingForCity(cityId)(state) : false,
-  );
+  const seasons = useAppSelector(selectSeasons);
+  const seasonsLoading = useAppSelector(selectSeasonsLoading);
 
   // Получаем игроков команды из Redux store
   const teamPlayers = useAppSelector((state) =>

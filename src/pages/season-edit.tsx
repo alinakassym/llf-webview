@@ -1,6 +1,6 @@
 // llf-webview/src/pages/season-edit.tsx
 
-import { type FC, useState, useEffect } from "react";
+import { type FC, useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import {
   Box,
@@ -29,6 +29,7 @@ import CreateMatchModal, {
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import ToursList from "../components/ToursList";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+import type { RootState } from "../store";
 import { fetchCities } from "../store/slices/citySlice";
 import { updateSeason } from "../store/slices/seasonSlice";
 import { fetchLeagues, selectLeaguesByCity } from "../store/slices/leagueSlice";
@@ -39,6 +40,10 @@ import { teamService } from "../services/teamService";
 import type { Season } from "../types/season";
 import type { Tour } from "../types/tour";
 import type { Team } from "../types/team";
+import type { League } from "../types/league";
+
+// Константа для пустого массива чтобы избежать создания нового reference
+const EMPTY_LEAGUES: League[] = [];
 
 const SeasonEditPage: FC = () => {
   const { seasonId, sportType } = useParams<{
@@ -74,14 +79,17 @@ const SeasonEditPage: FC = () => {
 
   const { cities } = useAppSelector((state) => state.cities);
 
+  // Создаём мемоизированный селектор чтобы избежать создания новой функции на каждый рендер
+  const selectLeagues = useMemo(() => {
+    const cityId = modalCityId > 0 ? modalCityId : season?.cityId || 0;
+    return (state: RootState) =>
+      cityId > 0
+        ? selectLeaguesByCity(String(cityId))(state)
+        : EMPTY_LEAGUES;
+  }, [modalCityId, season?.cityId]);
+
   // Используем modalCityId если модал открыт, иначе cityId сезона
-  const leagues = useAppSelector((state) =>
-    modalCityId > 0
-      ? selectLeaguesByCity(String(modalCityId))(state)
-      : season
-      ? selectLeaguesByCity(String(season.cityId))(state)
-      : [],
-  );
+  const leagues = useAppSelector(selectLeagues);
 
   // Загружаем города при монтировании
   useEffect(() => {

@@ -290,7 +290,7 @@ const EditVolleyballPlayerModal: FC<EditVolleyballPlayerModalProps> = ({
           <TextField
             label="Позиция"
             select
-            value={formData.volleyballPosition}
+            value={formData.volleyballPosition ?? "0"}
             onChange={handleChange("volleyballPosition")}
             disabled={loading}
             fullWidth

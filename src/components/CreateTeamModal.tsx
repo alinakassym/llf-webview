@@ -1,6 +1,6 @@
 // llf-webview/src/components/CreateTeamModal.tsx
 
-import { type FC, useState, useEffect } from "react";
+import { type FC, useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -15,7 +15,9 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { City } from "../types/city";
+import type { League } from "../types/league";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+import type { RootState } from "../store";
 import { fetchLeagues, selectLeaguesByCity } from "../store/slices/leagueSlice";
 
 interface CreateTeamModalProps {
@@ -32,6 +34,9 @@ export interface CreateTeamData {
   cityId: number;
   leagueId: string;
 }
+
+// Константа для пустого массива чтобы избежать создания нового reference
+const EMPTY_LEAGUES: League[] = [];
 
 const CreateTeamModal: FC<CreateTeamModalProps> = ({
   open,
@@ -52,10 +57,17 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
   >({});
   const [loading, setLoading] = useState(false);
 
-  // Получаем лиги из Redux store
-  const leagues = useAppSelector((state) =>
-    formData.cityId > 0 ? selectLeaguesByCity(String(formData.cityId))(state) : []
+  // Создаём мемоизированный селектор чтобы избежать создания новой функции на каждый рендер
+  const selectLeagues = useMemo(
+    () => (state: RootState) =>
+      formData.cityId > 0
+        ? selectLeaguesByCity(String(formData.cityId))(state)
+        : EMPTY_LEAGUES,
+    [formData.cityId]
   );
+
+  // Получаем лиги из Redux store
+  const leagues = useAppSelector(selectLeagues);
 
   // Загружаем лиги при изменении города или вида спорта
   useEffect(() => {
