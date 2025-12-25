@@ -1,4 +1,4 @@
-// llf-webview/src/components/EditPlayerModal.tsx
+// llf-webview/src/components/EditVolleyballPlayerModal.tsx
 
 import { type FC, useState, useEffect } from "react";
 import {
@@ -14,20 +14,18 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { PlayerRole } from "../types/playerRole";
 import { VolleyballPosition, VolleyballPositionName } from "../types/volleyballPosition";
 import { SportType } from "../types/sportType";
 import type { PlayerProfile } from "../types/player";
 
-interface EditPlayerModalProps {
+interface EditVolleyballPlayerModalProps {
   open: boolean;
   onClose: () => void;
-  sportType: number;
   player: PlayerProfile | null;
-  onSubmit: (playerId: number, data: EditPlayerData) => Promise<void>;
+  onSubmit: (playerId: number, data: EditVolleyballPlayerData) => Promise<void>;
 }
 
-export interface EditPlayerData {
+export interface EditVolleyballPlayerData {
   userId?: number | null;
   firstName: string;
   lastName: string;
@@ -59,27 +57,15 @@ interface FormData {
   matchesPlayed?: number;
 }
 
-// Полные названия позиций для выбора (футбол)
-const positionLabels: Record<PlayerRole, string> = {
-  [PlayerRole.Goalkeeper]: "Вратарь",
-  [PlayerRole.Defender]: "Защитник",
-  [PlayerRole.Halfback]: "Полузащитник",
-  [PlayerRole.Forward]: "Нападающий",
-};
-
-const EditPlayerModal: FC<EditPlayerModalProps> = ({
+const EditVolleyballPlayerModal: FC<EditVolleyballPlayerModalProps> = ({
   open,
   onClose,
-  sportType,
   player,
   onSubmit,
 }) => {
-  // Определяем начальную позицию в зависимости от вида спорта
+  // Начальная позиция для волейбола
   const getInitialPosition = () => {
-    if (sportType === SportType.Volleyball) {
-      return VolleyballPosition.Unknown;
-    }
-    return PlayerRole.Forward;
+    return VolleyballPosition.Unknown;
   };
 
   const [formData, setFormData] = useState<FormData>({
@@ -88,7 +74,7 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
     lastName: "",
     middleName: "",
     dateOfBirth: "",
-    sportType: Number(sportType),
+    sportType: SportType.Volleyball,
     position: getInitialPosition(),
     volleyballPosition: undefined,
     isProfessionalVolleyballPlayer: false,
@@ -124,17 +110,9 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
     }
   }, [player]);
 
-  // Получаем список позиций в зависимости от вида спорта
+  // Получаем список волейбольных позиций
   const getPositionOptions = (): Array<{ value: number; label: string }> => {
-    if (sportType === SportType.Volleyball) {
-      return Object.entries(VolleyballPositionName)
-        .map(([value, label]) => ({
-          value: Number(value),
-          label,
-        }))
-        .filter((option) => !isNaN(option.value));
-    }
-    return Object.entries(positionLabels)
+    return Object.entries(VolleyballPositionName)
       .map(([value, label]) => ({
         value: Number(value),
         label,
@@ -157,7 +135,7 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
     };
 
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof EditPlayerData, string>> = {};
+    const newErrors: Partial<Record<keyof FormData, string>> = {};
 
     if (!formData.firstName.trim()) {
       newErrors.firstName = "Имя обязательно";
@@ -181,7 +159,7 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
         lastName: "",
         middleName: "",
         dateOfBirth: "",
-        sportType: Number(sportType),
+        sportType: SportType.Volleyball,
         position: getInitialPosition(),
         volleyballPosition: undefined,
         isProfessionalVolleyballPlayer: false,
@@ -207,7 +185,7 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
       const dateTime = `${formData.dateOfBirth}T16:06:36.427Z`;
 
       // Конвертируем position и volleyballPosition в number
-      const submitData: EditPlayerData = {
+      const submitData: EditVolleyballPlayerData = {
         ...formData,
         dateOfBirth: dateTime,
         position: Number(formData.position),
@@ -343,4 +321,4 @@ const EditPlayerModal: FC<EditPlayerModalProps> = ({
   );
 };
 
-export default EditPlayerModal;
+export default EditVolleyballPlayerModal;

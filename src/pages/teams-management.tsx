@@ -16,9 +16,9 @@ import CreateTeamModal, {
 import CreatePlayerModal, {
   type CreatePlayerData,
 } from "../components/CreatePlayerModal";
-import EditPlayerModal, {
-  type EditPlayerData,
-} from "../components/EditPlayerModal";
+import EditVolleyballPlayerModal, {
+  type EditVolleyballPlayerData,
+} from "../components/EditVolleyballPlayerModal";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import type { Team } from "../types/team";
 import type { PlayerProfile } from "../types/player";
@@ -321,7 +321,10 @@ const TeamsManagementPage: FC = () => {
     setSelectedPlayer(null);
   };
 
-  const handleUpdatePlayer = async (playerId: number, data: EditPlayerData) => {
+  const handleUpdatePlayer = async (
+    playerId: number,
+    data: EditVolleyballPlayerData,
+  ) => {
     if (!activeToken) return;
 
     try {
@@ -677,13 +680,14 @@ const TeamsManagementPage: FC = () => {
         onSubmit={handleCreatePlayer}
       />
 
-      <EditPlayerModal
-        open={isEditPlayerModalOpen}
-        onClose={handleCloseEditPlayerModal}
-        sportType={Number(selectedSportType)}
-        player={selectedPlayer}
-        onSubmit={handleUpdatePlayer}
-      />
+      {Number(selectedSportType) === 2 && (
+        <EditVolleyballPlayerModal
+          open={isEditPlayerModalOpen}
+          onClose={handleCloseEditPlayerModal}
+          player={selectedPlayer}
+          onSubmit={handleUpdatePlayer}
+        />
+      )}
 
       <DeleteConfirmDialog
         open={deleteDialogOpen}
