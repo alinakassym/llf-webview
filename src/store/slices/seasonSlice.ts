@@ -204,10 +204,16 @@ export default seasonSlice.reducer;
 
 // Селекторы
 export type RootState = { seasons: SeasonState };
-export const selectSeasonsByCity = (cityId: string) => (state: RootState) =>
-  (state.seasons.itemsByCityId[cityId] || EMPTY_SEASONS).filter(
-    (season) => season && season.id && season.name,
-  );
+export const selectSeasonsByCity = (cityId: string) => (state: RootState) => {
+  const seasons = state.seasons.itemsByCityId[cityId] || EMPTY_SEASONS;
+  // Фильтруем только если есть невалидные элементы
+  // Это позволяет избежать создания нового массива если все элементы валидны
+  const hasInvalidSeasons = seasons.some((season) => !season || !season.id || !season.name);
+  if (!hasInvalidSeasons) {
+    return seasons;
+  }
+  return seasons.filter((season) => season && season.id && season.name);
+};
 export const selectSeasonsLoadingForCity =
   (cityId: string) => (state: RootState) =>
     state.seasons.loadingCities.includes(cityId);

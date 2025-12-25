@@ -14,7 +14,6 @@ import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import type { Season } from "../types/season";
 import type { League } from "../types/league";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import type { RootState } from "../store";
 import { fetchCities } from "../store/slices/citySlice";
 import {
   fetchSeasons,
@@ -140,29 +139,22 @@ const SeasonsManagementPage: FC = () => {
     dispatch,
   ]);
 
-  // Создаём мемоизированный селектор сезонов чтобы избежать создания новой функции на каждый рендер
-  const selectSeasons = useMemo(() => {
-    const cityId = selectedCity === ALL_CITIES ? "__ALL__" : String(selectedCityData?.id || 0);
-    return (state: RootState) =>
-      selectedCity === ALL_CITIES || selectedCityData
-        ? selectSeasonsByCity(cityId)(state)
-        : EMPTY_SEASONS;
-  }, [selectedCity, selectedCityData?.id]);
-
   // Получаем сезоны в зависимости от выбранного города
-  const seasons = useAppSelector(selectSeasons);
-
-  // Создаём мемоизированный селектор лиг для модала
-  const selectModalLeagues = useMemo(
-    () => (state: RootState) =>
-      modalCityId > 0
-        ? selectLeaguesByCity(String(modalCityId))(state)
-        : EMPTY_LEAGUES,
-    [modalCityId]
-  );
+  const seasons = useAppSelector((state) => {
+    if (selectedCity === ALL_CITIES) {
+      return selectSeasonsByCity("__ALL__")(state);
+    } else if (selectedCityData) {
+      return selectSeasonsByCity(String(selectedCityData.id))(state);
+    }
+    return EMPTY_SEASONS;
+  });
 
   // Получаем лиги для модала создания
-  const modalLeagues = useAppSelector(selectModalLeagues);
+  const modalLeagues = useAppSelector((state) =>
+    modalCityId > 0
+      ? selectLeaguesByCity(String(modalCityId))(state)
+      : EMPTY_LEAGUES
+  );
 
   const filteredSeasons = useMemo(() => {
     return seasons.filter((season: Season) => {
