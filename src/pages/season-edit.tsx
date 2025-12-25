@@ -26,6 +26,9 @@ import EditTourModal, {
 import CreateMatchModal, {
   type CreateMatchData,
 } from "../components/CreateMatchModal";
+import EditMatchModal, {
+  type EditMatchData,
+} from "../components/EditMatchModal";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import ToursList from "../components/ToursList";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -38,7 +41,7 @@ import { tourService } from "../services/tourService";
 import { matchService } from "../services/matchService";
 import { teamService } from "../services/teamService";
 import type { Season } from "../types/season";
-import type { Tour } from "../types/tour";
+import type { Tour, Match } from "../types/tour";
 import type { Team } from "../types/team";
 import type { League } from "../types/league";
 
@@ -58,6 +61,7 @@ const SeasonEditPage: FC = () => {
   const [isCreateTourModalOpen, setIsCreateTourModalOpen] = useState(false);
   const [isEditTourModalOpen, setIsEditTourModalOpen] = useState(false);
   const [isCreateMatchModalOpen, setIsCreateMatchModalOpen] = useState(false);
+  const [isEditMatchModalOpen, setIsEditMatchModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [teamsLoading, setTeamsLoading] = useState(false);
   const [season, setSeason] = useState<Season | null>(null);
@@ -66,6 +70,7 @@ const SeasonEditPage: FC = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTourId, setSelectedTourId] = useState<number | null>(null);
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [tourToDelete, setTourToDelete] = useState<{
     id: number;
@@ -335,8 +340,44 @@ const SeasonEditPage: FC = () => {
   };
 
   const handleEditMatch = (matchId: number) => {
-    console.log("Edit match with ID:", matchId);
-    alert(`Функционал редактирования матча #${matchId} в разработке`);
+    // Находим матч по ID во всех турах
+    let foundMatch: Match | null = null;
+    for (const tour of tours) {
+      const match = tour.matches?.find((m) => m.id === matchId);
+      if (match) {
+        foundMatch = match;
+        break;
+      }
+    }
+
+    if (foundMatch) {
+      setSelectedMatch(foundMatch);
+      setIsEditMatchModalOpen(true);
+    }
+  };
+
+  const handleUpdateMatch = async (matchId: number, data: EditMatchData) => {
+    if (!activeToken) {
+      throw new Error("No auth token available");
+    }
+
+    try {
+      await matchService.updateMatch(matchId, data, activeToken);
+
+      // Перезагружаем туры для обновления списка матчей
+      const loadedTours = await tourService.getTours(seasonId!, activeToken);
+      setTours(loadedTours);
+
+      handleCloseEditMatchModal();
+    } catch (error) {
+      console.error("Error updating match:", error);
+      throw error;
+    }
+  };
+
+  const handleCloseEditMatchModal = () => {
+    setIsEditMatchModalOpen(false);
+    setSelectedMatch(null);
   };
 
   const handleDeleteMatch = (matchId: number, matchTitle: string) => {
@@ -534,6 +575,16 @@ const SeasonEditPage: FC = () => {
           loading={teamsLoading}
         />
       )}
+
+      {/* Модальное окно редактирования матча */}
+      <EditMatchModal
+        open={isEditMatchModalOpen}
+        onClose={handleCloseEditMatchModal}
+        onSubmit={handleUpdateMatch}
+        match={selectedMatch}
+        teams={teams}
+        loading={teamsLoading}
+      />
 
       {/* Кнопка добавления тура */}
       <Fab

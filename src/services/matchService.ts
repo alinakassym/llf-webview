@@ -22,6 +22,23 @@ export interface CreateMatchPayload {
   team2SetsWon: number;
 }
 
+export interface UpdateMatchPayload {
+  tourId: number;
+  dateTime: string;
+  location: string;
+  team1Id: number;
+  team2Id: number;
+  team1Score: number;
+  team2Score: number;
+  sportType: number;
+  team1Set1Score: number | null;
+  team2Set1Score: number | null;
+  team1Set2Score: number | null;
+  team2Set2Score: number | null;
+  team1Set3Score: number | null;
+  team2Set3Score: number | null;
+}
+
 export const matchService = {
   createMatch: async (
     tourId: number,
@@ -37,5 +54,17 @@ export const matchService = {
       },
     );
     return response;
+  },
+
+  updateMatch: async (
+    matchId: number,
+    data: UpdateMatchPayload,
+    token: string,
+  ): Promise<void> => {
+    await apiRequest<void>(`/seasons/matches/${matchId}`, {
+      method: "PUT",
+      token,
+      body: JSON.stringify(data),
+    });
   },
 };
