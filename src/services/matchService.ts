@@ -67,4 +67,11 @@ export const matchService = {
       body: JSON.stringify(data),
     });
   },
+
+  deleteMatch: async (matchId: number, token: string): Promise<void> => {
+    await apiRequest<void>(`/seasons/matches/${matchId}`, {
+      method: "DELETE",
+      token,
+    });
+  },
 };

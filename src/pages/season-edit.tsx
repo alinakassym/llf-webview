@@ -76,6 +76,11 @@ const SeasonEditPage: FC = () => {
     id: number;
     name: string;
   } | null>(null);
+  const [deleteMatchDialogOpen, setDeleteMatchDialogOpen] = useState(false);
+  const [matchToDelete, setMatchToDelete] = useState<{
+    id: number;
+    title: string;
+  } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const activeToken = webViewToken || token;
@@ -392,8 +397,36 @@ const SeasonEditPage: FC = () => {
   };
 
   const handleDeleteMatch = (matchId: number, matchTitle: string) => {
-    console.log("Delete match with ID:", matchId, matchTitle);
-    alert(`Функционал удаления матча "${matchTitle}" в разработке`);
+    setMatchToDelete({ id: matchId, title: matchTitle });
+    setDeleteMatchDialogOpen(true);
+  };
+
+  const handleCloseDeleteMatchDialog = () => {
+    if (!isDeleting) {
+      setDeleteMatchDialogOpen(false);
+      setMatchToDelete(null);
+    }
+  };
+
+  const handleConfirmDeleteMatch = async () => {
+    if (!matchToDelete || !activeToken || !seasonId) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await matchService.deleteMatch(matchToDelete.id, activeToken);
+
+      // Перезагружаем туры для обновления списка матчей
+      const loadedTours = await tourService.getTours(seasonId, activeToken);
+      setTours(loadedTours);
+
+      handleCloseDeleteMatchDialog();
+    } catch (error) {
+      console.error("Error deleting match:", error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // Показываем loader
@@ -569,6 +602,20 @@ const SeasonEditPage: FC = () => {
         message={
           tourToDelete
             ? `Вы уверены, что хотите удалить тур "${tourToDelete.name}"? Это действие нельзя отменить.`
+            : ""
+        }
+        loading={isDeleting}
+      />
+
+      {/* Диалог подтверждения удаления матча */}
+      <DeleteConfirmDialog
+        open={deleteMatchDialogOpen}
+        onClose={handleCloseDeleteMatchDialog}
+        onConfirm={handleConfirmDeleteMatch}
+        title="Удалить матч?"
+        message={
+          matchToDelete
+            ? `Вы уверены, что хотите удалить матч "${matchToDelete.title}"? Это действие нельзя отменить.`
             : ""
         }
         loading={isDeleting}
