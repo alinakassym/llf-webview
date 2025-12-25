@@ -15,6 +15,9 @@ interface PlayerState {
   errorProfiles: string | null; // Ошибка загрузки профилей
 }
 
+// Константа для пустого массива чтобы избежать создания нового reference
+const EMPTY_PLAYERS: Player[] = [];
+
 const initialState: PlayerState = {
   itemsByTeamId: {},
   loadingTeams: [],
@@ -178,7 +181,7 @@ const playerSlice = createSlice({
 
 // Селектор для получения игроков по команде
 export const selectPlayersByTeam = (state: RootState, teamId: string) => {
-  return state.players.itemsByTeamId[teamId] || [];
+  return state.players.itemsByTeamId[teamId] || EMPTY_PLAYERS;
 };
 
 // Селектор для получения всех игроков (из загруженных по командам)

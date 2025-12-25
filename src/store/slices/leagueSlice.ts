@@ -20,6 +20,9 @@ const initialState: LeagueState = {
   errorByCityId: {},
 };
 
+// Константа для пустого массива чтобы избежать создания нового reference
+const EMPTY_LEAGUES: League[] = [];
+
 // Thunk для загрузки лиг
 export const fetchLeagues = createAsyncThunk<
   { cacheKey: string; leagues: League[] },
@@ -173,7 +176,7 @@ export default leagueSlice.reducer;
 // Селекторы
 export type RootState = { leagues: LeagueState };
 export const selectLeaguesByCity = (cityId: string) => (state: RootState) =>
-  state.leagues.itemsByCityId[cityId] || [];
+  state.leagues.itemsByCityId[cityId] || EMPTY_LEAGUES;
 export const selectLeaguesLoadingForCity =
   (cityId: string) => (state: RootState) =>
     state.leagues.loadingCities.includes(cityId);

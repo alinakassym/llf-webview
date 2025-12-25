@@ -15,6 +15,9 @@ const initialState: TeamState = {
   errorByCityId: {},
 };
 
+// Константа для пустого массива чтобы избежать создания нового reference
+const EMPTY_TEAMS: Team[] = [];
+
 // Thunk для загрузки команд
 export const fetchTeams = createAsyncThunk<
   { cacheKey: string; teams: Team[] },
@@ -126,13 +129,13 @@ const teamSlice = createSlice({
 
 // Селектор для получения команд по городу
 export const selectTeamsByCity = (state: RootState, cityId: string) => {
-  return state.teams.itemsByCityId[cityId] || [];
+  return state.teams.itemsByCityId[cityId] || EMPTY_TEAMS;
 };
 
 // Селектор для получения всех команд
 // Используем специальный ключ "__ALL__" для кеша всех команд
 export const selectAllTeams = (state: RootState) => {
-  return state.teams.itemsByCityId["__ALL__"] || [];
+  return state.teams.itemsByCityId["__ALL__"] || EMPTY_TEAMS;
 };
 
 export const { clearTeams, clearTeamsForCity } = teamSlice.actions;

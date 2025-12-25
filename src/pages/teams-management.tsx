@@ -43,6 +43,9 @@ import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import { ALL_CITIES } from "../constants/leagueManagement";
 
+// Константа для пустого массива чтобы избежать создания нового reference
+const EMPTY_TEAMS: Team[] = [];
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -194,14 +197,14 @@ const TeamsManagementPage: FC = () => {
     dispatch,
   ]);
 
-  // Получаем команды в зависимости от выбранного города
+  // Создаём мемоизированный селектор чтобы избежать создания новой функции на каждый рендер
   const teamsSelector = useMemo(
     () => (state: RootState) =>
       selectedCity === ALL_CITIES
         ? selectAllTeams(state)
         : selectedCityData
         ? selectTeamsByCity(state, String(selectedCityData.id))
-        : [],
+        : EMPTY_TEAMS,
     [selectedCity, selectedCityData],
   );
 

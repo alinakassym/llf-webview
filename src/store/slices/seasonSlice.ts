@@ -18,6 +18,9 @@ const initialState: SeasonState = {
   errorByCityId: {},
 };
 
+// Константа для пустого массива чтобы избежать создания нового reference
+const EMPTY_SEASONS: Season[] = [];
+
 // Thunk для загрузки сезонов
 export const fetchSeasons = createAsyncThunk<
   { cacheKey: string; seasons: Season[] },
@@ -202,7 +205,7 @@ export default seasonSlice.reducer;
 // Селекторы
 export type RootState = { seasons: SeasonState };
 export const selectSeasonsByCity = (cityId: string) => (state: RootState) =>
-  (state.seasons.itemsByCityId[cityId] || []).filter(
+  (state.seasons.itemsByCityId[cityId] || EMPTY_SEASONS).filter(
     (season) => season && season.id && season.name,
   );
 export const selectSeasonsLoadingForCity =
