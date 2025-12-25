@@ -293,33 +293,43 @@ const SeasonEditPage: FC = () => {
     }
   };
 
+  // Общая функция для загрузки команд
+  const loadTeams = async () => {
+    if (!activeToken || !season || !sportType) {
+      return;
+    }
+
+    // Если команды уже загружены, не загружаем повторно
+    if (teams.length > 0) {
+      return;
+    }
+
+    try {
+      setTeamsLoading(true);
+      const loadedTeams = await teamService.getTeams(
+        activeToken,
+        season.cityId,
+        season.leagueId,
+        sportType
+      );
+      setTeams(loadedTeams);
+    } catch (error) {
+      console.error("Error loading teams:", error);
+    } finally {
+      setTeamsLoading(false);
+    }
+  };
+
   const handleAddMatch = async (tourId: number) => {
     setSelectedTourId(tourId);
-
-    // Загружаем команды для выбранного тура
-    if (activeToken && season && sportType) {
-      try {
-        setTeamsLoading(true);
-        const loadedTeams = await teamService.getTeams(
-          activeToken,
-          season.cityId,
-          season.leagueId,
-          sportType
-        );
-        setTeams(loadedTeams);
-        setIsCreateMatchModalOpen(true);
-      } catch (error) {
-        console.error("Error loading teams:", error);
-      } finally {
-        setTeamsLoading(false);
-      }
-    }
+    await loadTeams();
+    setIsCreateMatchModalOpen(true);
   };
 
   const handleCloseCreateMatchModal = () => {
     setIsCreateMatchModalOpen(false);
     setSelectedTourId(null);
-    setTeams([]);
+    // Не очищаем teams - оставляем в кеше для повторного использования
   };
 
   const handleCreateMatch = async (data: CreateMatchData) => {
@@ -339,7 +349,7 @@ const SeasonEditPage: FC = () => {
     }
   };
 
-  const handleEditMatch = (matchId: number) => {
+  const handleEditMatch = async (matchId: number) => {
     // Находим матч по ID во всех турах
     let foundMatch: Match | null = null;
     for (const tour of tours) {
@@ -352,6 +362,7 @@ const SeasonEditPage: FC = () => {
 
     if (foundMatch) {
       setSelectedMatch(foundMatch);
+      await loadTeams();
       setIsEditMatchModalOpen(true);
     }
   };

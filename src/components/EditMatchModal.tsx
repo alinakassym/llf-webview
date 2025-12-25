@@ -52,7 +52,6 @@ const EditMatchModal: FC<EditMatchModalProps> = ({
   teams,
   loading: externalLoading = false,
 }) => {
-  console.log("EditMatchModal render", teams);
   const [formData, setFormData] = useState<EditMatchData>({
     tourId: 0,
     dateTime: "",
