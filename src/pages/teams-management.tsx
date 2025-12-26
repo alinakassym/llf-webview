@@ -97,11 +97,13 @@ const TeamsManagementPage: FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [playersSearchQuery, setPlayersSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
-  const [selectedSportType, setSelectedSportType] = useState<string>("2");
+  const [selectedSportType, setSelectedSportType] = useState<number>(2);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreatePlayerModalOpen, setIsCreatePlayerModalOpen] = useState(false);
   const [isEditPlayerModalOpen, setIsEditPlayerModalOpen] = useState(false);
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerProfile | null>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerProfile | null>(
+    null,
+  );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<{
     id: string;
@@ -130,7 +132,7 @@ const TeamsManagementPage: FC = () => {
     setTabValue(newValue);
   };
 
-  const handleSportChange = (sportId: string) => {
+  const handleSportChange = (sportId: number) => {
     setSelectedSportType(sportId);
   };
 
@@ -145,7 +147,10 @@ const TeamsManagementPage: FC = () => {
   useEffect(() => {
     if (activeToken && !authLoading && !webViewLoading) {
       dispatch(
-        fetchPlayerProfiles({ token: activeToken, sportType: selectedSportType })
+        fetchPlayerProfiles({
+          token: activeToken,
+          sportType: selectedSportType,
+        }),
       );
     }
   }, [activeToken, authLoading, webViewLoading, selectedSportType, dispatch]);
@@ -262,7 +267,7 @@ const TeamsManagementPage: FC = () => {
   const handleEdit = (teamId: string, cityId?: number) => {
     // Определяем маршрут в зависимости от выбранного вида спорта
     // SportType.Volleyball = 2, SportType.Football = 1
-    if (selectedSportType === "2") {
+    if (selectedSportType === 2) {
       navigate(`/volleyball-team-edit/${cityId}/${teamId}`);
     } else {
       navigate(`/team-edit/${teamId}`);
