@@ -133,13 +133,8 @@ const leagueSlice = createSlice({
           state.itemsByCityId[cityId] = [newLeague];
         }
 
-        // Также добавляем в кеш "__ALL__", если он существует
-        if (state.itemsByCityId["__ALL__"]) {
-          state.itemsByCityId["__ALL__"] = [
-            ...state.itemsByCityId["__ALL__"],
-            newLeague,
-          ].sort((a, b) => a.order - b.order);
-        }
+        // НЕ добавляем в кеш "__ALL__" чтобы избежать дублирования
+        // selectAllLeagues берёт все лиги из всех городов через flat()
       })
       .addCase(updateLeague.fulfilled, (state, action) => {
         const { leagueId, cityId, data } = action.payload;
