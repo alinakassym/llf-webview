@@ -98,9 +98,10 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
         setFormData((prev) => ({ ...prev, name: e.target.value }));
       } else if (field === "leagueId") {
         setFormData((prev) => ({ ...prev, leagueId: e.target.value }));
-      } else {
-        const numValue = Number(e.target.value);
-        setFormData((prev) => ({ ...prev, [field]: numValue }));
+      } else if (field === "primaryColor") {
+        setFormData((prev) => ({ ...prev, primaryColor: e.target.value }));
+      } else if (field === "secondaryColor") {
+        setFormData((prev) => ({ ...prev, secondaryColor: e.target.value }));
       }
 
       // Очищаем ошибку при изменении поля
