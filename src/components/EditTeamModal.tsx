@@ -104,8 +104,7 @@ const EditTeamModal: FC<EditTeamModalProps> = ({
   }, [formData.cityId, token, sportType, dispatch]);
 
   const handleChange =
-    (field: keyof EditTeamData) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (field: keyof EditTeamData) => (e: React.ChangeEvent<HTMLInputElement>) => {
       // При изменении города сбрасываем выбранную лигу
       if (field === "cityId") {
         const cityId = Number(e.target.value);
@@ -251,6 +250,26 @@ const EditTeamModal: FC<EditTeamModalProps> = ({
               slotProps={{
                 inputLabel: { shrink: true },
               }}
+              sx={{
+                "& input[type='color']": {
+                  width: "100%",
+                  height: "30px",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  "&::-webkit-color-swatch-wrapper": {
+                    padding: 0,
+                  },
+                  "&::-webkit-color-swatch": {
+                    border: "none",
+                    borderRadius: "4px",
+                  },
+                  "&::-moz-color-swatch": {
+                    border: "none",
+                    borderRadius: "4px",
+                  },
+                },
+              }}
             />
 
             <TextField
@@ -262,6 +281,26 @@ const EditTeamModal: FC<EditTeamModalProps> = ({
               fullWidth
               slotProps={{
                 inputLabel: { shrink: true },
+              }}
+              sx={{
+                "& input[type='color']": {
+                  width: "100%",
+                  height: "30px",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  "&::-webkit-color-swatch-wrapper": {
+                    padding: 0,
+                  },
+                  "&::-webkit-color-swatch": {
+                    border: "none",
+                    borderRadius: "4px",
+                  },
+                  "&::-moz-color-swatch": {
+                    border: "none",
+                    borderRadius: "4px",
+                  },
+                },
               }}
             />
           </Box>

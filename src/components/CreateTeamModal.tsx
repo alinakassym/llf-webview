@@ -231,9 +231,29 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
               value={formData.primaryColor}
               onChange={handleChange("primaryColor")}
               disabled={loading}
-              fullWidth
               slotProps={{
                 inputLabel: { shrink: true },
+              }}
+              sx={{
+                flexGrow: 1,
+                "& input[type='color']": {
+                  width: "100%",
+                  height: "30px",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  "&::-webkit-color-swatch-wrapper": {
+                    padding: 0,
+                  },
+                  "&::-webkit-color-swatch": {
+                    border: "none",
+                    borderRadius: "4px",
+                  },
+                  "&::-moz-color-swatch": {
+                    border: "none",
+                    borderRadius: "4px",
+                  },
+                },
               }}
             />
 
@@ -243,9 +263,29 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
               value={formData.secondaryColor}
               onChange={handleChange("secondaryColor")}
               disabled={loading}
-              fullWidth
               slotProps={{
                 inputLabel: { shrink: true },
+              }}
+              sx={{
+                flexGrow: 1,
+                "& input[type='color']": {
+                  width: "100%",
+                  height: "30px",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  "&::-webkit-color-swatch-wrapper": {
+                    padding: 0,
+                  },
+                  "&::-webkit-color-swatch": {
+                    border: "none",
+                    borderRadius: "4px",
+                  },
+                  "&::-moz-color-swatch": {
+                    border: "none",
+                    borderRadius: "4px",
+                  },
+                },
               }}
             />
           </Box>
@@ -258,7 +298,6 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
             error={Boolean(errors.cityId)}
             helperText={errors.cityId}
             disabled={loading}
-            fullWidth
             required
           >
             <MenuItem value={0} disabled>
