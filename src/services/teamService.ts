@@ -11,6 +11,14 @@ export interface CreateTeamPayload {
   cityId: number;
 }
 
+export interface UpdateTeamPayload {
+  name: string;
+  primaryColor: string;
+  secondaryColor: string;
+  leagueId: number;
+  cityId: number;
+}
+
 export const teamService = {
   getTeams: async (
     token: string,
@@ -44,6 +52,19 @@ export const teamService = {
   createTeam: async (data: CreateTeamPayload, token: string): Promise<Team> => {
     const response = await apiRequest<Team>("/teams", {
       method: "POST",
+      token,
+      body: JSON.stringify(data),
+    });
+    return response;
+  },
+
+  updateTeam: async (
+    teamId: number,
+    data: UpdateTeamPayload,
+    token: string,
+  ): Promise<Team> => {
+    const response = await apiRequest<Team>(`/teams/${teamId}`, {
+      method: "PUT",
       token,
       body: JSON.stringify(data),
     });

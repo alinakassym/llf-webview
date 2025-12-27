@@ -2,8 +2,17 @@
 
 import { type FC, useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Container, Typography, CircularProgress, MenuItem, TextField } from "@mui/material";
+import {
+  Box,
+  Container,
+  Typography,
+  CircularProgress,
+  MenuItem,
+  TextField,
+  IconButton,
+} from "@mui/material";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import EditIcon from "@mui/icons-material/Edit";
 import { ShirtIcon } from "../components/icons";
 import { teamService } from "../services/teamService";
 import { useAuth } from "../hooks/useAuth";
@@ -22,11 +31,13 @@ import {
   selectSeasonsByCity,
   selectSeasonsLoadingForCity,
 } from "../store/slices/seasonSlice";
+import { fetchCities } from "../store/slices/citySlice";
 import type { Team } from "../types/team";
 import type { Season } from "../types/season";
 import EmptyPlayerSlot from "../components/EmptyPlayerSlot";
 import PlayerSlot from "../components/PlayerSlot";
 import PlayerSelectionModal from "../components/PlayerSelectionModal";
+import EditTeamModal, { type EditTeamData } from "../components/EditTeamModal";
 import { SportType } from "../types/sportType";
 import { type VolleyballPosition } from "../types/volleyballPosition";
 import { getVolleyballPositionShort } from "../utils/volleyballPosition";
@@ -48,6 +59,7 @@ const VolleyballTeamEditPage: FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] =
     useState<VolleyballPosition>(0);
   const [selectedSeasonId, setSelectedSeasonId] = useState<number>(() => {
@@ -58,6 +70,9 @@ const VolleyballTeamEditPage: FC = () => {
   // Получаем playerProfiles из Redux store
   const playerProfiles = useAppSelector(selectPlayerProfiles);
   const profilesLoading = useAppSelector(selectPlayerProfilesLoading);
+
+  // Получаем города из Redux store
+  const { cities } = useAppSelector((state) => state.cities);
 
   // Создаём мемоизированный селектор чтобы избежать создания новой функции на каждый рендер
   const selectSeasons = useMemo(
@@ -113,6 +128,36 @@ const VolleyballTeamEditPage: FC = () => {
     setIsModalOpen(false);
     setSelectedPosition(0);
   };
+
+  // Обработчик открытия модального окна редактирования
+  const handleEditTeam = () => {
+    setIsEditModalOpen(true);
+  };
+
+  // Обработчик закрытия модального окна редактирования
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
+  // Обработчик сохранения изменений команды
+  const handleUpdateTeam = async (data: EditTeamData) => {
+    if (!activeToken || !teamId) {
+      throw new Error("No auth token or team ID available");
+    }
+
+    await teamService.updateTeam(Number(teamId), data, activeToken);
+
+    // Перезагружаем данные команды после обновления
+    const updatedTeam = await teamService.getTeamById(teamId, activeToken);
+    setTeam(updatedTeam);
+  };
+
+  // Загружаем города при монтировании
+  useEffect(() => {
+    if (activeToken && !authLoading && !webViewLoading) {
+      dispatch(fetchCities(activeToken));
+    }
+  }, [activeToken, authLoading, webViewLoading, dispatch]);
 
   // Загружаем профили игроков через Redux только когда выбран сезон
   useEffect(() => {
@@ -304,7 +349,7 @@ const VolleyballTeamEditPage: FC = () => {
           sx={{
             background: (theme) =>
               `linear-gradient(to right, ${theme.palette.gradient.join(", ")})`,
-            px: 2,
+            px: 1,
             pb: 2,
           }}
         >
@@ -312,7 +357,6 @@ const VolleyballTeamEditPage: FC = () => {
             sx={{
               display: "flex",
               flexDirection: "row",
-              alignItems: "center",
               gap: 1,
             }}
           >
@@ -326,11 +370,15 @@ const VolleyballTeamEditPage: FC = () => {
                 borderRadius: 2,
               }}
             >
-              <ShirtIcon size={64} strokeColor="#FFFFFF" />
+              <ShirtIcon
+                size={64}
+                color1={team.primaryColor}
+                color2={team.secondaryColor}
+              />
             </Box>
 
-            {/* Блок справа - название команды */}
-            <Box sx={{ flex: 1 }}>
+            {/* Блок по центру - название команды */}
+            <Box sx={{ pt: 1, flex: 1 }}>
               <Typography
                 variant="h5"
                 sx={{
@@ -351,6 +399,20 @@ const VolleyballTeamEditPage: FC = () => {
               >
                 {team.leagueName} • {team.cityName}
               </Typography>
+            </Box>
+
+            {/* Блок справа - кнопка редактирования */}
+            <Box>
+              <IconButton
+                onClick={handleEditTeam}
+                sx={{
+                  color: "#FFFFFF",
+                  padding: 1,
+                }}
+                size="small"
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
             </Box>
           </Box>
         </Box>
@@ -526,6 +588,17 @@ const VolleyballTeamEditPage: FC = () => {
             );
           }
         }}
+      />
+
+      {/* Модальное окно редактирования команды */}
+      <EditTeamModal
+        open={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        team={team}
+        cities={cities}
+        token={activeToken || ""}
+        sportType={SportType.Volleyball}
+        onSubmit={handleUpdateTeam}
       />
     </Box>
   );
