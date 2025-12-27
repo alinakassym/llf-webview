@@ -89,8 +89,6 @@ const EditLeagueModal: FC<EditLeagueModalProps> = ({
     try {
       await onSubmit(formData);
       handleClose();
-    } catch (error) {
-      console.error("Error updating league:", error);
     } finally {
       setLoading(false);
     }

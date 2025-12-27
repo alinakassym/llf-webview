@@ -80,8 +80,6 @@ const EditCityModal: FC<EditCityModalProps> = ({
     try {
       await onSubmit(formData);
       handleClose();
-    } catch (error) {
-      console.error("Error updating city:", error);
     } finally {
       setLoading(false);
     }

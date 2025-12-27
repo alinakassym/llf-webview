@@ -109,8 +109,6 @@ const CreateLeagueModal: FC<CreateLeagueModalProps> = ({
     try {
       await onSubmit(formData);
       handleClose();
-    } catch (error) {
-      console.error("Error creating league:", error);
     } finally {
       setLoading(false);
     }

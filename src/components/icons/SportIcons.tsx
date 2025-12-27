@@ -47,7 +47,6 @@ export const SportIcon: FC<SportIconProps> = ({
 }) => {
   const icon = icons[name];
   if (!icon) {
-    console.warn(`Sport icon "${name}" not found`);
     return null;
   }
 

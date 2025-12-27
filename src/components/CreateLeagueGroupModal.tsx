@@ -88,8 +88,6 @@ const CreateLeagueGroupModal: FC<CreateLeagueGroupModalProps> = ({
     try {
       await onSubmit(formData);
       handleClose();
-    } catch (error) {
-      console.error("Error creating league group:", error);
     } finally {
       setLoading(false);
     }

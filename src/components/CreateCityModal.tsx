@@ -66,8 +66,6 @@ const CreateCityModal: FC<CreateCityModalProps> = ({
     try {
       await onSubmit(formData);
       handleClose();
-    } catch (error) {
-      console.error("Error creating city:", error);
     } finally {
       setLoading(false);
     }

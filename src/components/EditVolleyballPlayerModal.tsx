@@ -90,7 +90,6 @@ const EditVolleyballPlayerModal: FC<EditVolleyballPlayerModalProps> = ({
 
   // Заполняем форму данными игрока при открытии модала
   useEffect(() => {
-    console.log("Editing player:", player);
     if (player) {
       setFormData({
         userId: player.userId || null,
@@ -186,8 +185,6 @@ const EditVolleyballPlayerModal: FC<EditVolleyballPlayerModalProps> = ({
 
       await onSubmit(player.id, submitData);
       handleClose();
-    } catch (error) {
-      console.error("Error updating player:", error);
     } finally {
       setLoading(false);
     }

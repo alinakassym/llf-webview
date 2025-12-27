@@ -132,8 +132,6 @@ const CreatePlayerModal: FC<CreatePlayerModalProps> = ({
         dateOfBirth: dateTime,
       });
       handleClose();
-    } catch (error) {
-      console.error("Error creating player:", error);
     } finally {
       setLoading(false);
     }

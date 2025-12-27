@@ -138,8 +138,6 @@ const EditSeasonModal: FC<EditSeasonModalProps> = ({
         date: isoDate,
       });
       handleClose();
-    } catch (error) {
-      console.error("Error updating season:", error);
     } finally {
       setLoading(false);
     }

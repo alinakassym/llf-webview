@@ -94,8 +94,6 @@ const CreateTourModal: FC<CreateTourModalProps> = ({
         endDate: endDateIso,
       });
       handleClose();
-    } catch (error) {
-      console.error("Error creating tour:", error);
     } finally {
       setLoading(false);
     }

@@ -151,8 +151,6 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
     try {
       await onSubmit(formData);
       handleClose();
-    } catch (error) {
-      console.error("Error creating team:", error);
     } finally {
       setLoading(false);
     }

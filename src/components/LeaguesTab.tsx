@@ -282,8 +282,6 @@ const LeaguesTab: FC<LeaguesTabProps> = ({
         }),
       ).unwrap();
       handleCloseDeleteDialog();
-    } catch (error) {
-      console.error("Error deleting league:", error);
     } finally {
       setIsDeleting(false);
     }

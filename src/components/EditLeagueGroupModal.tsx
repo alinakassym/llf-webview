@@ -108,8 +108,6 @@ const EditLeagueGroupModal: FC<EditLeagueGroupModalProps> = ({
     try {
       await onSubmit(initialData.id, formData);
       handleClose();
-    } catch (error) {
-      console.error("Error updating league group:", error);
     } finally {
       setLoading(false);
     }

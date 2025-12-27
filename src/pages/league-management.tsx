@@ -274,8 +274,6 @@ const LeagueManagementPage: FC = () => {
         }),
       ).unwrap();
       handleCloseDeleteGroupDialog();
-    } catch (error) {
-      console.error("Error deleting league group:", error);
     } finally {
       setIsDeletingGroup(false);
     }

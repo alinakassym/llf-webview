@@ -112,8 +112,6 @@ const EditTourModal: FC<EditTourModalProps> = ({
 
       await onSubmit(submitData);
       handleClose();
-    } catch (error) {
-      console.error("Error updating tour:", error);
     } finally {
       setLoading(false);
     }

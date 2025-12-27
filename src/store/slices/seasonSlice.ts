@@ -127,12 +127,8 @@ const seasonSlice = createSlice({
       .addCase(updateSeason.fulfilled, (state, action) => {
         const updatedSeason = action.payload;
 
-        // Логируем ответ API для отладки
-        console.log("Update API response:", updatedSeason);
-
         // Проверка на корректность данных
         if (!updatedSeason || typeof updatedSeason !== "object") {
-          console.error("Invalid season data received from update API", updatedSeason);
           return;
         }
 
@@ -147,7 +143,9 @@ const seasonSlice = createSlice({
 
         // Если нет cityId в ответе, не можем обновить state
         if (!newCityId || newCityId === "undefined") {
-          console.warn("Update succeeded but API did not return cityId, state not updated");
+          console.warn(
+            "Update succeeded but API did not return cityId, state not updated",
+          );
           return;
         }
 

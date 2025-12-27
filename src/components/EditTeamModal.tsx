@@ -167,8 +167,6 @@ const EditTeamModal: FC<EditTeamModalProps> = ({
     try {
       await onSubmit(formData);
       handleClose();
-    } catch (error) {
-      console.error("Error updating team:", error);
     } finally {
       setLoading(false);
     }

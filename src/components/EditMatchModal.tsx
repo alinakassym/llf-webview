@@ -175,8 +175,6 @@ const EditMatchModal: FC<EditMatchModalProps> = ({
         location: formData.location.trim(),
       });
       handleClose();
-    } catch (error) {
-      console.error("Error updating match:", error);
     } finally {
       setLoading(false);
     }

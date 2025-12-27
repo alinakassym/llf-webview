@@ -114,7 +114,7 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
 
     setSubmitting(true);
     try {
-      const result = await playerService.addPlayerToTeam(
+      await playerService.addPlayerToTeam(
         {
           playerProfileId: selectedProfileId,
           teamId: Number(teamId),
@@ -125,7 +125,6 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
         },
         token,
       );
-      console.log("Add player result:", result);
 
       // Вызываем коллбек для обновления списка игроков
       if (onPlayerAdded) {
@@ -135,16 +134,12 @@ const PlayerSelectionModal: FC<PlayerSelectionModalProps> = ({
       handleClose();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.error("Error adding player:", error?.response);
-      console.log("Error data:", error?.response?.data);
-
       // Извлекаем сообщение об ошибке из ответа бэкенда
       const errorMessage =
         error?.response?.data?.error ||
         error?.message ||
         "Не удалось добавить игрока";
 
-      console.log("Extracted error message:", errorMessage);
       setSnackbarMessage(errorMessage);
       setSnackbarOpen(true);
     } finally {

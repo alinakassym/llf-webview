@@ -145,8 +145,6 @@ const CitiesManagementPage: FC = () => {
         }),
       ).unwrap();
       handleCloseDeleteDialog();
-    } catch (error) {
-      console.error("Error deleting city:", error);
     } finally {
       setIsDeleting(false);
     }

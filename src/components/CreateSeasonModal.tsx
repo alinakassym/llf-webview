@@ -118,8 +118,6 @@ const CreateSeasonModal: FC<CreateSeasonModalProps> = ({
         date: isoDate,
       });
       handleClose();
-    } catch (error) {
-      console.error("Error creating season:", error);
     } finally {
       setLoading(false);
     }

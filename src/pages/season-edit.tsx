@@ -122,8 +122,7 @@ const SeasonEditPage: FC = () => {
           // Загружаем туры для сезона
           const loadedTours = await tourService.getTours(seasonId, activeToken);
           setTours(loadedTours);
-        } catch (error) {
-          console.error("Error loading season:", error);
+        } catch {
           setSeason(null);
         } finally {
           setLoading(false);

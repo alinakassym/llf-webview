@@ -159,8 +159,6 @@ const CreateMatchModal: FC<CreateMatchModalProps> = ({
         location: formData.location.trim(),
       });
       handleClose();
-    } catch (error) {
-      console.error("Error creating match:", error);
     } finally {
       setLoading(false);
     }
