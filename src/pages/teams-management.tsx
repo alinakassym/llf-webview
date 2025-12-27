@@ -41,6 +41,7 @@ import {
 import { playerService } from "../services/playerService";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
+import { useFirebaseTokenAuth } from "../hooks/useFirebaseTokenAuth";
 import { ALL_CITIES } from "../constants/leagueManagement";
 
 // Константа для пустого массива чтобы избежать создания нового reference
@@ -88,6 +89,7 @@ const TeamsManagementPage: FC = () => {
   const navigate = useNavigate();
   const { token, loading: authLoading } = useAuth();
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
+  const { loading: firebaseTokenLoading } = useFirebaseTokenAuth();
   const { cities, loading: citiesLoading } = useAppSelector(
     (state) => state.cities,
   );
@@ -125,8 +127,8 @@ const TeamsManagementPage: FC = () => {
 
   // Общий флаг загрузки
   const isLoading = useMemo(() => {
-    return authLoading || webViewLoading || citiesLoading;
-  }, [authLoading, webViewLoading, citiesLoading]);
+    return authLoading || webViewLoading || firebaseTokenLoading || citiesLoading;
+  }, [authLoading, webViewLoading, firebaseTokenLoading, citiesLoading]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
