@@ -19,6 +19,7 @@ import type { League } from "../types/league";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import type { RootState } from "../store";
 import { fetchLeagues, selectLeaguesByCity } from "../store/slices/leagueSlice";
+import { ShirtIcon } from "./icons/ShirtIcon";
 
 interface CreateTeamModalProps {
   open: boolean;
@@ -67,7 +68,7 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
       formData.cityId > 0
         ? selectLeaguesByCity(String(formData.cityId))(state)
         : EMPTY_LEAGUES,
-    [formData.cityId]
+    [formData.cityId],
   );
 
   // Получаем лиги из Redux store
@@ -81,7 +82,7 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
           cityId: formData.cityId,
           token,
           sportType,
-        })
+        }),
       );
     }
   }, [formData.cityId, token, sportType, dispatch]);
@@ -204,29 +205,51 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
             autoFocus
           />
 
-          <TextField
-            label="Основной цвет"
-            type="color"
-            value={formData.primaryColor}
-            onChange={handleChange("primaryColor")}
-            disabled={loading}
-            fullWidth
-            slotProps={{
-              inputLabel: { shrink: true },
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minWidth: 80,
             }}
-          />
+          >
+            <ShirtIcon
+              size={64}
+              color1={formData.primaryColor}
+              color2={formData.secondaryColor}
+            />
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "center",
+            }}
+          >
+            <TextField
+              label="Основной цвет"
+              type="color"
+              value={formData.primaryColor}
+              onChange={handleChange("primaryColor")}
+              disabled={loading}
+              fullWidth
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
+            />
 
-          <TextField
-            label="Дополнительный цвет"
-            type="color"
-            value={formData.secondaryColor}
-            onChange={handleChange("secondaryColor")}
-            disabled={loading}
-            fullWidth
-            slotProps={{
-              inputLabel: { shrink: true },
-            }}
-          />
+            <TextField
+              label="Дополнительный цвет"
+              type="color"
+              value={formData.secondaryColor}
+              onChange={handleChange("secondaryColor")}
+              disabled={loading}
+              fullWidth
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
+            />
+          </Box>
 
           <TextField
             label="Город"
