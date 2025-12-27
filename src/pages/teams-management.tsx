@@ -608,6 +608,8 @@ const TeamsManagementPage: FC = () => {
                       teamId={String(team.id)}
                       title={team.name}
                       subtitle={team.leagueName}
+                      primaryColor={team.primaryColor}
+                      secondaryColor={team.secondaryColor}
                       onEdit={() => handleEdit(String(team.id), team.cityId)}
                       onDelete={() => handleDelete(String(team.id), team.name)}
                     />
@@ -622,6 +624,8 @@ const TeamsManagementPage: FC = () => {
                   teamId={String(team.id)}
                   title={team.name}
                   subtitle={team.leagueName}
+                  primaryColor={team.primaryColor}
+                  secondaryColor={team.secondaryColor}
                   onEdit={() => handleEdit(String(team.id), team.cityId)}
                   onDelete={() => handleDelete(String(team.id), team.name)}
                 />

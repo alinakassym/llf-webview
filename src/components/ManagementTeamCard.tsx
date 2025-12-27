@@ -11,6 +11,8 @@ interface ManagementTeamCardProps {
   title: string;
   subtitle?: string;
   teamId: string;
+  primaryColor: string;
+  secondaryColor: string;
   onEdit: () => void;
   onDelete: () => void;
 }
@@ -19,6 +21,8 @@ const ManagementTeamCard: FC<ManagementTeamCardProps> = ({
   title,
   subtitle,
   teamId,
+  primaryColor,
+  secondaryColor,
   onEdit,
   onDelete,
 }) => {
@@ -70,7 +74,7 @@ const ManagementTeamCard: FC<ManagementTeamCardProps> = ({
               marginRight: 1.5,
             }}
           >
-            <ShirtIcon size={40} strokeColor="#000000" />
+            <ShirtIcon size={40} color1={primaryColor} color2={secondaryColor} />
           </Box>
 
           <Box sx={{ flex: 1, gap: 0 }}>
