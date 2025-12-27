@@ -28,10 +28,8 @@ import EmptyPlayerSlot from "../components/EmptyPlayerSlot";
 import PlayerSlot from "../components/PlayerSlot";
 import PlayerSelectionModal from "../components/PlayerSelectionModal";
 import { SportType } from "../types/sportType";
-import {
-  VOLLEYBALL_POSITIONS,
-  type VolleyballPosition,
-} from "../types/volleyballPosition";
+import { type VolleyballPosition } from "../types/volleyballPosition";
+import { getVolleyballPositionShort } from "../utils/volleyballPosition";
 
 // Константа для пустого массива чтобы избежать создания нового reference
 const EMPTY_SEASONS: Season[] = [];
@@ -218,7 +216,7 @@ const VolleyballTeamEditPage: FC = () => {
     volleyballPosition: VolleyballPosition,
     index: number = 0,
   ) => {
-    const positionAbbr = VOLLEYBALL_POSITIONS[volleyballPosition].short.ru;
+    const positionAbbr = getVolleyballPositionShort(volleyballPosition, "ru");
 
     console.log("teamPlayers:", teamPlayers);
     // Ищем всех игроков на этой позиции
