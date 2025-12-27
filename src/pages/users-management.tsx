@@ -115,7 +115,7 @@ const UsersManagementPage: FC = () => {
             />
           </div>
 
-          <Box sx={{ mt: 1 }}>
+          <Box sx={{ mt: 1, px: 2 }}>
             {filteredUsers.length === 0 ? (
               <Box
                 sx={{
