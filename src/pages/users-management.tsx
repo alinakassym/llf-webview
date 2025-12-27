@@ -9,20 +9,7 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchUsers } from "../store/slices/userSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
-
-// Функция для вычисления возраста из даты рождения
-const calculateAge = (dateOfBirth: string): number => {
-  const birthDate = new Date(dateOfBirth);
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-
-  return age;
-};
+import { calculateAge } from "../utils/dateFormat";
 
 const UsersManagementPage: FC = () => {
   const dispatch = useAppDispatch();
@@ -130,8 +117,12 @@ const UsersManagementPage: FC = () => {
               filteredUsers.map((user) => (
                 <ManagementItemCard
                   key={user.id}
-                  title={user.fullName}
-                  subtitle={`Возраст: ${calculateAge(user.dateOfBirth)}`}
+                  title={user.fullName ?? "Без имени"}
+                  subtitle={
+                    user.dateOfBirth
+                      ? `Возраст: ${calculateAge(user.dateOfBirth)}`
+                      : ""
+                  }
                   onEdit={() => handleEdit(String(user.id))}
                   onDelete={() => handleDelete(String(user.id))}
                 />
