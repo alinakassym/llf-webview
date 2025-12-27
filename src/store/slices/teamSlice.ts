@@ -1,7 +1,12 @@
+// llf-webview/src/store/slices/teamSlice.ts
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState } from "../index";
 import type { Team } from "../../types/team";
-import { teamService, type CreateTeamPayload } from "../../services/teamService";
+import {
+  teamService,
+  type CreateTeamPayload,
+} from "../../services/teamService";
 
 interface TeamState {
   itemsByCityId: Record<string, Team[]>; // Команды по городам
@@ -61,7 +66,7 @@ const teamSlice = createSlice({
     clearTeamsForCity: (state, action: { payload: string }) => {
       delete state.itemsByCityId[action.payload];
       state.loadingCities = state.loadingCities.filter(
-        (cityId) => cityId !== action.payload
+        (cityId) => cityId !== action.payload,
       );
       delete state.errorByCityId[action.payload];
     },
@@ -80,15 +85,19 @@ const teamSlice = createSlice({
       .addCase(fetchTeams.fulfilled, (state, action) => {
         const { cacheKey, teams } = action.payload;
         state.itemsByCityId[cacheKey] = teams.sort((a, b) =>
-          a.leagueName.localeCompare(b.leagueName)
+          a.leagueName.localeCompare(b.leagueName),
         );
-        state.loadingCities = state.loadingCities.filter((id) => id !== cacheKey);
+        state.loadingCities = state.loadingCities.filter(
+          (id) => id !== cacheKey,
+        );
       })
       .addCase(fetchTeams.rejected, (state, action) => {
         const cacheKey = action.meta.arg.cityId
           ? String(action.meta.arg.cityId)
           : "__ALL__";
-        state.loadingCities = state.loadingCities.filter((id) => id !== cacheKey);
+        state.loadingCities = state.loadingCities.filter(
+          (id) => id !== cacheKey,
+        );
         state.errorByCityId[cacheKey] =
           action.error.message || "Failed to fetch teams";
       })
@@ -120,7 +129,7 @@ const teamSlice = createSlice({
         // Удаляем команду из всех кешей
         Object.keys(state.itemsByCityId).forEach((cacheKey) => {
           state.itemsByCityId[cacheKey] = state.itemsByCityId[cacheKey].filter(
-            (team) => team.id !== teamId
+            (team) => team.id !== teamId,
           );
         });
       });
