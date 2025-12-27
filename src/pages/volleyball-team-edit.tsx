@@ -27,11 +27,11 @@ import type { Season } from "../types/season";
 import EmptyPlayerSlot from "../components/EmptyPlayerSlot";
 import PlayerSlot from "../components/PlayerSlot";
 import PlayerSelectionModal from "../components/PlayerSelectionModal";
-import {
-  VolleyballPosition,
-  VolleyballPositionAbbreviation,
-} from "../types/volleyballPosition";
 import { SportType } from "../types/sportType";
+import {
+  VOLLEYBALL_POSITIONS,
+  type VolleyballPosition,
+} from "../types/volleyballPosition";
 
 // Константа для пустого массива чтобы избежать создания нового reference
 const EMPTY_SEASONS: Season[] = [];
@@ -65,12 +65,12 @@ const VolleyballTeamEditPage: FC = () => {
   const selectSeasons = useMemo(
     () => (state: RootState) =>
       cityId ? selectSeasonsByCity(cityId)(state) : EMPTY_SEASONS,
-    [cityId]
+    [cityId],
   );
   const selectSeasonsLoading = useMemo(
     () => (state: RootState) =>
       cityId ? selectSeasonsLoadingForCity(cityId)(state) : false,
-    [cityId]
+    [cityId],
   );
 
   // Получаем seasons из Redux store для cityId из параметров
@@ -82,6 +82,7 @@ const VolleyballTeamEditPage: FC = () => {
     teamId ? selectPlayersByTeam(state, teamId) : [],
   );
 
+  console.log("teamPlayers:", teamPlayers);
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
     () => webViewToken || token,
@@ -94,12 +95,13 @@ const VolleyballTeamEditPage: FC = () => {
     const teamPlayerProfileIds = new Set(
       teamPlayers
         .map((player) => player.playerProfileId)
-        .filter((id): id is number => id !== undefined)
+        .filter((id): id is number => id !== undefined),
     );
 
     // Возвращаем только тех игроков которых нет в команде
     return playerProfiles.filter(
-      (profile) => profile.id !== undefined && !teamPlayerProfileIds.has(profile.id)
+      (profile) =>
+        profile.id !== undefined && !teamPlayerProfileIds.has(profile.id),
     );
   }, [playerProfiles, teamPlayers]);
 
@@ -216,14 +218,12 @@ const VolleyballTeamEditPage: FC = () => {
     volleyballPosition: VolleyballPosition,
     index: number = 0,
   ) => {
-    const positionAbbr = VolleyballPositionAbbreviation[volleyballPosition];
+    const positionAbbr = VOLLEYBALL_POSITIONS[volleyballPosition].short.ru;
 
+    console.log("teamPlayers:", teamPlayers);
     // Ищем всех игроков на этой позиции
     const playersAtPosition = teamPlayers.filter(
-      (p) =>
-        VolleyballPosition[
-          p.volleyballPosition as unknown as keyof typeof VolleyballPosition
-        ] === volleyballPosition,
+      (p) => p.volleyballPosition === volleyballPosition,
     );
 
     // Берем игрока по индексу
@@ -466,8 +466,8 @@ const VolleyballTeamEditPage: FC = () => {
                   gap: 20,
                 }}
               >
-                {renderPlayerSlot(VolleyballPosition.MiddleBlocker, 0)}
-                {renderPlayerSlot(VolleyballPosition.MiddleBlocker, 1)}
+                {renderPlayerSlot(3)}
+                {renderPlayerSlot(6)}
               </div>
 
               {/* Средний ряд - Связующий (СВ), Нападающий (НАП), Диагональный (ДИ) - 3 карточки */}
@@ -482,9 +482,9 @@ const VolleyballTeamEditPage: FC = () => {
                   gap: 20,
                 }}
               >
-                {renderPlayerSlot(VolleyballPosition.Setter)}
-                {renderPlayerSlot(VolleyballPosition.OutsideHitter)}
-                {renderPlayerSlot(VolleyballPosition.Opposite)}
+                {renderPlayerSlot(1)}
+                {renderPlayerSlot(2)}
+                {renderPlayerSlot(4)}
               </div>
 
               {/* Нижний ряд - Либеро (ЛИБ) - 1 карточка */}
@@ -498,7 +498,7 @@ const VolleyballTeamEditPage: FC = () => {
                   gap: 20,
                 }}
               >
-                {renderPlayerSlot(VolleyballPosition.Libero)}
+                {renderPlayerSlot(5)}
               </div>
             </Box>
           )}

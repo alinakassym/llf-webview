@@ -1,39 +1,41 @@
 // llf-webview/src/types/volleyballPosition.ts
 
-export const VolleyballPosition = {
-  Unknown: 0,
-  Setter: 1, // Связующий
-  OutsideHitter: 2, // Нападающий
-  MiddleBlocker: 3, // Блокирующий
-  Opposite: 4, // Диагональный
-  Libero: 5, // Либеро
-  DefensiveSpecialist: 6, // Защитник
-} as const;
+export type VolleyballPosition = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
-export type VolleyballPosition =
-  (typeof VolleyballPosition)[keyof typeof VolleyballPosition];
+export type Lang = "ru" | "kk";
 
-// Сокращения позиций для отображения на поле
-export const VolleyballPositionAbbreviation: Record<
-  VolleyballPosition,
-  string
-> = {
-  [VolleyballPosition.Unknown]: "?",
-  [VolleyballPosition.Setter]: "СВ",
-  [VolleyballPosition.OutsideHitter]: "НАП",
-  [VolleyballPosition.MiddleBlocker]: "БЛОК",
-  [VolleyballPosition.Opposite]: "ДИАГ",
-  [VolleyballPosition.Libero]: "ЛИБ",
-  [VolleyballPosition.DefensiveSpecialist]: "ЗАЩ",
+type PositionMeta = {
+  short: Record<Lang, string>;
+  label: Record<Lang, string>;
 };
 
-// Полные названия позиций
-export const VolleyballPositionName: Record<VolleyballPosition, string> = {
-  [VolleyballPosition.Unknown]: "Не указана",
-  [VolleyballPosition.Setter]: "Связующий",
-  [VolleyballPosition.OutsideHitter]: "Нападающий",
-  [VolleyballPosition.MiddleBlocker]: "Блокирующий",
-  [VolleyballPosition.Opposite]: "Диагональный",
-  [VolleyballPosition.Libero]: "Либеро",
-  [VolleyballPosition.DefensiveSpecialist]: "Защитник",
-};
+export const VOLLEYBALL_POSITIONS = {
+  0: {
+    short: { ru: "?", kk: "?" },
+    label: { ru: "Не указана", kk: "Көрсетілмеген" },
+  },
+  1: {
+    short: { ru: "СВ", kk: "БС" },
+    label: { ru: "Связующий", kk: "Байланыстырушы" },
+  },
+  2: {
+    short: { ru: "НАП", kk: "ШАБ" },
+    label: { ru: "Нападающий", kk: "Шабуылшы" },
+  },
+  3: {
+    short: { ru: "БЛОК", kk: "БЛК" },
+    label: { ru: "Блокирующий", kk: "Блок қоюшы" },
+  },
+  4: {
+    short: { ru: "ДИАГ", kk: "ДИАГ" },
+    label: { ru: "Диагональный", kk: "Диагональ" },
+  },
+  5: {
+    short: { ru: "ЛИБ", kk: "ЛИБ" },
+    label: { ru: "Либеро", kk: "Либеро" },
+  },
+  6: {
+    short: { ru: "ЗАЩ", kk: "ҚОР" },
+    label: { ru: "Защитник", kk: "Қорғаныс ойыншысы" },
+  },
+} satisfies Record<VolleyballPosition, PositionMeta>;
