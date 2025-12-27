@@ -12,6 +12,7 @@ import {
   Box,
   MenuItem,
   CircularProgress,
+  Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { City } from "../types/city";
@@ -227,11 +228,27 @@ const EditTeamModal: FC<EditTeamModalProps> = ({
               minWidth: 80,
             }}
           >
-            <ShirtIcon
-              size={64}
-              color1={formData.primaryColor}
-              color2={formData.secondaryColor}
-            />
+            {formData.primaryColor && formData.secondaryColor ? (
+              <ShirtIcon
+                size={64}
+                color1={formData.primaryColor}
+                color2={formData.secondaryColor}
+              />
+            ) : (
+              <Box
+                sx={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: "50%",
+                  backgroundColor: "action.disabled",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Typography sx={{ fontSize: "32px" }}>👕</Typography>
+              </Box>
+            )}
           </Box>
           <Box
             sx={{

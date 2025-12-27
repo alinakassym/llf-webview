@@ -74,7 +74,23 @@ const ManagementTeamCard: FC<ManagementTeamCardProps> = ({
               marginRight: 1.5,
             }}
           >
-            <ShirtIcon size={40} color1={primaryColor} color2={secondaryColor} />
+            {primaryColor && secondaryColor ? (
+              <ShirtIcon size={40} color1={primaryColor} color2={secondaryColor} />
+            ) : (
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  backgroundColor: "action.disabled",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Typography sx={{ fontSize: "20px" }}>👕</Typography>
+              </Box>
+            )}
           </Box>
 
           <Box sx={{ flex: 1, gap: 0 }}>

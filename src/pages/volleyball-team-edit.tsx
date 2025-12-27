@@ -370,11 +370,27 @@ const VolleyballTeamEditPage: FC = () => {
                 borderRadius: 2,
               }}
             >
-              <ShirtIcon
-                size={64}
-                color1={team.primaryColor}
-                color2={team.secondaryColor}
-              />
+              {team.primaryColor && team.secondaryColor ? (
+                <ShirtIcon
+                  size={64}
+                  color1={team.primaryColor}
+                  color2={team.secondaryColor}
+                />
+              ) : (
+                <Box
+                  sx={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: "50%",
+                    backgroundColor: "rgba(255, 255, 255, 0.2)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Typography sx={{ fontSize: "32px" }}>👕</Typography>
+                </Box>
+              )}
             </Box>
 
             {/* Блок по центру - название команды */}
