@@ -52,21 +52,6 @@ const HomePage: FC = () => {
           </Box>
         </Link>
         <Link
-          to="/seasons-management"
-          style={{ textDecoration: "none", color: "white" }}
-        >
-          <Box
-            sx={{
-              borderRadius: 1,
-              padding: 1.5,
-              border: (theme) => `1px solid ${theme.palette.cardBorder}`,
-              backgroundColor: (theme) => theme.palette.primary.main,
-            }}
-          >
-            Управление сезонами
-          </Box>
-        </Link>
-        <Link
           to="/teams-management"
           style={{ textDecoration: "none", color: "white" }}
         >
@@ -79,6 +64,21 @@ const HomePage: FC = () => {
             }}
           >
             Управление командами и игроками
+          </Box>
+        </Link>
+        <Link
+          to="/seasons-management"
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          <Box
+            sx={{
+              borderRadius: 1,
+              padding: 1.5,
+              border: (theme) => `1px solid ${theme.palette.cardBorder}`,
+              backgroundColor: (theme) => theme.palette.primary.main,
+            }}
+          >
+            Управление сезонами
           </Box>
         </Link>
         <Link

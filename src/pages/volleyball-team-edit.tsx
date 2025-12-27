@@ -80,7 +80,6 @@ const VolleyballTeamEditPage: FC = () => {
     teamId ? selectPlayersByTeam(state, teamId) : [],
   );
 
-  console.log("teamPlayers:", teamPlayers);
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
     () => webViewToken || token,
@@ -218,7 +217,6 @@ const VolleyballTeamEditPage: FC = () => {
   ) => {
     const positionAbbr = getVolleyballPositionShort(volleyballPosition, "ru");
 
-    console.log("teamPlayers:", teamPlayers);
     // Ищем всех игроков на этой позиции
     const playersAtPosition = teamPlayers.filter(
       (p) => p.volleyballPosition === volleyballPosition,

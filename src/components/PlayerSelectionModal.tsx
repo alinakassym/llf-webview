@@ -20,7 +20,7 @@ import type { PlayerProfile } from "../types/player";
 import type { Season } from "../types/season";
 import { playerService } from "../services/playerService";
 import { SportType } from "../types/sportType";
-import { VolleyballPosition } from "../types/volleyballPosition";
+import { type VolleyballPosition } from "../types/volleyballPosition";
 
 interface PlayerSelectionModalProps {
   open: boolean;
