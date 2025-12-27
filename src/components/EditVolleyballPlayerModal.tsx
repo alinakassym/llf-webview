@@ -14,9 +14,9 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { VolleyballPosition, VolleyballPositionName } from "../types/volleyballPosition";
 import { SportType } from "../types/sportType";
 import type { PlayerProfile } from "../types/player";
+import { getPositionOptions } from "../utils/positions";
 
 interface EditVolleyballPlayerModalProps {
   open: boolean;
@@ -65,7 +65,7 @@ const EditVolleyballPlayerModal: FC<EditVolleyballPlayerModalProps> = ({
 }) => {
   // Начальная позиция для волейбола
   const getInitialPosition = () => {
-    return VolleyballPosition.Unknown;
+    return 0;
   };
 
   const [formData, setFormData] = useState<FormData>({
@@ -109,16 +109,6 @@ const EditVolleyballPlayerModal: FC<EditVolleyballPlayerModalProps> = ({
       });
     }
   }, [player]);
-
-  // Получаем список волейбольных позиций
-  const getPositionOptions = (): Array<{ value: number; label: string }> => {
-    return Object.entries(VolleyballPositionName)
-      .map(([value, label]) => ({
-        value: Number(value),
-        label,
-      }))
-      .filter((option) => !isNaN(option.value));
-  };
 
   const handleChange =
     (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -296,7 +286,7 @@ const EditVolleyballPlayerModal: FC<EditVolleyballPlayerModalProps> = ({
             fullWidth
             required
           >
-            {getPositionOptions().map(({ value, label }) => (
+            {getPositionOptions(SportType.Volleyball, "ru").map(({ value, label }) => (
               <MenuItem key={value} value={value}>
                 {label}
               </MenuItem>
