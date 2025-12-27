@@ -5,6 +5,8 @@ import type { Team } from "../types/team";
 
 export interface CreateTeamPayload {
   name: string;
+  primaryColor: string;
+  secondaryColor: string;
   leagueId: number;
   cityId: number;
 }

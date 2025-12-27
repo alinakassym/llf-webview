@@ -422,6 +422,8 @@ const TeamsManagementPage: FC = () => {
       createTeam({
         data: {
           name: data.name,
+          primaryColor: data.primaryColor,
+          secondaryColor: data.secondaryColor,
           cityId: data.cityId,
           leagueId: Number(data.leagueId),
         },

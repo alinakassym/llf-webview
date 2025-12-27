@@ -31,6 +31,8 @@ interface CreateTeamModalProps {
 
 export interface CreateTeamData {
   name: string;
+  primaryColor: string;
+  secondaryColor: string;
   cityId: number;
   leagueId: string;
 }
@@ -49,6 +51,8 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
   const dispatch = useAppDispatch();
   const [formData, setFormData] = useState<CreateTeamData>({
     name: "",
+    primaryColor: "#FFFFFF",
+    secondaryColor: "#000000",
     cityId: 0,
     leagueId: "",
   });
@@ -125,6 +129,8 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
     if (!loading) {
       setFormData({
         name: "",
+        primaryColor: "#FFFFFF",
+        secondaryColor: "#000000",
         cityId: 0,
         leagueId: "",
       });
@@ -196,6 +202,30 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
             fullWidth
             required
             autoFocus
+          />
+
+          <TextField
+            label="Основной цвет"
+            type="color"
+            value={formData.primaryColor}
+            onChange={handleChange("primaryColor")}
+            disabled={loading}
+            fullWidth
+            slotProps={{
+              inputLabel: { shrink: true },
+            }}
+          />
+
+          <TextField
+            label="Дополнительный цвет"
+            type="color"
+            value={formData.secondaryColor}
+            onChange={handleChange("secondaryColor")}
+            disabled={loading}
+            fullWidth
+            slotProps={{
+              inputLabel: { shrink: true },
+            }}
           />
 
           <TextField
