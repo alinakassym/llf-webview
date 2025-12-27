@@ -13,21 +13,17 @@ export const useFirebaseTokenAuth = () => {
   useEffect(() => {
     const authenticateWithFirebaseToken = async () => {
       try {
-        // Получаем firebaseToken из hash (#firebase_token=...)
-        const hash = window.location.hash;
+        // Получаем firebaseToken из query параметра (?firebase_token=...)
+        // Safari не передаёт hash в iframe, поэтому используем query
+        const searchParams = new URLSearchParams(window.location.search);
+        const firebaseToken = searchParams.get("firebase_token");
 
-        if (hash && hash.includes("firebase_token=")) {
-          // Парсим hash
-          const params = new URLSearchParams(hash.substring(1)); // убираем # в начале
-          const firebaseToken = params.get("firebase_token");
+        if (firebaseToken) {
+          // Авторизуемся с токеном (не сохраняем в localStorage!)
+          await signInWithCustomToken(auth, firebaseToken);
 
-          if (firebaseToken) {
-            // Авторизуемся с токеном (не сохраняем в localStorage!)
-            await signInWithCustomToken(auth, firebaseToken);
-
-            // Очищаем hash из URL для безопасности
-            window.history.replaceState(null, "", window.location.pathname);
-          }
+          // Очищаем query параметр из URL для безопасности
+          window.history.replaceState(null, "", window.location.pathname);
         }
 
         setLoading(false);
