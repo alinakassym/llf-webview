@@ -35,7 +35,7 @@ const ManagementItemCard: FC<ManagementItemCardProps> = ({
         marginBottom: 1,
       }}
     >
-      <Box sx={{ flex: 1 }}>
+      <Box onClick={onEdit} sx={{ flex: 1 }}>
         <Typography
           variant="body2"
           fontWeight={600}

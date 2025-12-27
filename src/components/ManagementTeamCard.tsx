@@ -51,38 +51,49 @@ const ManagementTeamCard: FC<ManagementTeamCardProps> = ({
           marginBottom: 2,
         }}
       >
-        <Box
-          sx={{
-            width: 48,
-            height: 48,
+        <div
+          style={{
             display: "flex",
+            flex: 1,
             alignItems: "center",
-            justifyContent: "center",
-            marginRight: 1.5,
+            cursor: "pointer",
           }}
+          onClick={onEdit}
         >
-          <ShirtIcon size={40} strokeColor="#000000" />
-        </Box>
-
-        <Box sx={{ flex: 1 }}>
-          <Typography
-            variant="body2"
-            fontWeight={600}
-            sx={{ fontSize: "12px", marginBottom: "4px" }}
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginRight: 1.5,
+            }}
           >
-            {title}
-          </Typography>
-          {subtitle && (
+            <ShirtIcon size={40} strokeColor="#000000" />
+          </Box>
+
+          <Box sx={{ flex: 1, gap: 0 }}>
             <Typography
               variant="body2"
-              color="text.secondary"
+              fontWeight={600}
               sx={{ fontSize: "12px" }}
             >
-              {subtitle}
+              {title}
             </Typography>
-          )}
-        </Box>
+            {subtitle && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ fontSize: "12px", mb: 0 }}
+              >
+                {subtitle}
+              </Typography>
+            )}
+          </Box>
+        </div>
 
+        {/* кнопки */}
         <Box sx={{ display: "flex", gap: 1 }}>
           <IconButton
             onClick={onEdit}

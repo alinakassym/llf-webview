@@ -311,11 +311,12 @@ const SeasonEditPage: FC = () => {
 
     try {
       setTeamsLoading(true);
+      const sportTypeParam = Number(sportType);
       const loadedTeams = await teamService.getTeams(
         activeToken,
         season.cityId,
         season.leagueId,
-        sportType,
+        sportTypeParam,
       );
       setTeams(loadedTeams);
     } catch (error) {

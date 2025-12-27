@@ -28,7 +28,7 @@ const PlayerPreviewCard: FC<PlayerPreviewCardProps> = ({
 }) => {
   return (
     <Box
-      onClick={onClick}
+      onClick={onEdit}
       sx={{
         display: "flex",
         flexDirection: "row",

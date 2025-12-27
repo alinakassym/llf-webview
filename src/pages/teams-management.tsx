@@ -267,7 +267,7 @@ const TeamsManagementPage: FC = () => {
   const handleEdit = (teamId: string, cityId?: number) => {
     // Определяем маршрут в зависимости от выбранного вида спорта
     // SportType.Volleyball = 2, SportType.Football = 1
-    if (selectedSportType === 2) {
+    if (selectedSportType === SportType.Volleyball) {
       navigate(`/volleyball-team-edit/${cityId}/${teamId}`);
     } else {
       navigate(`/team-edit/${teamId}`);
@@ -300,7 +300,7 @@ const TeamsManagementPage: FC = () => {
         deleteTeam({
           teamId: Number(teamToDelete.id),
           token: activeToken,
-        })
+        }),
       ).unwrap();
       handleCloseDeleteDialog();
     } catch (error) {
@@ -340,7 +340,10 @@ const TeamsManagementPage: FC = () => {
 
       // Перезагружаем список игроков после обновления
       dispatch(
-        fetchPlayerProfiles({ token: activeToken, sportType: selectedSportType })
+        fetchPlayerProfiles({
+          token: activeToken,
+          sportType: selectedSportType,
+        }),
       );
 
       handleCloseEditPlayerModal();
@@ -379,7 +382,10 @@ const TeamsManagementPage: FC = () => {
 
       // Перезагружаем список игроков после удаления
       dispatch(
-        fetchPlayerProfiles({ token: activeToken, sportType: selectedSportType })
+        fetchPlayerProfiles({
+          token: activeToken,
+          sportType: selectedSportType,
+        }),
       );
 
       handleCloseDeletePlayerDialog();
@@ -684,7 +690,7 @@ const TeamsManagementPage: FC = () => {
         open={isCreatePlayerModalOpen}
         onClose={handleClosePlayerModal}
         token={activeToken || ""}
-        sportType={Number(selectedSportType)}
+        sportType={selectedSportType as SportType}
         onSubmit={handleCreatePlayer}
       />
 
