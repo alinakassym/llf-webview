@@ -267,10 +267,15 @@ const EditVolleyballPlayerModal: FC<EditVolleyballPlayerModalProps> = ({
             error={Boolean(errors.dateOfBirth)}
             helperText={errors.dateOfBirth}
             disabled={loading}
-            fullWidth
             required
+            fullWidth
             slotProps={{
               inputLabel: { shrink: true },
+            }}
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "56px",
+              },
             }}
           />
 
@@ -283,11 +288,13 @@ const EditVolleyballPlayerModal: FC<EditVolleyballPlayerModalProps> = ({
             fullWidth
             required
           >
-            {getPositionOptions(SportType.Volleyball, "ru").map(({ value, label }) => (
-              <MenuItem key={value} value={value}>
-                {label}
-              </MenuItem>
-            ))}
+            {getPositionOptions(SportType.Volleyball, "ru").map(
+              ({ value, label }) => (
+                <MenuItem key={value} value={value}>
+                  {label}
+                </MenuItem>
+              ),
+            )}
           </TextField>
         </Box>
       </DialogContent>
