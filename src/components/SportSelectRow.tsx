@@ -17,7 +17,7 @@ const SPORT_TYPE_STORAGE_KEY = "selectedSportType";
 // Кастомная иконка dropdown с белым цветом
 const WhiteDropdownIcon = (
   props: React.ComponentProps<typeof ArrowDropDownIcon>,
-) => <ArrowDropDownIcon {...props} sx={{ fill: "#FFFFFF" }} />;
+) => <ArrowDropDownIcon {...props} sx={{ fill: "text.secondary" }} />;
 
 export type Sport = {
   id: number;
@@ -74,6 +74,7 @@ export const SportSelectRow: FC<SportSelectRowProps> = ({
       {/* Sport Select */}
       <FormControl sx={{ flex: 1, maxWidth: 68 }}>
         <Select
+          disabled
           value={selectedSportId}
           onChange={handleSportChange}
           size="small"
