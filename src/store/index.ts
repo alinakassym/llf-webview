@@ -6,6 +6,7 @@ import seasonReducer from "./slices/seasonSlice";
 import userReducer from "./slices/userSlice";
 import teamReducer from "./slices/teamSlice";
 import playerReducer from "./slices/playerSlice";
+import cupReducer from "./slices/cupSlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     users: userReducer,
     teams: teamReducer,
     players: playerReducer,
+    cups: cupReducer,
   },
 });
 
