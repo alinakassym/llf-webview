@@ -1,10 +1,19 @@
 // llf-webview/src/pages/cup-management.tsx
 
-import { type FC, useState, useEffect } from "react";
+import { type FC, useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Tabs, Tab } from "@mui/material";
+import { Box, Tabs, Tab, Container, CircularProgress } from "@mui/material";
 import { SportSelectRow, type Sport } from "../components/SportSelectRow";
 import { SportType, SportTypeName } from "../types/sportType";
+import CupGroupsList from "../components/CupGroupsList";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import {
+  fetchCupGroups,
+  selectCupGroupsByCupId,
+  selectCupGroupsLoadingForCup,
+} from "../store/slices/cupGroupSlice";
+import { useAuth } from "../hooks/useAuth";
+import { useWebViewToken } from "../hooks/useWebViewToken";
 
 const SPORTS: Sport[] = [
   {
@@ -27,14 +36,39 @@ const CupManagementPage: FC = () => {
     sportType: string;
   }>();
 
+  const dispatch = useAppDispatch();
+  const { token, loading: authLoading } = useAuth();
+  const { webViewToken, loading: webViewLoading } = useWebViewToken();
+
   const [tabValue, setTabValue] = useState(0);
   const [selectedSportType, setSelectedSportType] = useState<number>(
     sportType ? parseInt(sportType) : 2,
   );
 
+  // Используем webViewToken если доступен, иначе fallback на Firebase token
+  const activeToken = useMemo(
+    () => webViewToken || token,
+    [webViewToken, token],
+  );
+
+  // Получаем группы кубка из store
+  const groups = useAppSelector((state) =>
+    cupId ? selectCupGroupsByCupId(cupId)(state) : [],
+  );
+  const groupsLoading = useAppSelector((state) =>
+    cupId ? selectCupGroupsLoadingForCup(cupId)(state) : false,
+  );
+
   const handleSportChange = (sportId: number) => {
     setSelectedSportType(sportId);
   };
+
+  // Загружаем группы кубка при монтировании
+  useEffect(() => {
+    if (cupId && activeToken && !authLoading && !webViewLoading) {
+      dispatch(fetchCupGroups({ cupId: parseInt(cupId), token: activeToken }));
+    }
+  }, [cupId, activeToken, authLoading, webViewLoading, dispatch]);
 
   // Логируем открытие кубка для отладки
   useEffect(() => {
@@ -42,18 +76,24 @@ const CupManagementPage: FC = () => {
       console.log("Opened cup:", cupId, "sportType:", selectedSportType);
     }
   }, [cupId, selectedSportType]);
+
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+
+  const handleEditGroup = (groupId: number, groupName: string) => {
+    console.log("Edit group:", groupId, groupName);
+  };
+
+  const handleDeleteGroup = (groupId: number, groupName: string) => {
+    console.log("Delete group:", groupId, groupName);
   };
   return (
     <Box
       sx={{
-        position: "fixed",
-        left: 0,
-        top: 0,
-        right: 0,
-        minHeight: "100%",
+        minHeight: "100vh",
         backgroundColor: "surface",
+        overflow: "hidden",
       }}
     >
       <Box
@@ -108,6 +148,46 @@ const CupManagementPage: FC = () => {
           <Tab label="Туры" id="tours-tab-1" aria-controls="cup-tabpanel-1" />
         </Tabs>
       </Box>
+
+      <Container disableGutters maxWidth={false} sx={{ pt: 2, px: 2, pb: 8 }}>
+        {/* Таб "Группы" */}
+        {tabValue === 0 && (
+          <Box role="tabpanel" id="cup-tabpanel-0">
+            {groupsLoading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  py: 4,
+                }}
+              >
+                <CircularProgress size={40} />
+              </Box>
+            ) : (
+              <CupGroupsList
+                groups={groups}
+                onEdit={handleEditGroup}
+                onDelete={handleDeleteGroup}
+              />
+            )}
+          </Box>
+        )}
+
+        {/* Таб "Туры" */}
+        {tabValue === 1 && (
+          <Box role="tabpanel" id="cup-tabpanel-1">
+            <Box
+              sx={{
+                textAlign: "center",
+                py: 4,
+                color: "text.secondary",
+              }}
+            >
+              Туры будут отображаться здесь
+            </Box>
+          </Box>
+        )}
+      </Container>
     </Box>
   );
 };
