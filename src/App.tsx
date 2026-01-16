@@ -11,6 +11,7 @@ import SeasonsManagementPage from "./pages/seasons-management";
 import CitiesManagementPage from "./pages/cities-management";
 import UsersManagementPage from "./pages/users-management";
 import TeamsManagementPage from "./pages/teams-management";
+import CupsManagementPage from "./pages/cups-management";
 import TeamEditPage from "./pages/team-edit";
 import VolleyballTeamEditPage from "./pages/volleyball-team-edit";
 import SeasonEditPage from "./pages/season-edit";
@@ -52,12 +53,19 @@ const App: FC = () => {
         <Route path="/users-management" element={<UsersManagementPage />} />
         <Route path="/teams-management" element={<TeamsManagementPage />} />
         <Route path="/team-edit/:teamId" element={<TeamEditPage />} />
-        <Route path="/volleyball-team-edit/:cityId/:teamId" element={<VolleyballTeamEditPage />} />
-        <Route path="/season-edit/:seasonId/:sportType" element={<SeasonEditPage />} />
+        <Route
+          path="/volleyball-team-edit/:cityId/:teamId"
+          element={<VolleyballTeamEditPage />}
+        />
+        <Route
+          path="/season-edit/:seasonId/:sportType"
+          element={<SeasonEditPage />}
+        />
         <Route path="/competition-plan" element={<CompetitionPlanPage />} />
         <Route path="/regulations" element={<RegulationsPage />} />
         <Route path="/rules" element={<RulesPage />} />
         <Route path="/contacts" element={<ContactsPage />} />
+        <Route path="/cups-management" element={<CupsManagementPage />} />
       </Routes>
 
       <ReauthModal

@@ -7,6 +7,21 @@ const HomePage: FC = () => {
     <main style={{ padding: 16 }}>
       <nav style={{ display: "grid", gap: 12 }}>
         <Link
+          to="/cups-management"
+          style={{ textDecoration: "none", color: "white" }}
+        >
+          <Box
+            sx={{
+              borderRadius: 1,
+              padding: 1.5,
+              border: (theme) => `1px solid ${theme.palette.cardBorder}`,
+              backgroundColor: (theme) => theme.palette.primary.main,
+            }}
+          >
+            Управление Кубками
+          </Box>
+        </Link>
+        <Link
           to="/users-management"
           style={{ textDecoration: "none", color: "white" }}
         >
