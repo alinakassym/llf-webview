@@ -13,8 +13,12 @@ export interface Cup {
 export interface CupGroupTeam {
   teamId: number;
   teamName: string;
+  cityId?: number;
+  cityName?: string;
   seed: number | null;
   order: number;
+  primaryColor?: string;
+  secondaryColor?: string;
 }
 
 export interface CupGroup {

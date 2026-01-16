@@ -13,6 +13,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import type { CupGroup } from "../types/cup";
+import { ShirtIcon } from "./icons";
 
 interface CupGroupsListProps {
   groups: CupGroup[];
@@ -184,27 +185,27 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
                       sx={{
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "space-between",
+                        gap: 1.5,
                         p: 1.5,
                         borderRadius: "8px",
                         backgroundColor: "surface",
                       }}
                     >
-                      <Typography
-                        variant="body2"
-                        sx={{ fontSize: "12px", fontWeight: 500 }}
-                      >
-                        {team.teamName}
-                      </Typography>
-                      {team.seed !== null && (
+                      <ShirtIcon color1={team.primaryColor} />
+                      <Box>
+                        <Typography
+                          variant="body1"
+                          sx={{ fontSize: "12px", fontWeight: 600 }}
+                        >
+                          {team.teamName}
+                        </Typography>
                         <Typography
                           variant="body2"
-                          color="text.secondary"
-                          sx={{ fontSize: "11px" }}
+                          sx={{ fontSize: "12px", fontWeight: 500 }}
                         >
-                          Сеяние: {team.seed}
+                          {team.cityName}
                         </Typography>
-                      )}
+                      </Box>
                     </Box>
                   ))}
                 </Box>
