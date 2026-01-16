@@ -7,6 +7,7 @@ import userReducer from "./slices/userSlice";
 import teamReducer from "./slices/teamSlice";
 import playerReducer from "./slices/playerSlice";
 import cupReducer from "./slices/cupSlice";
+import cupGroupReducer from "./slices/cupGroupSlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     teams: teamReducer,
     players: playerReducer,
     cups: cupReducer,
+    cupGroups: cupGroupReducer,
   },
 });
 

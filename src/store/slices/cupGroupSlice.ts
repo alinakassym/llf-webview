@@ -1,0 +1,93 @@
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import type { CupGroup } from "../../types/cup";
+import { cupService } from "../../services/cupService";
+
+interface CupGroupState {
+  itemsByCupId: Record<string, CupGroup[]>;
+  loadingCups: string[];
+  errorByCupId: Record<string, string | null>;
+}
+
+const initialState: CupGroupState = {
+  itemsByCupId: {},
+  loadingCups: [],
+  errorByCupId: {},
+};
+
+// Константа для пустого массива чтобы избежать создания нового reference
+const EMPTY_GROUPS: CupGroup[] = [];
+
+// Thunk для загрузки групп кубка
+export const fetchCupGroups = createAsyncThunk<
+  { cupId: string; groups: CupGroup[] },
+  { cupId: number; token: string }
+>("cupGroups/fetchCupGroups", async ({ cupId, token }) => {
+  const groups = await cupService.getGroups(cupId, token);
+  return { cupId: String(cupId), groups };
+});
+
+const cupGroupSlice = createSlice({
+  name: "cupGroups",
+  initialState,
+  reducers: {
+    clearCupGroups: (state) => {
+      state.itemsByCupId = {};
+      state.loadingCups = [];
+      state.errorByCupId = {};
+    },
+    clearCupGroupsForCup: (state, action: { payload: string }) => {
+      delete state.itemsByCupId[action.payload];
+      state.loadingCups = state.loadingCups.filter(
+        (cupId) => cupId !== action.payload,
+      );
+      delete state.errorByCupId[action.payload];
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchCupGroups.pending, (state, action) => {
+        const cupId = String(action.meta.arg.cupId);
+        if (!state.loadingCups.includes(cupId)) {
+          state.loadingCups.push(cupId);
+        }
+        delete state.errorByCupId[cupId];
+      })
+      .addCase(fetchCupGroups.fulfilled, (state, action) => {
+        const { cupId, groups } = action.payload;
+        // Сохраняем группы в том порядке, в котором пришли с бэкенда
+        state.itemsByCupId[cupId] = groups;
+        state.loadingCups = state.loadingCups.filter((id) => id !== cupId);
+        delete state.errorByCupId[cupId];
+      })
+      .addCase(fetchCupGroups.rejected, (state, action) => {
+        const cupId = String(action.meta.arg.cupId);
+        state.loadingCups = state.loadingCups.filter((id) => id !== cupId);
+        state.errorByCupId[cupId] =
+          action.error.message || "Failed to load cup groups";
+      });
+  },
+});
+
+export const { clearCupGroups, clearCupGroupsForCup } = cupGroupSlice.actions;
+export default cupGroupSlice.reducer;
+
+// Селекторы
+export type RootState = { cupGroups: CupGroupState };
+export const selectCupGroupsByCupId =
+  (cupId: string) => (state: RootState) => {
+    const groups = state.cupGroups.itemsByCupId[cupId] || EMPTY_GROUPS;
+    // Фильтруем только если есть невалидные элементы
+    const hasInvalidGroups = groups.some(
+      (group) => !group || !group.id || !group.name,
+    );
+    if (!hasInvalidGroups) {
+      return groups;
+    }
+    return groups.filter((group) => group && group.id && group.name);
+  };
+export const selectCupGroupsLoadingForCup =
+  (cupId: string) => (state: RootState) =>
+    state.cupGroups.loadingCups.includes(cupId);
+export const selectCupGroupsErrorForCup =
+  (cupId: string) => (state: RootState) =>
+    state.cupGroups.errorByCupId[cupId] || null;

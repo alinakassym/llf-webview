@@ -1,8 +1,12 @@
 import { apiRequest } from "./api";
-import type { Cup } from "../types/cup";
+import type { Cup, CupGroup } from "../types/cup";
 
 interface CupsResponse {
   records: Cup[];
+}
+
+interface CupGroupsResponse {
+  records: CupGroup[];
 }
 
 export const cupService = {
@@ -20,6 +24,17 @@ export const cupService = {
       method: "GET",
       token,
     });
+    return response.records;
+  },
+
+  getGroups: async (cupId: number, token: string): Promise<CupGroup[]> => {
+    const response = await apiRequest<CupGroupsResponse>(
+      `/cups/${cupId}/groups`,
+      {
+        method: "GET",
+        token,
+      },
+    );
     return response.records;
   },
 };

@@ -9,3 +9,10 @@ export interface Cup {
   startDate: string;
   endDate: string;
 }
+
+export interface CupGroup {
+  id: number;
+  name: string;
+  order: number;
+  cupTournamentId: number;
+}
