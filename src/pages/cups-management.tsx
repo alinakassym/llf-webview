@@ -1,6 +1,7 @@
 // llf-webview/src/pages/cups-management.tsx
 
 import { type FC, useState, useMemo, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box, Fab, Container, CircularProgress, Alert } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { SportSelectRow, type Sport } from "../components/SportSelectRow";
@@ -35,6 +36,7 @@ const SPORTS: Sport[] = [
 ];
 
 const CupsManagementPage: FC = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { token, loading: authLoading } = useAuth();
   const { webViewToken, loading: webViewLoading } = useWebViewToken();
@@ -155,7 +157,7 @@ const CupsManagementPage: FC = () => {
   }, [selectedCity, filteredCups]);
 
   const handleEdit = (cupId: string) => {
-    console.log("Edit cup:", cupId);
+    navigate(`/cup-management/${cupId}/${selectedSportType}`);
   };
 
   const handleDelete = (cupId: string, cupName: string) => {

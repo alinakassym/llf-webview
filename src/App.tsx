@@ -12,6 +12,7 @@ import CitiesManagementPage from "./pages/cities-management";
 import UsersManagementPage from "./pages/users-management";
 import TeamsManagementPage from "./pages/teams-management";
 import CupsManagementPage from "./pages/cups-management";
+import CupManagementPage from "./pages/cup-management";
 import TeamEditPage from "./pages/team-edit";
 import VolleyballTeamEditPage from "./pages/volleyball-team-edit";
 import SeasonEditPage from "./pages/season-edit";
@@ -66,6 +67,10 @@ const App: FC = () => {
         <Route path="/rules" element={<RulesPage />} />
         <Route path="/contacts" element={<ContactsPage />} />
         <Route path="/cups-management" element={<CupsManagementPage />} />
+        <Route
+          path="/cup-management/:cupId/:sportType"
+          element={<CupManagementPage />}
+        />
       </Routes>
 
       <ReauthModal
