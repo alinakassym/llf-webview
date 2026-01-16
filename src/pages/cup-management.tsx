@@ -9,6 +9,7 @@ import CupGroupsList from "../components/CupGroupsList";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   fetchCupGroups,
+  fetchCupGroupById,
   selectCupGroupsByCupId,
   selectCupGroupsLoadingForCup,
 } from "../store/slices/cupGroupSlice";
@@ -88,6 +89,19 @@ const CupManagementPage: FC = () => {
   const handleDeleteGroup = (groupId: number, groupName: string) => {
     console.log("Delete group:", groupId, groupName);
   };
+
+  const handleExpandGroup = (groupId: number) => {
+    if (cupId && activeToken) {
+      dispatch(
+        fetchCupGroupById({
+          cupId: parseInt(cupId),
+          groupId,
+          token: activeToken,
+        }),
+      );
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -168,6 +182,7 @@ const CupManagementPage: FC = () => {
                 groups={groups}
                 onEdit={handleEditGroup}
                 onDelete={handleDeleteGroup}
+                onExpandGroup={handleExpandGroup}
               />
             )}
           </Box>

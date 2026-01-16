@@ -37,4 +37,19 @@ export const cupService = {
     );
     return response.records;
   },
+
+  getGroupById: async (
+    cupId: number,
+    groupId: number,
+    token: string,
+  ): Promise<CupGroup> => {
+    const response = await apiRequest<CupGroup>(
+      `/cups/${cupId}/groups/${groupId}`,
+      {
+        method: "GET",
+        token,
+      },
+    );
+    return response;
+  },
 };

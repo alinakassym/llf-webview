@@ -26,6 +26,15 @@ export const fetchCupGroups = createAsyncThunk<
   return { cupId: String(cupId), groups };
 });
 
+// Thunk для загрузки одной группы с командами
+export const fetchCupGroupById = createAsyncThunk<
+  { cupId: string; group: CupGroup },
+  { cupId: number; groupId: number; token: string }
+>("cupGroups/fetchCupGroupById", async ({ cupId, groupId, token }) => {
+  const group = await cupService.getGroupById(cupId, groupId, token);
+  return { cupId: String(cupId), group };
+});
+
 const cupGroupSlice = createSlice({
   name: "cupGroups",
   initialState,
@@ -64,6 +73,17 @@ const cupGroupSlice = createSlice({
         state.loadingCups = state.loadingCups.filter((id) => id !== cupId);
         state.errorByCupId[cupId] =
           action.error.message || "Failed to load cup groups";
+      })
+      .addCase(fetchCupGroupById.fulfilled, (state, action) => {
+        const { cupId, group } = action.payload;
+        const groups = state.itemsByCupId[cupId];
+        if (groups) {
+          // Обновляем группу с полученными командами
+          const index = groups.findIndex((g) => g.id === group.id);
+          if (index !== -1) {
+            groups[index] = group;
+          }
+        }
       });
   },
 });

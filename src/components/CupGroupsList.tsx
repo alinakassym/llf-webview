@@ -1,12 +1,13 @@
 // llf-webview/src/components/CupGroupsList.tsx
 
-import { type FC } from "react";
+import { type FC, useState } from "react";
 import {
   Box,
   Typography,
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  CircularProgress,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditIcon from "@mui/icons-material/Edit";
@@ -17,13 +18,18 @@ interface CupGroupsListProps {
   groups: CupGroup[];
   onEdit?: (groupId: number, groupName: string) => void;
   onDelete?: (groupId: number, groupName: string) => void;
+  onExpandGroup?: (groupId: number) => void;
 }
 
 const CupGroupsList: FC<CupGroupsListProps> = ({
   groups,
   onEdit,
   onDelete,
+  onExpandGroup,
 }) => {
+  const [expandedGroupId, setExpandedGroupId] = useState<number | null>(null);
+  const [loadingGroupId, setLoadingGroupId] = useState<number | null>(null);
+
   if (groups.length === 0) {
     return (
       <Typography
@@ -37,11 +43,29 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
     );
   }
 
+  const handleAccordionChange =
+    (groupId: number) =>
+    (_event: React.SyntheticEvent, isExpanded: boolean) => {
+      setExpandedGroupId(isExpanded ? groupId : null);
+      if (isExpanded && onExpandGroup) {
+        const group = groups.find((g) => g.id === groupId);
+        // Загружаем команды только если их еще нет
+        if (group && !group.teams) {
+          setLoadingGroupId(groupId);
+          onExpandGroup(groupId);
+          // Сбрасываем loading через небольшую задержку (будет обновлено при получении данных)
+          setTimeout(() => setLoadingGroupId(null), 2000);
+        }
+      }
+    };
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
       {groups.map((group) => (
         <Accordion
           key={group.id}
+          expanded={expandedGroupId === group.id}
+          onChange={handleAccordionChange(group.id)}
           sx={{
             borderRadius: "12px !important",
             border: 1,
@@ -131,14 +155,58 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
           </AccordionSummary>
 
           <AccordionDetails sx={{ pt: 0, pb: 2 }}>
-            <Box sx={{ px: 2 }}>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ fontSize: "12px", textAlign: "center", py: 2 }}
-              >
-                Команды группы будут отображаться здесь
-              </Typography>
+            <Box sx={{ px: 0 }}>
+              {loadingGroupId === group.id ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    py: 2,
+                  }}
+                >
+                  <CircularProgress size={24} />
+                </Box>
+              ) : group.teams && group.teams.length > 0 ? (
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                  {group.teams.map((team) => (
+                    <Box
+                      key={team.teamId}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        p: 1.5,
+                        borderRadius: "8px",
+                        backgroundColor: "surface",
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{ fontSize: "12px", fontWeight: 500 }}
+                      >
+                        {team.teamName}
+                      </Typography>
+                      {team.seed !== null && (
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ fontSize: "11px" }}
+                        >
+                          Сеяние: {team.seed}
+                        </Typography>
+                      )}
+                    </Box>
+                  ))}
+                </Box>
+              ) : (
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: "12px", textAlign: "center", py: 2 }}
+                >
+                  Команды не найдены
+                </Typography>
+              )}
             </Box>
           </AccordionDetails>
         </Accordion>

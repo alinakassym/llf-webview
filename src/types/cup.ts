@@ -10,9 +10,17 @@ export interface Cup {
   endDate: string;
 }
 
+export interface CupGroupTeam {
+  teamId: number;
+  teamName: string;
+  seed: number | null;
+  order: number;
+}
+
 export interface CupGroup {
   id: number;
   name: string;
   order: number;
   cupTournamentId: number;
+  teams?: CupGroupTeam[];
 }
