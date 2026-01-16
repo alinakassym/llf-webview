@@ -1,0 +1,190 @@
+// llf-webview/src/components/CreateCupGroupModal.tsx
+
+import { type FC, useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  Box,
+  TextField,
+  Button,
+  CircularProgress,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+
+interface CreateCupGroupModalProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (data: CreateCupGroupData) => Promise<void>;
+  existingGroupsCount: number;
+}
+
+export interface CreateCupGroupData {
+  name: string;
+  order: number;
+}
+
+const CreateCupGroupModal: FC<CreateCupGroupModalProps> = ({
+  open,
+  onClose,
+  onSubmit,
+  existingGroupsCount,
+}) => {
+  const [formData, setFormData] = useState<CreateCupGroupData>({
+    name: "",
+    order: existingGroupsCount + 1,
+  });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CreateCupGroupData, string>>
+  >({});
+
+  // Обновляем order когда меняется количество групп или открывается модалка
+  useEffect(() => {
+    if (open) {
+      setFormData((prev) => ({
+        ...prev,
+        order: existingGroupsCount + 1,
+      }));
+    }
+  }, [open, existingGroupsCount]);
+
+  const handleChange =
+    (field: keyof CreateCupGroupData) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (field === "name") {
+        setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      } else {
+        const numValue = Number(e.target.value);
+        setFormData((prev) => ({ ...prev, [field]: numValue }));
+      }
+
+      // Очищаем ошибку при изменении поля
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
+
+  const validate = (): boolean => {
+    const newErrors: Partial<Record<keyof CreateCupGroupData, string>> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Название обязательно";
+    }
+    if (formData.order < 1) {
+      newErrors.order = "Порядок должен быть больше 0";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await onSubmit(formData);
+      handleClose();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClose = () => {
+    if (!loading) {
+      setFormData({
+        name: "",
+        order: existingGroupsCount + 1,
+      });
+      setErrors({});
+      onClose();
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 2,
+          },
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          pb: 1,
+        }}
+      >
+        Создать группу
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          disabled={loading}
+          sx={{
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+
+      <DialogContent dividers>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <TextField
+            label="Название группы"
+            fullWidth
+            value={formData.name}
+            onChange={handleChange("name")}
+            error={!!errors.name}
+            helperText={errors.name}
+            disabled={loading}
+            required
+            autoFocus
+          />
+
+          <TextField
+            label="Порядок"
+            type="number"
+            fullWidth
+            value={formData.order}
+            onChange={handleChange("order")}
+            error={!!errors.order}
+            helperText={errors.order}
+            disabled={loading}
+            required
+            slotProps={{ htmlInput: { min: 1 } }}
+          />
+        </Box>
+      </DialogContent>
+
+      <DialogActions sx={{ px: 3, py: 2 }}>
+        <Button onClick={handleClose} disabled={loading}>
+          Отмена
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          disabled={loading}
+          startIcon={loading && <CircularProgress size={16} />}
+        >
+          {loading ? "Создание..." : "Создать"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default CreateCupGroupModal;

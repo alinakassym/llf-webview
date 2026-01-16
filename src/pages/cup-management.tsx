@@ -14,10 +14,14 @@ import AddIcon from "@mui/icons-material/Add";
 import { SportSelectRow, type Sport } from "../components/SportSelectRow";
 import { SportType, SportTypeName } from "../types/sportType";
 import CupGroupsList from "../components/CupGroupsList";
+import CreateCupGroupModal, {
+  type CreateCupGroupData,
+} from "../components/CreateCupGroupModal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   fetchCupGroups,
   fetchCupGroupById,
+  createCupGroup,
   selectCupGroupsByCupId,
   selectCupGroupsLoadingForCup,
 } from "../store/slices/cupGroupSlice";
@@ -53,6 +57,7 @@ const CupManagementPage: FC = () => {
   const [selectedSportType, setSelectedSportType] = useState<number>(
     sportType ? parseInt(sportType) : 2,
   );
+  const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -111,7 +116,28 @@ const CupManagementPage: FC = () => {
   };
 
   const handleAdd = () => {
-    console.log("Add new cup");
+    if (tabValue === 0) {
+      // Вкладка "Группы" - открываем модальное окно создания группы
+      setIsCreateGroupModalOpen(true);
+    }
+  };
+
+  const handleCloseGroupModal = () => {
+    setIsCreateGroupModalOpen(false);
+  };
+
+  const handleCreateCupGroup = async (data: CreateCupGroupData) => {
+    if (!activeToken || !cupId) {
+      throw new Error("No auth token or cupId available");
+    }
+    await dispatch(
+      createCupGroup({
+        cupId: parseInt(cupId),
+        name: data.name,
+        order: data.order,
+        token: activeToken,
+      }),
+    ).unwrap();
   };
 
   return (
@@ -215,18 +241,28 @@ const CupManagementPage: FC = () => {
           </Box>
         )}
       </Container>
-      <Fab
-        color="primary"
-        aria-label="add"
-        onClick={handleAdd}
-        sx={{
-          position: "fixed",
-          bottom: 24,
-          right: 24,
-        }}
-      >
-        <AddIcon />
-      </Fab>
+
+      {tabValue === 0 && (
+        <Fab
+          color="primary"
+          aria-label="add"
+          onClick={handleAdd}
+          sx={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+          }}
+        >
+          <AddIcon />
+        </Fab>
+      )}
+
+      <CreateCupGroupModal
+        open={isCreateGroupModalOpen}
+        onClose={handleCloseGroupModal}
+        onSubmit={handleCreateCupGroup}
+        existingGroupsCount={groups.length}
+      />
     </Box>
   );
 };
