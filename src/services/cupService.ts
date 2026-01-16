@@ -1,5 +1,5 @@
 import { apiRequest } from "./api";
-import type { Cup, CupGroup } from "../types/cup";
+import type { Cup, CupGroup, CupGroupTeam } from "../types/cup";
 
 interface CupsResponse {
   records: Cup[];
@@ -63,6 +63,23 @@ export const cupService = {
       token,
       body: JSON.stringify(data),
     });
+    return response;
+  },
+
+  addTeamToGroup: async (
+    cupId: number,
+    groupId: number,
+    data: { teamId: number; seed?: number | null; order?: number | null },
+    token: string,
+  ): Promise<CupGroupTeam> => {
+    const response = await apiRequest<CupGroupTeam>(
+      `/cups/${cupId}/groups/${groupId}/teams`,
+      {
+        method: "POST",
+        token,
+        body: JSON.stringify(data),
+      },
+    );
     return response;
   },
 };

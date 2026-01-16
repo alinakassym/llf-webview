@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import type { CupGroup } from "../../types/cup";
+import type { CupGroup, CupGroupTeam } from "../../types/cup";
 import { cupService } from "../../services/cupService";
 
 interface CupGroupState {
@@ -43,6 +43,30 @@ export const createCupGroup = createAsyncThunk<
   const group = await cupService.createGroup(cupId, { name, order }, token);
   return { cupId: String(cupId), group };
 });
+
+// Thunk для добавления команды в группу
+export const addTeamToCupGroup = createAsyncThunk<
+  { cupId: string; groupId: number; team: CupGroupTeam },
+  {
+    cupId: number;
+    groupId: number;
+    teamId: number;
+    seed?: number | null;
+    order?: number | null;
+    token: string;
+  }
+>(
+  "cupGroups/addTeamToCupGroup",
+  async ({ cupId, groupId, teamId, seed, order, token }) => {
+    const team = await cupService.addTeamToGroup(
+      cupId,
+      groupId,
+      { teamId, seed, order },
+      token,
+    );
+    return { cupId: String(cupId), groupId, team };
+  },
+);
 
 const cupGroupSlice = createSlice({
   name: "cupGroups",
@@ -103,6 +127,22 @@ const cupGroupSlice = createSlice({
         } else {
           // Если групп для этого кубка еще нет, создаем новый массив
           state.itemsByCupId[cupId] = [group];
+        }
+      })
+      .addCase(addTeamToCupGroup.fulfilled, (state, action) => {
+        const { cupId, groupId, team } = action.payload;
+        const groups = state.itemsByCupId[cupId];
+        if (groups) {
+          // Находим группу по ID
+          const group = groups.find((g) => g.id === groupId);
+          if (group) {
+            // Инициализируем массив teams если его нет
+            if (!group.teams) {
+              group.teams = [];
+            }
+            // Добавляем команду в группу
+            group.teams.push(team);
+          }
         }
       });
   },
