@@ -93,3 +93,9 @@ export const selectAllCups = (state: RootState) =>
   Object.values(state.cups.itemsByCityId)
     .flat()
     .filter((cup) => cup && cup.id && cup.name);
+
+// Селектор для получения кубка по ID
+export const selectCupById = (cupId: string) => (state: RootState) =>
+  Object.values(state.cups.itemsByCityId)
+    .flat()
+    .find((cup) => cup && cup.id === Number(cupId)) || null;

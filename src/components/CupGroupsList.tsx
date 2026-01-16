@@ -8,10 +8,12 @@ import {
   AccordionSummary,
   AccordionDetails,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 import type { CupGroup } from "../types/cup";
 import { ShirtIcon } from "./icons";
 
@@ -20,6 +22,7 @@ interface CupGroupsListProps {
   onEdit?: (groupId: number, groupName: string) => void;
   onDelete?: (groupId: number, groupName: string) => void;
   onExpandGroup?: (groupId: number) => void;
+  onAddTeam?: (groupId: number, groupName: string) => void;
 }
 
 const CupGroupsList: FC<CupGroupsListProps> = ({
@@ -27,6 +30,7 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
   onEdit,
   onDelete,
   onExpandGroup,
+  onAddTeam,
 }) => {
   const [expandedGroupIds, setExpandedGroupIds] = useState<number[]>([]);
   const [loadingGroupIds, setLoadingGroupIds] = useState<number[]>([]);
@@ -177,46 +181,71 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
                 >
                   <CircularProgress size={24} />
                 </Box>
-              ) : group.teams && group.teams.length > 0 ? (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                  {group.teams.map((team) => (
-                    <Box
-                      key={team.teamId}
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1.5,
-                        p: 1.5,
-                        borderRadius: "8px",
-                        backgroundColor: "surface",
-                      }}
-                    >
-                      <ShirtIcon color1={team.primaryColor} />
-                      <Box>
-                        <Typography
-                          variant="body1"
-                          sx={{ fontSize: "12px", fontWeight: 600 }}
-                        >
-                          {team.teamName}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ fontSize: "12px", fontWeight: 500 }}
-                        >
-                          {team.cityName}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  ))}
-                </Box>
               ) : (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ fontSize: "12px", textAlign: "center", py: 2 }}
-                >
-                  Команды не найдены
-                </Typography>
+                <>
+                  {group.teams && group.teams.length > 0 ? (
+                    <Box
+                      sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                    >
+                      {group.teams.map((team) => (
+                        <Box
+                          key={team.teamId}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1.5,
+                            p: 1.5,
+                            borderRadius: "8px",
+                            backgroundColor: "surface",
+                          }}
+                        >
+                          <ShirtIcon color1={team.primaryColor} />
+                          <Box>
+                            <Typography
+                              variant="body1"
+                              sx={{ fontSize: "12px", fontWeight: 600 }}
+                            >
+                              {team.teamName}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontSize: "12px", fontWeight: 500 }}
+                            >
+                              {team.cityName}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      ))}
+                    </Box>
+                  ) : (
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: "12px", textAlign: "center", py: 2 }}
+                    >
+                      Команды не найдены
+                    </Typography>
+                  )}
+
+                  {onAddTeam && (
+                    <Box sx={{ mt: 2 }}>
+                      <Button
+                        variant="outlined"
+                        startIcon={<AddIcon />}
+                        onClick={() => onAddTeam(group.id, group.name)}
+                        fullWidth
+                        sx={{
+                          borderRadius: "8px",
+                          textTransform: "none",
+                          fontSize: "12px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Добавить команду
+                      </Button>
+                    </Box>
+                  )}
+                </>
               )}
             </Box>
           </AccordionDetails>

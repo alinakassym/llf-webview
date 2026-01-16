@@ -17,14 +17,18 @@ import CupGroupsList from "../components/CupGroupsList";
 import CreateCupGroupModal, {
   type CreateCupGroupData,
 } from "../components/CreateCupGroupModal";
+import AddTeamToCupGroupModal from "../components/AddTeamToCupGroupModal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   fetchCupGroups,
   fetchCupGroupById,
   createCupGroup,
+  addTeamToCupGroup,
   selectCupGroupsByCupId,
   selectCupGroupsLoadingForCup,
 } from "../store/slices/cupGroupSlice";
+import { selectCupById } from "../store/slices/cupSlice";
+import { fetchTeams, selectTeamsByCity } from "../store/slices/teamSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 
@@ -58,11 +62,21 @@ const CupManagementPage: FC = () => {
     sportType ? parseInt(sportType) : 2,
   );
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
+  const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false);
+  const [selectedGroupForTeam, setSelectedGroupForTeam] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
     () => webViewToken || token,
     [webViewToken, token],
+  );
+
+  // Получаем кубок из store
+  const cup = useAppSelector((state) =>
+    cupId ? selectCupById(cupId)(state) : null,
   );
 
   // Получаем группы кубка из store
@@ -71,6 +85,11 @@ const CupManagementPage: FC = () => {
   );
   const groupsLoading = useAppSelector((state) =>
     cupId ? selectCupGroupsLoadingForCup(cupId)(state) : false,
+  );
+
+  // Получаем команды для города кубка
+  const teams = useAppSelector((state) =>
+    cup ? selectTeamsByCity(state, String(cup.cityId)) : [],
   );
 
   const handleSportChange = (sportId: number) => {
@@ -83,6 +102,19 @@ const CupManagementPage: FC = () => {
       dispatch(fetchCupGroups({ cupId: parseInt(cupId), token: activeToken }));
     }
   }, [cupId, activeToken, authLoading, webViewLoading, dispatch]);
+
+  // Загружаем команды когда известен город и спорт
+  useEffect(() => {
+    if (cup && activeToken && !authLoading && !webViewLoading) {
+      dispatch(
+        fetchTeams({
+          cityId: cup.cityId,
+          token: activeToken,
+          sportType: cup.sportType,
+        }),
+      );
+    }
+  }, [cup, activeToken, authLoading, webViewLoading, dispatch]);
 
   // Логируем открытие кубка для отладки
   useEffect(() => {
@@ -134,6 +166,36 @@ const CupManagementPage: FC = () => {
       createCupGroup({
         cupId: parseInt(cupId),
         name: data.name,
+        order: data.order,
+        token: activeToken,
+      }),
+    ).unwrap();
+  };
+
+  const handleAddTeam = (groupId: number, groupName: string) => {
+    setSelectedGroupForTeam({ id: groupId, name: groupName });
+    setIsAddTeamModalOpen(true);
+  };
+
+  const handleCloseAddTeamModal = () => {
+    setIsAddTeamModalOpen(false);
+    setSelectedGroupForTeam(null);
+  };
+
+  const handleAddTeamSubmit = async (data: {
+    teamId: number;
+    seed: number | null;
+    order: number | null;
+  }) => {
+    if (!activeToken || !cupId || !selectedGroupForTeam) {
+      throw new Error("No auth token, cupId or group selected");
+    }
+    await dispatch(
+      addTeamToCupGroup({
+        cupId: parseInt(cupId),
+        groupId: selectedGroupForTeam.id,
+        teamId: data.teamId,
+        seed: data.seed,
         order: data.order,
         token: activeToken,
       }),
@@ -221,6 +283,7 @@ const CupManagementPage: FC = () => {
                 onEdit={handleEditGroup}
                 onDelete={handleDeleteGroup}
                 onExpandGroup={handleExpandGroup}
+                onAddTeam={handleAddTeam}
               />
             )}
           </Box>
@@ -262,6 +325,14 @@ const CupManagementPage: FC = () => {
         onClose={handleCloseGroupModal}
         onSubmit={handleCreateCupGroup}
         existingGroupsCount={groups.length}
+      />
+
+      <AddTeamToCupGroupModal
+        open={isAddTeamModalOpen}
+        onClose={handleCloseAddTeamModal}
+        teams={teams}
+        onSubmit={handleAddTeamSubmit}
+        groupName={selectedGroupForTeam?.name || ""}
       />
     </Box>
   );
