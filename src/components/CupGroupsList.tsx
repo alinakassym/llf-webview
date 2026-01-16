@@ -27,8 +27,8 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
   onDelete,
   onExpandGroup,
 }) => {
-  const [expandedGroupId, setExpandedGroupId] = useState<number | null>(null);
-  const [loadingGroupId, setLoadingGroupId] = useState<number | null>(null);
+  const [expandedGroupIds, setExpandedGroupIds] = useState<number[]>([]);
+  const [loadingGroupIds, setLoadingGroupIds] = useState<number[]>([]);
 
   if (groups.length === 0) {
     return (
@@ -46,15 +46,25 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
   const handleAccordionChange =
     (groupId: number) =>
     (_event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpandedGroupId(isExpanded ? groupId : null);
+      setExpandedGroupIds((prev) =>
+        isExpanded ? [...prev, groupId] : prev.filter((id) => id !== groupId),
+      );
+
       if (isExpanded && onExpandGroup) {
         const group = groups.find((g) => g.id === groupId);
+
         // Загружаем команды только если их еще нет
         if (group && !group.teams) {
-          setLoadingGroupId(groupId);
+          setLoadingGroupIds((prev) =>
+            prev.includes(groupId) ? prev : [...prev, groupId],
+          );
+
           onExpandGroup(groupId);
-          // Сбрасываем loading через небольшую задержку (будет обновлено при получении данных)
-          setTimeout(() => setLoadingGroupId(null), 2000);
+
+          // Сбрасываем loading через небольшую задержку
+          setTimeout(() => {
+            setLoadingGroupIds((prev) => prev.filter((id) => id !== groupId));
+          }, 2000);
         }
       }
     };
@@ -64,7 +74,7 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
       {groups.map((group) => (
         <Accordion
           key={group.id}
-          expanded={expandedGroupId === group.id}
+          expanded={expandedGroupIds.includes(group.id)}
           onChange={handleAccordionChange(group.id)}
           sx={{
             borderRadius: "12px !important",
@@ -156,7 +166,7 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
 
           <AccordionDetails sx={{ pt: 0, pb: 2 }}>
             <Box sx={{ px: 0 }}>
-              {loadingGroupId === group.id ? (
+              {loadingGroupIds.includes(group.id) ? (
                 <Box
                   sx={{
                     display: "flex",
