@@ -35,6 +35,15 @@ export const fetchCupGroupById = createAsyncThunk<
   return { cupId: String(cupId), group };
 });
 
+// Thunk для создания новой группы
+export const createCupGroup = createAsyncThunk<
+  { cupId: string; group: CupGroup },
+  { cupId: number; name: string; order: number; token: string }
+>("cupGroups/createCupGroup", async ({ cupId, name, order, token }) => {
+  const group = await cupService.createGroup(cupId, { name, order }, token);
+  return { cupId: String(cupId), group };
+});
+
 const cupGroupSlice = createSlice({
   name: "cupGroups",
   initialState,
@@ -83,6 +92,17 @@ const cupGroupSlice = createSlice({
           if (index !== -1) {
             groups[index] = group;
           }
+        }
+      })
+      .addCase(createCupGroup.fulfilled, (state, action) => {
+        const { cupId, group } = action.payload;
+        const groups = state.itemsByCupId[cupId];
+        if (groups) {
+          // Добавляем новую группу в массив
+          groups.push(group);
+        } else {
+          // Если групп для этого кубка еще нет, создаем новый массив
+          state.itemsByCupId[cupId] = [group];
         }
       });
   },

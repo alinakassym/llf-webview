@@ -52,4 +52,17 @@ export const cupService = {
     );
     return response;
   },
+
+  createGroup: async (
+    cupId: number,
+    data: { name: string; order: number },
+    token: string,
+  ): Promise<CupGroup> => {
+    const response = await apiRequest<CupGroup>(`/cups/${cupId}/groups`, {
+      method: "POST",
+      token,
+      body: JSON.stringify(data),
+    });
+    return response;
+  },
 };

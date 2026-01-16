@@ -2,7 +2,15 @@
 
 import { type FC, useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Tabs, Tab, Container, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Fab,
+  Tabs,
+  Tab,
+  Container,
+  CircularProgress,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import { SportSelectRow, type Sport } from "../components/SportSelectRow";
 import { SportType, SportTypeName } from "../types/sportType";
 import CupGroupsList from "../components/CupGroupsList";
@@ -100,6 +108,10 @@ const CupManagementPage: FC = () => {
         }),
       );
     }
+  };
+
+  const handleAdd = () => {
+    console.log("Add new cup");
   };
 
   return (
@@ -203,6 +215,18 @@ const CupManagementPage: FC = () => {
           </Box>
         )}
       </Container>
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={handleAdd}
+        sx={{
+          position: "fixed",
+          bottom: 24,
+          right: 24,
+        }}
+      >
+        <AddIcon />
+      </Fab>
     </Box>
   );
 };
