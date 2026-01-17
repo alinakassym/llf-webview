@@ -1,6 +1,6 @@
 // llf-webview/src/pages/cup-management.tsx
 
-import { type FC, useState, useEffect, useMemo } from "react";
+import { type FC, useState, useEffect, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import {
   Box,
@@ -98,9 +98,9 @@ const CupManagementPage: FC = () => {
     cup ? selectTeamsByCity(state, String(cup.cityId)) : [],
   );
 
-  const handleSportChange = (sportId: number) => {
+  const handleSportChange = useCallback((sportId: number) => {
     setSelectedSportType(sportId);
-  };
+  }, []);
 
   // Загружаем группы кубка при монтировании
   useEffect(() => {

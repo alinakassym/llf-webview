@@ -53,14 +53,23 @@ export const SportSelectRow: FC<SportSelectRowProps> = ({
     if (typeof window !== "undefined") {
       localStorage.setItem(SPORT_TYPE_STORAGE_KEY, selectedSportId);
     }
-    // Вызываем callback если он передан
+  }, [selectedSportId]);
+
+  // Вызываем callback при монтировании компонента с начальным значением
+  useEffect(() => {
     if (onSportChange) {
       onSportChange(Number(selectedSportId));
     }
-  }, [selectedSportId, onSportChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSportChange = (event: SelectChangeEvent) => {
-    setSelectedSportId(event.target.value);
+    const newSportId = event.target.value;
+    setSelectedSportId(newSportId);
+    // Вызываем callback сразу при изменении
+    if (onSportChange) {
+      onSportChange(Number(newSportId));
+    }
   };
 
   return (
