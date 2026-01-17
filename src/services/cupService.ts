@@ -114,4 +114,15 @@ export const cupService = {
       },
     );
   },
+
+  deleteGroup: async (
+    cupId: number,
+    groupId: number,
+    token: string,
+  ): Promise<void> => {
+    await apiRequest<void>(`/cups/${cupId}/groups/${groupId}`, {
+      method: "DELETE",
+      token,
+    });
+  },
 };

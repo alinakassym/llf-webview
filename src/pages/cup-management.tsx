@@ -27,6 +27,7 @@ import {
   updateCupGroup,
   addTeamToCupGroup,
   deleteTeamFromCupGroup,
+  deleteCupGroup,
   selectCupGroupsByCupId,
   selectCupGroupsLoadingForCup,
 } from "../store/slices/cupGroupSlice";
@@ -82,6 +83,12 @@ const CupManagementPage: FC = () => {
     teamName: string;
   } | null>(null);
   const [isDeletingTeam, setIsDeletingTeam] = useState(false);
+  const [deleteGroupDialogOpen, setDeleteGroupDialogOpen] = useState(false);
+  const [groupToDelete, setGroupToDelete] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+  const [isDeletingGroup, setIsDeletingGroup] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -158,7 +165,8 @@ const CupManagementPage: FC = () => {
   };
 
   const handleDeleteGroup = (groupId: number, groupName: string) => {
-    console.log("Delete group:", groupId, groupName);
+    setGroupToDelete({ id: groupId, name: groupName });
+    setDeleteGroupDialogOpen(true);
   };
 
   const handleExpandGroup = (groupId: number) => {
@@ -244,15 +252,6 @@ const CupManagementPage: FC = () => {
     ).unwrap();
   };
 
-  const handleEditTeam = (
-    groupId: number,
-    teamId: number,
-    teamName: string,
-  ) => {
-    console.log("Edit team:", { groupId, teamId, teamName });
-    // TODO: Implement team editing functionality
-  };
-
   const handleDeleteTeam = (
     groupId: number,
     teamId: number,
@@ -289,6 +288,35 @@ const CupManagementPage: FC = () => {
       console.error("Error deleting team:", error);
     } finally {
       setIsDeletingTeam(false);
+    }
+  };
+
+  const handleCloseDeleteGroupDialog = () => {
+    if (!isDeletingGroup) {
+      setDeleteGroupDialogOpen(false);
+      setGroupToDelete(null);
+    }
+  };
+
+  const handleConfirmDeleteGroup = async () => {
+    if (!groupToDelete || !activeToken || !cupId) {
+      return;
+    }
+
+    setIsDeletingGroup(true);
+    try {
+      await dispatch(
+        deleteCupGroup({
+          cupId: parseInt(cupId),
+          groupId: groupToDelete.id,
+          token: activeToken,
+        }),
+      ).unwrap();
+      handleCloseDeleteGroupDialog();
+    } catch (error) {
+      console.error("Error deleting group:", error);
+    } finally {
+      setIsDeletingGroup(false);
     }
   };
 
@@ -374,7 +402,6 @@ const CupManagementPage: FC = () => {
                 onDelete={handleDeleteGroup}
                 onExpandGroup={handleExpandGroup}
                 onAddTeam={handleAddTeam}
-                onEditTeam={handleEditTeam}
                 onDeleteTeam={handleDeleteTeam}
               />
             )}
@@ -435,6 +462,15 @@ const CupManagementPage: FC = () => {
         title="Удалить команду?"
         message={`Вы уверены, что хотите удалить команду "${teamToDelete?.teamName}" из группы?`}
         loading={isDeletingTeam}
+      />
+
+      <DeleteConfirmDialog
+        open={deleteGroupDialogOpen}
+        onClose={handleCloseDeleteGroupDialog}
+        onConfirm={handleConfirmDeleteGroup}
+        title="Удалить группу?"
+        message={`Вы уверены, что хотите удалить группу "${groupToDelete?.name}"?`}
+        loading={isDeletingGroup}
       />
     </Box>
   );

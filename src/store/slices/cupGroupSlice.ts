@@ -121,6 +121,28 @@ export const deleteTeamFromCupGroup = createAsyncThunk<
   },
 );
 
+// Thunk для удаления группы
+export const deleteCupGroup = createAsyncThunk<
+  { cupId: string; groupId: number },
+  {
+    cupId: number;
+    groupId: number;
+    token: string;
+  }
+>(
+  "cupGroups/deleteCupGroup",
+  async ({ cupId, groupId, token }) => {
+    // API возвращает 204 No Content, используем оптимистичное удаление
+    await cupService.deleteGroup(cupId, groupId, token);
+
+    // Возвращаем идентификаторы для удаления из state
+    return {
+      cupId: String(cupId),
+      groupId,
+    };
+  },
+);
+
 const cupGroupSlice = createSlice({
   name: "cupGroups",
   initialState,
@@ -220,6 +242,14 @@ const cupGroupSlice = createSlice({
             // Удаляем команду из группы, создавая новый массив
             group.teams = group.teams.filter((t) => t.teamId !== teamId);
           }
+        }
+      })
+      .addCase(deleteCupGroup.fulfilled, (state, action) => {
+        const { cupId, groupId } = action.payload;
+        const groups = state.itemsByCupId[cupId];
+        if (groups) {
+          // Удаляем группу из массива, создавая новый массив для правильного ре-рендера
+          state.itemsByCupId[cupId] = groups.filter((g) => g.id !== groupId);
         }
       });
   },

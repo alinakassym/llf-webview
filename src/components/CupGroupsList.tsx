@@ -23,7 +23,6 @@ interface CupGroupsListProps {
   onDelete?: (groupId: number, groupName: string) => void;
   onExpandGroup?: (groupId: number) => void;
   onAddTeam?: (groupId: number, groupName: string) => void;
-  onEditTeam?: (groupId: number, teamId: number, teamName: string) => void;
   onDeleteTeam?: (groupId: number, teamId: number, teamName: string) => void;
 }
 
@@ -233,28 +232,11 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
                           >
                             <Box
                               onClick={() =>
-                                onEditTeam?.(group.id, team.teamId, team.teamName)
-                              }
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                width: 32,
-                                height: 32,
-                                borderRadius: "8px",
-                                backgroundColor: "customBackground",
-                                color: "primary.main",
-                                "&:hover": {
-                                  opacity: 0.8,
-                                },
-                              }}
-                            >
-                              <EditIcon sx={{ fontSize: 16 }} />
-                            </Box>
-
-                            <Box
-                              onClick={() =>
-                                onDeleteTeam?.(group.id, team.teamId, team.teamName)
+                                onDeleteTeam?.(
+                                  group.id,
+                                  team.teamId,
+                                  team.teamName,
+                                )
                               }
                               sx={{
                                 display: "flex",
