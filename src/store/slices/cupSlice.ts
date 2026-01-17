@@ -2,7 +2,7 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { Cup } from "../../types/cup";
-import { cupService } from "../../services/cupService";
+import { cupService, type CreateCupPayload } from "../../services/cupService";
 
 interface CupState {
   itemsByCityId: Record<string, Cup[]>;
@@ -27,6 +27,15 @@ export const fetchCups = createAsyncThunk<
   const cups = await cupService.getCups(token, cityId, sportType);
   const cacheKey = cityId ? String(cityId) : "__ALL__";
   return { cacheKey, cups };
+});
+
+// Thunk для создания кубка
+export const createCup = createAsyncThunk<
+  Cup,
+  { data: CreateCupPayload; token: string }
+>("cups/createCup", async ({ data, token }) => {
+  const cup = await cupService.createCup(data, token);
+  return cup;
 });
 
 const cupSlice = createSlice({
@@ -66,6 +75,28 @@ const cupSlice = createSlice({
         state.cupsLoading = false;
         state.errorByCityId[cacheKey] =
           action.error.message || "Failed to load cups";
+      })
+      .addCase(createCup.fulfilled, (state, action) => {
+        const cup = action.payload;
+        const cityId = String(cup.cityId);
+
+        // Добавляем кубок в список кубков для этого города
+        if (state.itemsByCityId[cityId]) {
+          state.itemsByCityId[cityId] = [
+            ...state.itemsByCityId[cityId],
+            cup,
+          ];
+        } else {
+          state.itemsByCityId[cityId] = [cup];
+        }
+
+        // Также добавляем в кеш "__ALL__", если он существует
+        if (state.itemsByCityId["__ALL__"]) {
+          state.itemsByCityId["__ALL__"] = [
+            ...state.itemsByCityId["__ALL__"],
+            cup,
+          ];
+        }
       });
   },
 });

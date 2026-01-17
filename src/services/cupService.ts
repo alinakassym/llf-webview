@@ -9,6 +9,15 @@ interface CupGroupsResponse {
   records: CupGroup[];
 }
 
+export interface CreateCupPayload {
+  name: string;
+  cityId: number;
+  leagueId: number | null;
+  sportType: number;
+  startDate: string | null;
+  endDate: string | null;
+}
+
 export const cupService = {
   getCups: async (
     token: string,
@@ -25,6 +34,15 @@ export const cupService = {
       token,
     });
     return response.records;
+  },
+
+  createCup: async (data: CreateCupPayload, token: string): Promise<Cup> => {
+    const response = await apiRequest<Cup>("/cups", {
+      method: "POST",
+      token,
+      body: JSON.stringify(data),
+    });
+    return response;
   },
 
   getGroups: async (cupId: number, token: string): Promise<CupGroup[]> => {
