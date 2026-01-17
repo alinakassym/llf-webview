@@ -190,6 +190,14 @@ const CupManagementPage: FC = () => {
           token: activeToken,
         }),
       ).unwrap();
+
+      // Перезагружаем список групп после обновления
+      await dispatch(
+        fetchCupGroups({
+          cupId: parseInt(cupId),
+          token: activeToken,
+        }),
+      );
     } else {
       // Режим создания
       await dispatch(

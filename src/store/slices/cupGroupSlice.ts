@@ -156,12 +156,12 @@ const cupGroupSlice = createSlice({
         const { cupId, group } = action.payload;
         const groups = state.itemsByCupId[cupId];
         if (groups) {
-          // Находим и обновляем группу по ID
-          const index = groups.findIndex((g) => g.id === group.id);
-          if (index !== -1) {
-            // Сохраняем команды из старой группы, если они есть
-            groups[index] = { ...group, teams: groups[index].teams };
-          }
+          // Обновляем массив, создавая новую ссылку для правильного ре-рендера
+          state.itemsByCupId[cupId] = groups.map((g) =>
+            g.id === group.id
+              ? { ...group, teams: g.teams || [] }
+              : g
+          );
         }
       })
       .addCase(addTeamToCupGroup.fulfilled, (state, action) => {
@@ -190,7 +190,10 @@ export default cupGroupSlice.reducer;
 export type RootState = { cupGroups: CupGroupState };
 export const selectCupGroupsByCupId =
   (cupId: string) => (state: RootState) => {
-    const groups = state.cupGroups.itemsByCupId[cupId] || EMPTY_GROUPS;
+    const groups = state.cupGroups.itemsByCupId[cupId];
+    if (!groups || groups.length === 0) {
+      return EMPTY_GROUPS;
+    }
     // Фильтруем только если есть невалидные элементы
     const hasInvalidGroups = groups.some(
       (group) => !group || !group.id || !group.name,
