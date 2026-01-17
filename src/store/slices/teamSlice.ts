@@ -26,15 +26,34 @@ const EMPTY_TEAMS: Team[] = [];
 // Thunk для загрузки команд
 export const fetchTeams = createAsyncThunk<
   { cacheKey: string; teams: Team[] },
-  { cityId?: number; token: string; leagueId?: number; sportType?: number }
->("teams/fetchTeams", async ({ cityId, token, leagueId, sportType }) => {
-  const teams = await teamService.getTeams(token, cityId, leagueId, sportType);
+  {
+    cityId?: number;
+    token: string;
+    leagueId?: number;
+    sportType?: number;
+    excludeCup?: number;
+  }
+>(
+  "teams/fetchTeams",
+  async ({ cityId, token, leagueId, sportType, excludeCup }) => {
+    const teams = await teamService.getTeams(
+      token,
+      cityId,
+      leagueId,
+      sportType,
+      excludeCup,
+    );
 
-  // Создаём ключ кеша на основе параметров запроса
-  const cacheKey = cityId ? String(cityId) : "__ALL__";
+    // Создаём ключ кеша на основе параметров запроса
+    // Если используется excludeCup, добавляем его в ключ для отдельного кеша
+    let cacheKey = cityId ? String(cityId) : "__ALL__";
+    if (excludeCup !== undefined) {
+      cacheKey = `${cacheKey}_excludeCup_${excludeCup}`;
+    }
 
-  return { cacheKey, teams };
-});
+    return { cacheKey, teams };
+  },
+);
 
 // Thunk для создания команды
 export const createTeam = createAsyncThunk<
@@ -74,9 +93,12 @@ const teamSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchTeams.pending, (state, action) => {
-        const cacheKey = action.meta.arg.cityId
+        let cacheKey = action.meta.arg.cityId
           ? String(action.meta.arg.cityId)
           : "__ALL__";
+        if (action.meta.arg.excludeCup !== undefined) {
+          cacheKey = `${cacheKey}_excludeCup_${action.meta.arg.excludeCup}`;
+        }
         if (!state.loadingCities.includes(cacheKey)) {
           state.loadingCities.push(cacheKey);
         }
@@ -92,9 +114,12 @@ const teamSlice = createSlice({
         );
       })
       .addCase(fetchTeams.rejected, (state, action) => {
-        const cacheKey = action.meta.arg.cityId
+        let cacheKey = action.meta.arg.cityId
           ? String(action.meta.arg.cityId)
           : "__ALL__";
+        if (action.meta.arg.excludeCup !== undefined) {
+          cacheKey = `${cacheKey}_excludeCup_${action.meta.arg.excludeCup}`;
+        }
         state.loadingCities = state.loadingCities.filter(
           (id) => id !== cacheKey,
         );
@@ -137,8 +162,16 @@ const teamSlice = createSlice({
 });
 
 // Селектор для получения команд по городу
-export const selectTeamsByCity = (state: RootState, cityId: string) => {
-  return state.teams.itemsByCityId[cityId] || EMPTY_TEAMS;
+export const selectTeamsByCity = (
+  state: RootState,
+  cityId: string,
+  excludeCup?: number,
+) => {
+  let cacheKey = cityId;
+  if (excludeCup !== undefined) {
+    cacheKey = `${cityId}_excludeCup_${excludeCup}`;
+  }
+  return state.teams.itemsByCityId[cacheKey] || EMPTY_TEAMS;
 };
 
 // Селектор для получения всех команд

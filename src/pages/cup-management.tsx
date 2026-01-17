@@ -111,9 +111,11 @@ const CupManagementPage: FC = () => {
   const groups = useAppSelector(selectGroups);
   const groupsLoading = useAppSelector(selectLoading);
 
-  // Получаем команды для города из URL параметра
+  // Получаем команды для города из URL параметра, исключая команды уже назначенные в этот кубок
   const teams = useAppSelector((state) =>
-    cityId ? selectTeamsByCity(state, cityId) : [],
+    cityId && cupId
+      ? selectTeamsByCity(state, cityId, parseInt(cupId))
+      : [],
   );
 
   const handleSportChange = useCallback((sportId: number) => {
@@ -128,17 +130,19 @@ const CupManagementPage: FC = () => {
   }, [cupId, activeToken, authLoading, webViewLoading, dispatch]);
 
   // Загружаем команды когда известен город и спорт из URL
+  // Используем excludeCup чтобы получить только команды, не назначенные в этот кубок
   useEffect(() => {
-    if (cityId && activeToken && !authLoading && !webViewLoading) {
+    if (cityId && cupId && activeToken && !authLoading && !webViewLoading) {
       dispatch(
         fetchTeams({
           cityId: parseInt(cityId),
           token: activeToken,
           sportType: selectedSportType,
+          excludeCup: parseInt(cupId),
         }),
       );
     }
-  }, [cityId, selectedSportType, activeToken, authLoading, webViewLoading, dispatch]);
+  }, [cityId, cupId, selectedSportType, activeToken, authLoading, webViewLoading, dispatch]);
 
   // Логируем открытие кубка для отладки
   useEffect(() => {

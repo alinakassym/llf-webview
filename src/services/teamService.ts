@@ -25,11 +25,13 @@ export const teamService = {
     cityId?: number,
     leagueId?: number,
     sportType?: number,
+    excludeCup?: number,
   ): Promise<Team[]> => {
     const params = new URLSearchParams();
     if (cityId !== undefined) params.append("cityId", String(cityId));
     if (leagueId !== undefined) params.append("leagueId", String(leagueId));
     if (sportType) params.append("sportType", String(sportType));
+    if (excludeCup !== undefined) params.append("excludeCup", String(excludeCup));
 
     const queryString = params.toString();
     const url = queryString ? `/teams?${queryString}` : "/teams";
