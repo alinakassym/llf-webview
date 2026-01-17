@@ -85,13 +85,20 @@ const CupManagementPage: FC = () => {
     cupId ? selectCupById(cupId)(state) : null,
   );
 
+  // Мемоизируем селектор групп для стабильной ссылки
+  const selectGroups = useMemo(
+    () => (cupId ? selectCupGroupsByCupId(cupId) : () => []),
+    [cupId],
+  );
+
+  const selectLoading = useMemo(
+    () => (cupId ? selectCupGroupsLoadingForCup(cupId) : () => false),
+    [cupId],
+  );
+
   // Получаем группы кубка из store
-  const groups = useAppSelector((state) =>
-    cupId ? selectCupGroupsByCupId(cupId)(state) : [],
-  );
-  const groupsLoading = useAppSelector((state) =>
-    cupId ? selectCupGroupsLoadingForCup(cupId)(state) : false,
-  );
+  const groups = useAppSelector(selectGroups);
+  const groupsLoading = useAppSelector(selectLoading);
 
   // Получаем команды для города кубка
   const teams = useAppSelector((state) =>
@@ -190,14 +197,6 @@ const CupManagementPage: FC = () => {
           token: activeToken,
         }),
       ).unwrap();
-
-      // Перезагружаем список групп после обновления
-      await dispatch(
-        fetchCupGroups({
-          cupId: parseInt(cupId),
-          token: activeToken,
-        }),
-      );
     } else {
       // Режим создания
       await dispatch(

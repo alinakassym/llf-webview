@@ -57,13 +57,19 @@ export const updateCupGroup = createAsyncThunk<
 >(
   "cupGroups/updateCupGroup",
   async ({ cupId, groupId, name, order, token }) => {
-    const group = await cupService.updateGroup(
-      cupId,
-      groupId,
-      { name, order },
-      token,
-    );
-    return { cupId: String(cupId), group };
+    // API возвращает 204 No Content, поэтому используем оптимистичное обновление
+    await cupService.updateGroup(cupId, groupId, { name, order }, token);
+
+    // Возвращаем данные, которые мы отправили (оптимистичное обновление)
+    return {
+      cupId: String(cupId),
+      group: {
+        id: groupId,
+        name,
+        order,
+        // teams будут сохранены из старого state в reducer
+      } as CupGroup,
+    };
   },
 );
 
