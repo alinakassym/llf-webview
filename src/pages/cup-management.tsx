@@ -30,7 +30,6 @@ import {
   selectCupGroupsByCupId,
   selectCupGroupsLoadingForCup,
 } from "../store/slices/cupGroupSlice";
-import { selectCupById } from "../store/slices/cupSlice";
 import { fetchTeams, selectTeamsByCity } from "../store/slices/teamSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
@@ -51,8 +50,9 @@ const SPORTS: Sport[] = [
 ];
 
 const CupManagementPage: FC = () => {
-  const { cupId, sportType } = useParams<{
+  const { cupId, cityId, sportType } = useParams<{
     cupId: string;
+    cityId: string;
     sportType: string;
   }>();
 
@@ -89,11 +89,6 @@ const CupManagementPage: FC = () => {
     [webViewToken, token],
   );
 
-  // Получаем кубок из store
-  const cup = useAppSelector((state) =>
-    cupId ? selectCupById(cupId)(state) : null,
-  );
-
   // Мемоизируем селектор групп для стабильной ссылки
   const selectGroups = useMemo(
     () => (cupId ? selectCupGroupsByCupId(cupId) : () => []),
@@ -109,9 +104,9 @@ const CupManagementPage: FC = () => {
   const groups = useAppSelector(selectGroups);
   const groupsLoading = useAppSelector(selectLoading);
 
-  // Получаем команды для города кубка
+  // Получаем команды для города из URL параметра
   const teams = useAppSelector((state) =>
-    cup ? selectTeamsByCity(state, String(cup.cityId)) : [],
+    cityId ? selectTeamsByCity(state, cityId) : [],
   );
 
   const handleSportChange = useCallback((sportId: number) => {
@@ -125,18 +120,18 @@ const CupManagementPage: FC = () => {
     }
   }, [cupId, activeToken, authLoading, webViewLoading, dispatch]);
 
-  // Загружаем команды когда известен город и спорт
+  // Загружаем команды когда известен город и спорт из URL
   useEffect(() => {
-    if (cup && activeToken && !authLoading && !webViewLoading) {
+    if (cityId && activeToken && !authLoading && !webViewLoading) {
       dispatch(
         fetchTeams({
-          cityId: cup.cityId,
+          cityId: parseInt(cityId),
           token: activeToken,
-          sportType: cup.sportType,
+          sportType: selectedSportType,
         }),
       );
     }
-  }, [cup, activeToken, authLoading, webViewLoading, dispatch]);
+  }, [cityId, selectedSportType, activeToken, authLoading, webViewLoading, dispatch]);
 
   // Логируем открытие кубка для отладки
   useEffect(() => {

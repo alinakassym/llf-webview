@@ -68,7 +68,7 @@ const App: FC = () => {
         <Route path="/contacts" element={<ContactsPage />} />
         <Route path="/cups-management" element={<CupsManagementPage />} />
         <Route
-          path="/cup-management/:cupId/:sportType"
+          path="/cup-management/:cityId/:cupId/:sportType"
           element={<CupManagementPage />}
         />
       </Routes>
