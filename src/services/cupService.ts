@@ -99,4 +99,19 @@ export const cupService = {
     );
     return response;
   },
+
+  deleteTeamFromGroup: async (
+    cupId: number,
+    groupId: number,
+    teamId: number,
+    token: string,
+  ): Promise<void> => {
+    await apiRequest<void>(
+      `/cups/${cupId}/groups/${groupId}/teams/${teamId}`,
+      {
+        method: "DELETE",
+        token,
+      },
+    );
+  },
 };
