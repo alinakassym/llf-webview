@@ -44,6 +44,29 @@ export const createCupGroup = createAsyncThunk<
   return { cupId: String(cupId), group };
 });
 
+// Thunk для обновления группы
+export const updateCupGroup = createAsyncThunk<
+  { cupId: string; group: CupGroup },
+  {
+    cupId: number;
+    groupId: number;
+    name: string;
+    order: number;
+    token: string;
+  }
+>(
+  "cupGroups/updateCupGroup",
+  async ({ cupId, groupId, name, order, token }) => {
+    const group = await cupService.updateGroup(
+      cupId,
+      groupId,
+      { name, order },
+      token,
+    );
+    return { cupId: String(cupId), group };
+  },
+);
+
 // Thunk для добавления команды в группу
 export const addTeamToCupGroup = createAsyncThunk<
   { cupId: string; groupId: number; team: CupGroupTeam },
@@ -127,6 +150,18 @@ const cupGroupSlice = createSlice({
         } else {
           // Если групп для этого кубка еще нет, создаем новый массив
           state.itemsByCupId[cupId] = [group];
+        }
+      })
+      .addCase(updateCupGroup.fulfilled, (state, action) => {
+        const { cupId, group } = action.payload;
+        const groups = state.itemsByCupId[cupId];
+        if (groups) {
+          // Находим и обновляем группу по ID
+          const index = groups.findIndex((g) => g.id === group.id);
+          if (index !== -1) {
+            // Сохраняем команды из старой группы, если они есть
+            groups[index] = { ...group, teams: groups[index].teams };
+          }
         }
       })
       .addCase(addTeamToCupGroup.fulfilled, (state, action) => {

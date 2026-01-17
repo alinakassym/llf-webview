@@ -70,14 +70,6 @@ const AddTeamToCupGroupModal: FC<AddTeamToCupGroupModalProps> = ({
     }
   };
 
-  const handleSeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Разрешаем пустую строку или цифры
-    if (value === "" || /^\d+$/.test(value)) {
-      setSeed(value);
-    }
-  };
-
   const handleOrderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Разрешаем пустую строку или цифры
@@ -193,22 +185,6 @@ const AddTeamToCupGroupModal: FC<AddTeamToCupGroupModalProps> = ({
               </MenuItem>
             ))}
           </TextField>
-
-          <TextField
-            label="Seed (Посев)"
-            value={seed}
-            onChange={handleSeedChange}
-            disabled={submitting}
-            fullWidth
-            type="text"
-            slotProps={{
-              htmlInput: {
-                inputMode: "numeric",
-                pattern: "[0-9]*",
-              },
-            }}
-            placeholder="Необязательно"
-          />
 
           <TextField
             label="Порядок"

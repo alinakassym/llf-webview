@@ -19,6 +19,7 @@ interface CreateCupGroupModalProps {
   onClose: () => void;
   onSubmit: (data: CreateCupGroupData) => Promise<void>;
   existingGroupsCount: number;
+  editingGroup?: { id: number; name: string; order: number } | null;
 }
 
 export interface CreateCupGroupData {
@@ -31,7 +32,10 @@ const CreateCupGroupModal: FC<CreateCupGroupModalProps> = ({
   onClose,
   onSubmit,
   existingGroupsCount,
+  editingGroup = null,
 }) => {
+  const isEditMode = !!editingGroup;
+
   const [formData, setFormData] = useState<CreateCupGroupData>({
     name: "",
     order: existingGroupsCount + 1,
@@ -41,15 +45,24 @@ const CreateCupGroupModal: FC<CreateCupGroupModalProps> = ({
     Partial<Record<keyof CreateCupGroupData, string>>
   >({});
 
-  // Обновляем order когда меняется количество групп или открывается модалка
+  // Инициализируем данные при открытии модалки
   useEffect(() => {
     if (open) {
-      setFormData((prev) => ({
-        ...prev,
-        order: existingGroupsCount + 1,
-      }));
+      if (editingGroup) {
+        // Режим редактирования - используем данные группы
+        setFormData({
+          name: editingGroup.name,
+          order: editingGroup.order,
+        });
+      } else {
+        // Режим создания - сбрасываем на дефолтные значения
+        setFormData({
+          name: "",
+          order: existingGroupsCount + 1,
+        });
+      }
     }
-  }, [open, existingGroupsCount]);
+  }, [open, editingGroup, existingGroupsCount]);
 
   const handleChange =
     (field: keyof CreateCupGroupData) =>
@@ -128,7 +141,7 @@ const CreateCupGroupModal: FC<CreateCupGroupModalProps> = ({
           pb: 1,
         }}
       >
-        Создать группу
+        {isEditMode ? "Редактировать группу" : "Создать группу"}
         <IconButton
           aria-label="close"
           onClick={handleClose}
@@ -180,7 +193,13 @@ const CreateCupGroupModal: FC<CreateCupGroupModalProps> = ({
           disabled={loading}
           startIcon={loading && <CircularProgress size={16} />}
         >
-          {loading ? "Создание..." : "Создать"}
+          {loading
+            ? isEditMode
+              ? "Сохранение..."
+              : "Создание..."
+            : isEditMode
+              ? "Сохранить"
+              : "Создать"}
         </Button>
       </DialogActions>
     </Dialog>

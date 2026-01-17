@@ -66,6 +66,23 @@ export const cupService = {
     return response;
   },
 
+  updateGroup: async (
+    cupId: number,
+    groupId: number,
+    data: { name: string; order: number },
+    token: string,
+  ): Promise<CupGroup> => {
+    const response = await apiRequest<CupGroup>(
+      `/cups/${cupId}/groups/${groupId}`,
+      {
+        method: "PUT",
+        token,
+        body: JSON.stringify(data),
+      },
+    );
+    return response;
+  },
+
   addTeamToGroup: async (
     cupId: number,
     groupId: number,

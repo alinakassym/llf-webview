@@ -23,6 +23,8 @@ interface CupGroupsListProps {
   onDelete?: (groupId: number, groupName: string) => void;
   onExpandGroup?: (groupId: number) => void;
   onAddTeam?: (groupId: number, groupName: string) => void;
+  onEditTeam?: (groupId: number, teamId: number, teamName: string) => void;
+  onDeleteTeam?: (groupId: number, teamId: number, teamName: string) => void;
 }
 
 const CupGroupsList: FC<CupGroupsListProps> = ({
@@ -31,6 +33,8 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
   onDelete,
   onExpandGroup,
   onAddTeam,
+  onEditTeam,
+  onDeleteTeam,
 }) => {
   const [expandedGroupIds, setExpandedGroupIds] = useState<number[]>([]);
   const [loadingGroupIds, setLoadingGroupIds] = useState<number[]>([]);
@@ -193,26 +197,81 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
                           sx={{
                             display: "flex",
                             alignItems: "center",
+                            justifyContent: "space-between",
                             gap: 1.5,
                             p: 1.5,
                             borderRadius: "8px",
                             backgroundColor: "surface",
                           }}
                         >
-                          <ShirtIcon color1={team.primaryColor} />
-                          <Box>
-                            <Typography
-                              variant="body1"
-                              sx={{ fontSize: "12px", fontWeight: 600 }}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 10,
+                            }}
+                          >
+                            <ShirtIcon color1={team.primaryColor} />
+                            <Box>
+                              <Typography
+                                variant="body1"
+                                sx={{ fontSize: "12px", fontWeight: 600 }}
+                              >
+                                {team.teamName}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                sx={{ fontSize: "12px", fontWeight: 500 }}
+                              >
+                                {team.cityName}
+                              </Typography>
+                            </Box>
+                          </div>
+                          <Box
+                            sx={{ display: "flex", gap: 1, mr: 1 }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Box
+                              onClick={() =>
+                                onEditTeam?.(group.id, team.teamId, team.teamName)
+                              }
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: 32,
+                                height: 32,
+                                borderRadius: "8px",
+                                backgroundColor: "customBackground",
+                                color: "primary.main",
+                                "&:hover": {
+                                  opacity: 0.8,
+                                },
+                              }}
                             >
-                              {team.teamName}
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              sx={{ fontSize: "12px", fontWeight: 500 }}
+                              <EditIcon sx={{ fontSize: 16 }} />
+                            </Box>
+
+                            <Box
+                              onClick={() =>
+                                onDeleteTeam?.(group.id, team.teamId, team.teamName)
+                              }
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: 32,
+                                height: 32,
+                                borderRadius: "8px",
+                                backgroundColor: "customBackground",
+                                color: "#ef4444",
+                                "&:hover": {
+                                  opacity: 0.8,
+                                },
+                              }}
                             >
-                              {team.cityName}
-                            </Typography>
+                              <DeleteIcon sx={{ fontSize: 16 }} />
+                            </Box>
                           </Box>
                         </Box>
                       ))}

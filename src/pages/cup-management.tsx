@@ -23,6 +23,7 @@ import {
   fetchCupGroups,
   fetchCupGroupById,
   createCupGroup,
+  updateCupGroup,
   addTeamToCupGroup,
   selectCupGroupsByCupId,
   selectCupGroupsLoadingForCup,
@@ -66,6 +67,11 @@ const CupManagementPage: FC = () => {
   const [selectedGroupForTeam, setSelectedGroupForTeam] = useState<{
     id: number;
     name: string;
+  } | null>(null);
+  const [editingGroup, setEditingGroup] = useState<{
+    id: number;
+    name: string;
+    order: number;
   } | null>(null);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
@@ -128,7 +134,16 @@ const CupManagementPage: FC = () => {
   };
 
   const handleEditGroup = (groupId: number, groupName: string) => {
-    console.log("Edit group:", groupId, groupName);
+    // Находим группу в массиве, чтобы получить её order
+    const group = groups.find((g) => g.id === groupId);
+    if (group) {
+      setEditingGroup({
+        id: groupId,
+        name: groupName,
+        order: group.order,
+      });
+      setIsCreateGroupModalOpen(true);
+    }
   };
 
   const handleDeleteGroup = (groupId: number, groupName: string) => {
@@ -156,20 +171,36 @@ const CupManagementPage: FC = () => {
 
   const handleCloseGroupModal = () => {
     setIsCreateGroupModalOpen(false);
+    setEditingGroup(null);
   };
 
-  const handleCreateCupGroup = async (data: CreateCupGroupData) => {
+  const handleCreateOrUpdateCupGroup = async (data: CreateCupGroupData) => {
     if (!activeToken || !cupId) {
       throw new Error("No auth token or cupId available");
     }
-    await dispatch(
-      createCupGroup({
-        cupId: parseInt(cupId),
-        name: data.name,
-        order: data.order,
-        token: activeToken,
-      }),
-    ).unwrap();
+
+    if (editingGroup) {
+      // Режим редактирования
+      await dispatch(
+        updateCupGroup({
+          cupId: parseInt(cupId),
+          groupId: editingGroup.id,
+          name: data.name,
+          order: data.order,
+          token: activeToken,
+        }),
+      ).unwrap();
+    } else {
+      // Режим создания
+      await dispatch(
+        createCupGroup({
+          cupId: parseInt(cupId),
+          name: data.name,
+          order: data.order,
+          token: activeToken,
+        }),
+      ).unwrap();
+    }
   };
 
   const handleAddTeam = (groupId: number, groupName: string) => {
@@ -200,6 +231,24 @@ const CupManagementPage: FC = () => {
         token: activeToken,
       }),
     ).unwrap();
+  };
+
+  const handleEditTeam = (
+    groupId: number,
+    teamId: number,
+    teamName: string,
+  ) => {
+    console.log("Edit team:", { groupId, teamId, teamName });
+    // TODO: Implement team editing functionality
+  };
+
+  const handleDeleteTeam = (
+    groupId: number,
+    teamId: number,
+    teamName: string,
+  ) => {
+    console.log("Delete team:", { groupId, teamId, teamName });
+    // TODO: Implement team deletion functionality
   };
 
   return (
@@ -284,6 +333,8 @@ const CupManagementPage: FC = () => {
                 onDelete={handleDeleteGroup}
                 onExpandGroup={handleExpandGroup}
                 onAddTeam={handleAddTeam}
+                onEditTeam={handleEditTeam}
+                onDeleteTeam={handleDeleteTeam}
               />
             )}
           </Box>
@@ -323,8 +374,9 @@ const CupManagementPage: FC = () => {
       <CreateCupGroupModal
         open={isCreateGroupModalOpen}
         onClose={handleCloseGroupModal}
-        onSubmit={handleCreateCupGroup}
+        onSubmit={handleCreateOrUpdateCupGroup}
         existingGroupsCount={groups.length}
+        editingGroup={editingGroup}
       />
 
       <AddTeamToCupGroupModal
