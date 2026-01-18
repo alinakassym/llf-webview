@@ -8,11 +8,14 @@ import { SportSelectRow, type Sport } from "../components/SportSelectRow";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import AllCitiesCupsList from "../components/AllCitiesCupsList";
+import CreateCupModal, {
+  type CreateCupData,
+} from "../components/CreateCupModal";
 import { SportType, SportTypeName } from "../types/sportType";
 import type { Cup } from "../types/cup";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
-import { fetchCups, selectCupsByCity } from "../store/slices/cupSlice";
+import { fetchCups, createCup, selectCupsByCity } from "../store/slices/cupSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import { ALL_CITIES } from "../constants/leagueManagement";
@@ -49,6 +52,7 @@ const CupsManagementPage: FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
   const [selectedSportType, setSelectedSportType] = useState<number>(2);
+  const [isCreateCupModalOpen, setIsCreateCupModalOpen] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -157,7 +161,7 @@ const CupsManagementPage: FC = () => {
   }, [selectedCity, filteredCups]);
 
   const handleEdit = (cupId: string, cityId: number) => {
-    navigate(`/cup-management/${cityId}/${cupId}/${selectedSportType}`);
+    navigate(`/cup-management/${cupId}/${cityId}/${selectedSportType}`);
   };
 
   const handleDelete = (cupId: string, cupName: string) => {
@@ -165,7 +169,31 @@ const CupsManagementPage: FC = () => {
   };
 
   const handleAdd = () => {
-    console.log("Add new cup");
+    setIsCreateCupModalOpen(true);
+  };
+
+  const handleCloseCupModal = () => {
+    setIsCreateCupModalOpen(false);
+  };
+
+  const handleCreateCup = async (data: CreateCupData) => {
+    if (!activeToken) {
+      throw new Error("No auth token available");
+    }
+
+    await dispatch(
+      createCup({
+        data: {
+          name: data.name,
+          cityId: data.cityId,
+          leagueId: null,
+          sportType: selectedSportType,
+          startDate: null,
+          endDate: null,
+        },
+        token: activeToken,
+      }),
+    ).unwrap();
   };
 
   const handleSportChange = useCallback((sportId: number) => {
@@ -277,6 +305,14 @@ const CupsManagementPage: FC = () => {
       >
         <AddIcon />
       </Fab>
+
+      <CreateCupModal
+        open={isCreateCupModalOpen}
+        onClose={handleCloseCupModal}
+        onSubmit={handleCreateCup}
+        cities={cities}
+        sportType={selectedSportType}
+      />
     </Box>
   );
 };
