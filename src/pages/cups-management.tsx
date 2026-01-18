@@ -172,8 +172,8 @@ const CupsManagementPage: FC = () => {
     return grouped;
   }, [selectedCity, filteredCups]);
 
-  const handleEdit = (cupId: string, cityId: number) => {
-    navigate(`/cup-management/${cupId}/${cityId}/${selectedSportType}`);
+  const handleEdit = (cityId: number, cupId: string) => {
+    navigate(`/cup-management/${cityId}/${cupId}/${selectedSportType}`);
   };
 
   const handleDelete = (cupId: string, cupName: string) => {

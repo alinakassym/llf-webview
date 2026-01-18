@@ -52,8 +52,8 @@ const SPORTS: Sport[] = [
 
 const CupManagementPage: FC = () => {
   const { cupId, cityId, sportType } = useParams<{
-    cupId: string;
     cityId: string;
+    cupId: string;
     sportType: string;
   }>();
 

@@ -6,7 +6,7 @@ import { formatDate } from "../utils/dateFormat";
 
 interface AllCitiesCupsListProps {
   cupsByCity: Record<string, Cup[]>;
-  onEdit: (cupId: string, cityId: number) => void;
+  onEdit: (cityId: number, cupId: string) => void;
   onDelete: (cupId: string, cupName: string) => void;
 }
 
@@ -47,8 +47,10 @@ const AllCitiesCupsList: FC<AllCitiesCupsListProps> = ({
               <ManagementItemCard
                 key={`${cityName}${cup.id}`}
                 title={cup.name}
-                subtitle={`${formatDate(cup.startDate)} - ${formatDate(cup.endDate)}`}
-                onEdit={() => onEdit(String(cup.id), cup.cityId)}
+                subtitle={`${formatDate(cup.startDate)} - ${formatDate(
+                  cup.endDate,
+                )}`}
+                onEdit={() => onEdit(cup.cityId, String(cup.id))}
                 onDelete={() => onDelete(String(cup.id), cup.name)}
               />
             ))}
