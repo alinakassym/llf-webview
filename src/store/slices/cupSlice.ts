@@ -38,6 +38,16 @@ export const createCup = createAsyncThunk<
   return cup;
 });
 
+// Thunk для удаления кубка
+export const deleteCup = createAsyncThunk<
+  number,
+  { cupId: number; token: string }
+>("cups/deleteCup", async ({ cupId, token }) => {
+  // API возвращает 204 No Content, используем оптимистичное удаление
+  await cupService.deleteCup(cupId, token);
+  return cupId;
+});
+
 const cupSlice = createSlice({
   name: "cups",
   initialState,
@@ -97,6 +107,16 @@ const cupSlice = createSlice({
             cup,
           ];
         }
+      })
+      .addCase(deleteCup.fulfilled, (state, action) => {
+        const cupId = action.payload;
+
+        // Удаляем кубок из всех кешей
+        Object.keys(state.itemsByCityId).forEach((cacheKey) => {
+          state.itemsByCityId[cacheKey] = state.itemsByCityId[cacheKey].filter(
+            (cup) => cup.id !== cupId,
+          );
+        });
       });
   },
 });

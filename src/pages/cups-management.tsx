@@ -11,11 +11,17 @@ import AllCitiesCupsList from "../components/AllCitiesCupsList";
 import CreateCupModal, {
   type CreateCupData,
 } from "../components/CreateCupModal";
+import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import { SportType, SportTypeName } from "../types/sportType";
 import type { Cup } from "../types/cup";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchCities } from "../store/slices/citySlice";
-import { fetchCups, createCup, selectCupsByCity } from "../store/slices/cupSlice";
+import {
+  fetchCups,
+  createCup,
+  deleteCup,
+  selectCupsByCity,
+} from "../store/slices/cupSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
 import { ALL_CITIES } from "../constants/leagueManagement";
@@ -53,6 +59,12 @@ const CupsManagementPage: FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>(ALL_CITIES);
   const [selectedSportType, setSelectedSportType] = useState<number>(2);
   const [isCreateCupModalOpen, setIsCreateCupModalOpen] = useState(false);
+  const [deleteCupDialogOpen, setDeleteCupDialogOpen] = useState(false);
+  const [cupToDelete, setCupToDelete] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+  const [isDeletingCup, setIsDeletingCup] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -165,7 +177,8 @@ const CupsManagementPage: FC = () => {
   };
 
   const handleDelete = (cupId: string, cupName: string) => {
-    console.log("Delete cup:", cupId, cupName);
+    setCupToDelete({ id: parseInt(cupId), name: cupName });
+    setDeleteCupDialogOpen(true);
   };
 
   const handleAdd = () => {
@@ -194,6 +207,34 @@ const CupsManagementPage: FC = () => {
         token: activeToken,
       }),
     ).unwrap();
+  };
+
+  const handleCloseDeleteCupDialog = () => {
+    if (!isDeletingCup) {
+      setDeleteCupDialogOpen(false);
+      setCupToDelete(null);
+    }
+  };
+
+  const handleConfirmDeleteCup = async () => {
+    if (!cupToDelete || !activeToken) {
+      return;
+    }
+
+    setIsDeletingCup(true);
+    try {
+      await dispatch(
+        deleteCup({
+          cupId: cupToDelete.id,
+          token: activeToken,
+        }),
+      ).unwrap();
+      handleCloseDeleteCupDialog();
+    } catch (error) {
+      console.error("Error deleting cup:", error);
+    } finally {
+      setIsDeletingCup(false);
+    }
   };
 
   const handleSportChange = useCallback((sportId: number) => {
@@ -312,6 +353,15 @@ const CupsManagementPage: FC = () => {
         onSubmit={handleCreateCup}
         cities={cities}
         sportType={selectedSportType}
+      />
+
+      <DeleteConfirmDialog
+        open={deleteCupDialogOpen}
+        onClose={handleCloseDeleteCupDialog}
+        onConfirm={handleConfirmDeleteCup}
+        title="Удалить кубок?"
+        message={`Вы уверены, что хотите удалить кубок "${cupToDelete?.name}"?`}
+        loading={isDeletingCup}
       />
     </Box>
   );

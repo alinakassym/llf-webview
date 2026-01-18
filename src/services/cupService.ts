@@ -143,4 +143,11 @@ export const cupService = {
       token,
     });
   },
+
+  deleteCup: async (cupId: number, token: string): Promise<void> => {
+    await apiRequest<void>(`/cups/${cupId}`, {
+      method: "DELETE",
+      token,
+    });
+  },
 };
