@@ -26,7 +26,6 @@ interface AddTeamToCupGroupModalProps {
   onSubmit: (data: {
     teamId: number;
     seed: number | null;
-    order: number | null;
   }) => Promise<void>;
   groupName: string;
 }
@@ -41,7 +40,6 @@ const AddTeamToCupGroupModal: FC<AddTeamToCupGroupModalProps> = ({
 }) => {
   const [selectedTeamId, setSelectedTeamId] = useState<number>(0);
   const [seed, setSeed] = useState<string>("");
-  const [order, setOrder] = useState<string>("");
   const [errors, setErrors] = useState<{
     teamId?: string;
   }>({});
@@ -54,7 +52,6 @@ const AddTeamToCupGroupModal: FC<AddTeamToCupGroupModalProps> = ({
     if (!open) {
       setSelectedTeamId(0);
       setSeed("");
-      setOrder("");
       setErrors({});
       setSubmitting(false);
     }
@@ -67,14 +64,6 @@ const AddTeamToCupGroupModal: FC<AddTeamToCupGroupModalProps> = ({
     // Очищаем ошибку при выборе команды
     if (errors.teamId) {
       setErrors((prev) => ({ ...prev, teamId: undefined }));
-    }
-  };
-
-  const handleOrderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Разрешаем пустую строку или цифры
-    if (value === "" || /^\d+$/.test(value)) {
-      setOrder(value);
     }
   };
 
@@ -99,7 +88,6 @@ const AddTeamToCupGroupModal: FC<AddTeamToCupGroupModalProps> = ({
       await onSubmit({
         teamId: selectedTeamId,
         seed: seed === "" ? null : Number(seed),
-        order: order === "" ? null : Number(order),
       });
 
       handleClose();
@@ -185,22 +173,6 @@ const AddTeamToCupGroupModal: FC<AddTeamToCupGroupModalProps> = ({
               </MenuItem>
             ))}
           </TextField>
-
-          <TextField
-            label="Порядок"
-            value={order}
-            onChange={handleOrderChange}
-            disabled={submitting}
-            fullWidth
-            type="text"
-            slotProps={{
-              htmlInput: {
-                inputMode: "numeric",
-                pattern: "[0-9]*",
-              },
-            }}
-            placeholder="Необязательно"
-          />
         </Box>
       </DialogContent>
 

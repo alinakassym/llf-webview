@@ -234,18 +234,22 @@ const CupManagementPage: FC = () => {
   const handleAddTeamSubmit = async (data: {
     teamId: number;
     seed: number | null;
-    order: number | null;
   }) => {
     if (!activeToken || !cupId || !selectedGroupForTeam) {
       throw new Error("No auth token, cupId or group selected");
     }
+
+    // Находим группу и автоматически генерируем order
+    const group = groups.find((g) => g.id === selectedGroupForTeam.id);
+    const teamsCount = group?.teams?.length || 0;
+
     await dispatch(
       addTeamToCupGroup({
         cupId: parseInt(cupId),
         groupId: selectedGroupForTeam.id,
         teamId: data.teamId,
         seed: data.seed,
-        order: data.order,
+        order: teamsCount + 1,
         token: activeToken,
       }),
     ).unwrap();
