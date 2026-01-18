@@ -18,27 +18,23 @@ interface CreateCupGroupModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: CreateCupGroupData) => Promise<void>;
-  existingGroupsCount: number;
-  editingGroup?: { id: number; name: string; order: number } | null;
+  editingGroup?: { id: number; name: string } | null;
 }
 
 export interface CreateCupGroupData {
   name: string;
-  order: number;
 }
 
 const CreateCupGroupModal: FC<CreateCupGroupModalProps> = ({
   open,
   onClose,
   onSubmit,
-  existingGroupsCount,
   editingGroup = null,
 }) => {
   const isEditMode = !!editingGroup;
 
   const [formData, setFormData] = useState<CreateCupGroupData>({
     name: "",
-    order: existingGroupsCount + 1,
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<
@@ -52,27 +48,20 @@ const CreateCupGroupModal: FC<CreateCupGroupModalProps> = ({
         // Режим редактирования - используем данные группы
         setFormData({
           name: editingGroup.name,
-          order: editingGroup.order,
         });
       } else {
         // Режим создания - сбрасываем на дефолтные значения
         setFormData({
           name: "",
-          order: existingGroupsCount + 1,
         });
       }
     }
-  }, [open, editingGroup, existingGroupsCount]);
+  }, [open, editingGroup]);
 
   const handleChange =
     (field: keyof CreateCupGroupData) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (field === "name") {
-        setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-      } else {
-        const numValue = Number(e.target.value);
-        setFormData((prev) => ({ ...prev, [field]: numValue }));
-      }
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
 
       // Очищаем ошибку при изменении поля
       if (errors[field]) {
@@ -85,9 +74,6 @@ const CreateCupGroupModal: FC<CreateCupGroupModalProps> = ({
 
     if (!formData.name.trim()) {
       newErrors.name = "Название обязательно";
-    }
-    if (formData.order < 1) {
-      newErrors.order = "Порядок должен быть больше 0";
     }
 
     setErrors(newErrors);
@@ -112,7 +98,6 @@ const CreateCupGroupModal: FC<CreateCupGroupModalProps> = ({
     if (!loading) {
       setFormData({
         name: "",
-        order: existingGroupsCount + 1,
       });
       setErrors({});
       onClose();
@@ -166,19 +151,6 @@ const CreateCupGroupModal: FC<CreateCupGroupModalProps> = ({
             disabled={loading}
             required
             autoFocus
-          />
-
-          <TextField
-            label="Порядок"
-            type="number"
-            fullWidth
-            value={formData.order}
-            onChange={handleChange("order")}
-            error={!!errors.order}
-            helperText={errors.order}
-            disabled={loading}
-            required
-            slotProps={{ htmlInput: { min: 1 } }}
           />
         </Box>
       </DialogContent>

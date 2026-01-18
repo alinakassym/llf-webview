@@ -74,7 +74,6 @@ const CupManagementPage: FC = () => {
   const [editingGroup, setEditingGroup] = useState<{
     id: number;
     name: string;
-    order: number;
   } | null>(null);
   const [deleteTeamDialogOpen, setDeleteTeamDialogOpen] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<{
@@ -141,16 +140,11 @@ const CupManagementPage: FC = () => {
   };
 
   const handleEditGroup = (groupId: number, groupName: string) => {
-    // Находим группу в массиве, чтобы получить её order
-    const group = groups.find((g) => g.id === groupId);
-    if (group) {
-      setEditingGroup({
-        id: groupId,
-        name: groupName,
-        order: group.order,
-      });
-      setIsCreateGroupModalOpen(true);
-    }
+    setEditingGroup({
+      id: groupId,
+      name: groupName,
+    });
+    setIsCreateGroupModalOpen(true);
   };
 
   const handleDeleteGroup = (groupId: number, groupName: string) => {
@@ -188,23 +182,26 @@ const CupManagementPage: FC = () => {
     }
 
     if (editingGroup) {
-      // Режим редактирования
+      // Режим редактирования - находим текущий order группы
+      const group = groups.find((g) => g.id === editingGroup.id);
+      const currentOrder = group?.order || 1;
+
       await dispatch(
         updateCupGroup({
           cupId: parseInt(cupId),
           groupId: editingGroup.id,
           name: data.name,
-          order: data.order,
+          order: currentOrder,
           token: activeToken,
         }),
       ).unwrap();
     } else {
-      // Режим создания
+      // Режим создания - автоматически назначаем порядок
       await dispatch(
         createCupGroup({
           cupId: parseInt(cupId),
           name: data.name,
-          order: data.order,
+          order: groups.length + 1,
           token: activeToken,
         }),
       ).unwrap();
@@ -445,7 +442,6 @@ const CupManagementPage: FC = () => {
         open={isCreateGroupModalOpen}
         onClose={handleCloseGroupModal}
         onSubmit={handleCreateOrUpdateCupGroup}
-        existingGroupsCount={groups.length}
         editingGroup={editingGroup}
       />
 
