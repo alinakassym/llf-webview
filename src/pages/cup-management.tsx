@@ -129,21 +129,6 @@ const CupManagementPage: FC = () => {
     }
   }, [cupId, activeToken, authLoading, webViewLoading, dispatch]);
 
-  // Загружаем команды когда известен город и спорт из URL
-  // Используем excludeCup чтобы получить только команды, не назначенные в этот кубок
-  useEffect(() => {
-    if (cityId && cupId && activeToken && !authLoading && !webViewLoading) {
-      dispatch(
-        fetchTeams({
-          cityId: parseInt(cityId),
-          token: activeToken,
-          sportType: selectedSportType,
-          excludeCup: parseInt(cupId),
-        }),
-      );
-    }
-  }, [cityId, cupId, selectedSportType, activeToken, authLoading, webViewLoading, dispatch]);
-
   // Логируем открытие кубка для отладки
   useEffect(() => {
     if (cupId) {
@@ -227,6 +212,19 @@ const CupManagementPage: FC = () => {
   };
 
   const handleAddTeam = (groupId: number, groupName: string) => {
+    // Загружаем команды при открытии модального окна
+    // Используем excludeCup чтобы получить только команды, не назначенные в этот кубок
+    if (cityId && cupId && activeToken) {
+      dispatch(
+        fetchTeams({
+          cityId: parseInt(cityId),
+          token: activeToken,
+          sportType: selectedSportType,
+          excludeCup: parseInt(cupId),
+        }),
+      );
+    }
+
     setSelectedGroupForTeam({ id: groupId, name: groupName });
     setIsAddTeamModalOpen(true);
   };
