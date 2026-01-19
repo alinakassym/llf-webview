@@ -19,6 +19,9 @@ import CreateCupGroupModal, {
   type CreateCupGroupData,
 } from "../components/CreateCupGroupModal";
 import AddTeamToCupGroupModal from "../components/AddTeamToCupGroupModal";
+import CreateCupTourModal, {
+  type CreateCupTourData,
+} from "../components/CreateCupTourModal";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
@@ -29,6 +32,7 @@ import {
   addTeamToCupGroup,
   deleteTeamFromCupGroup,
   deleteCupGroup,
+  createCupTour,
   selectCupGroupsByCupId,
   selectCupGroupsLoadingForCup,
 } from "../store/slices/cupGroupSlice";
@@ -90,6 +94,11 @@ const CupManagementPage: FC = () => {
   } | null>(null);
   const [isDeletingGroup, setIsDeletingGroup] = useState(false);
   const [loadingTourGroupIds, setLoadingTourGroupIds] = useState<number[]>([]);
+  const [isCreateTourModalOpen, setIsCreateTourModalOpen] = useState(false);
+  const [selectedGroupForTour, setSelectedGroupForTour] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -351,6 +360,31 @@ const CupManagementPage: FC = () => {
     }
   };
 
+  const handleAddTour = (groupId: number, groupName: string) => {
+    setSelectedGroupForTour({ id: groupId, name: groupName });
+    setIsCreateTourModalOpen(true);
+  };
+
+  const handleCloseCreateTourModal = () => {
+    setIsCreateTourModalOpen(false);
+    setSelectedGroupForTour(null);
+  };
+
+  const handleCreateTourSubmit = async (data: CreateCupTourData) => {
+    if (!activeToken || !cupId || !selectedGroupForTour) {
+      throw new Error("No auth token, cupId or group selected");
+    }
+
+    await dispatch(
+      createCupTour({
+        cupId: parseInt(cupId),
+        groupId: selectedGroupForTour.id,
+        data,
+        token: activeToken,
+      }),
+    ).unwrap();
+  };
+
   return (
     <Box
       sx={{
@@ -457,6 +491,7 @@ const CupManagementPage: FC = () => {
                 groups={groups}
                 onExpandGroup={handleExpandTourGroup}
                 loadingGroupIds={loadingTourGroupIds}
+                onAddTour={handleAddTour}
               />
             )}
           </Box>
@@ -509,6 +544,19 @@ const CupManagementPage: FC = () => {
         title="Удалить группу?"
         message={`Вы уверены, что хотите удалить группу "${groupToDelete?.name}"?`}
         loading={isDeletingGroup}
+      />
+
+      <CreateCupTourModal
+        open={isCreateTourModalOpen}
+        onClose={handleCloseCreateTourModal}
+        teams={selectedGroupForTour ? groups.find((g) => g.id === selectedGroupForTour.id)?.teams || [] : []}
+        onSubmit={handleCreateTourSubmit}
+        groupName={selectedGroupForTour?.name || ""}
+        nextTourNumber={
+          selectedGroupForTour
+            ? (groups.find((g) => g.id === selectedGroupForTour.id)?.tours?.length || 0) + 1
+            : 1
+        }
       />
     </Box>
   );

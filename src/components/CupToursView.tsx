@@ -10,6 +10,7 @@ import {
   CircularProgress,
   Card,
   CardContent,
+  Button,
 } from "@mui/material";
 import {
   Timeline,
@@ -20,6 +21,7 @@ import {
   TimelineContent,
 } from "@mui/lab";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import AddIcon from "@mui/icons-material/Add";
 import type { CupGroup, CupTour } from "../types/cup";
 import { ShirtIcon } from "./icons";
 
@@ -52,12 +54,14 @@ interface CupToursViewProps {
   groups: CupGroup[];
   onExpandGroup?: (groupId: number) => void;
   loadingGroupIds?: number[];
+  onAddTour?: (groupId: number, groupName: string) => void;
 }
 
 const CupToursView: FC<CupToursViewProps> = ({
   groups,
   onExpandGroup,
   loadingGroupIds,
+  onAddTour,
 }) => {
   const [expandedGroupIds, setExpandedGroupIds] = useState<number[]>([]);
 
@@ -159,7 +163,7 @@ const CupToursView: FC<CupToursViewProps> = ({
                 </Box>
               ) : (
                 <>
-                  {group.tours && group.tours.length > 0 ? (
+                  {group.tours && group.tours.length > 0 && (
                     <Timeline
                       position="right"
                       sx={{
@@ -190,7 +194,9 @@ const CupToursView: FC<CupToursViewProps> = ({
                             <TimelineSeparator>
                               <TimelineDot
                                 color={getStatusColor(status)}
-                                variant={status === "PENDING" ? "outlined" : "filled"}
+                                variant={
+                                  status === "PENDING" ? "outlined" : "filled"
+                                }
                               />
                               {!isLastItem && <TimelineConnector />}
                             </TimelineSeparator>
@@ -204,7 +210,9 @@ const CupToursView: FC<CupToursViewProps> = ({
                                   boxShadow: "none",
                                 }}
                               >
-                                <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
+                                <CardContent
+                                  sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}
+                                >
                                   {/* Tour header */}
                                   <Box
                                     sx={{
@@ -230,8 +238,8 @@ const CupToursView: FC<CupToursViewProps> = ({
                                           status === "FINISHED"
                                             ? "success.light"
                                             : status === "SCHEDULED"
-                                              ? "primary.light"
-                                              : "action.hover",
+                                            ? "primary.light"
+                                            : "action.hover",
                                       }}
                                     >
                                       <Typography
@@ -243,15 +251,15 @@ const CupToursView: FC<CupToursViewProps> = ({
                                             status === "FINISHED"
                                               ? "success.dark"
                                               : status === "SCHEDULED"
-                                                ? "primary.dark"
-                                                : "text.secondary",
+                                              ? "primary.dark"
+                                              : "text.secondary",
                                         }}
                                       >
                                         {status === "FINISHED"
                                           ? "ЗАВЕРШЕН"
                                           : status === "SCHEDULED"
-                                            ? "ЗАПЛАНИРОВАН"
-                                            : "ОЖИДАНИЕ"}
+                                          ? "ЗАПЛАНИРОВАН"
+                                          : "ОЖИДАНИЕ"}
                                       </Typography>
                                     </Box>
                                   </Box>
@@ -278,14 +286,20 @@ const CupToursView: FC<CupToursViewProps> = ({
                                       <Box>
                                         <Typography
                                           variant="body2"
-                                          sx={{ fontSize: "12px", fontWeight: 600 }}
+                                          sx={{
+                                            fontSize: "12px",
+                                            fontWeight: 600,
+                                          }}
                                         >
                                           {tour.team1Name}
                                         </Typography>
                                         <Typography
                                           variant="body2"
                                           color="text.secondary"
-                                          sx={{ fontSize: "10px", fontWeight: 500 }}
+                                          sx={{
+                                            fontSize: "10px",
+                                            fontWeight: 500,
+                                          }}
                                         >
                                           {team1?.cityName}
                                         </Typography>
@@ -296,7 +310,10 @@ const CupToursView: FC<CupToursViewProps> = ({
                                     <Typography
                                       variant="body2"
                                       sx={{
-                                        fontSize: status === "FINISHED" ? "16px" : "12px",
+                                        fontSize:
+                                          status === "FINISHED"
+                                            ? "16px"
+                                            : "12px",
                                         fontWeight: 700,
                                         color:
                                           status === "FINISHED"
@@ -331,14 +348,20 @@ const CupToursView: FC<CupToursViewProps> = ({
                                       >
                                         <Typography
                                           variant="body2"
-                                          sx={{ fontSize: "12px", fontWeight: 600 }}
+                                          sx={{
+                                            fontSize: "12px",
+                                            fontWeight: 600,
+                                          }}
                                         >
                                           {tour.team2Name}
                                         </Typography>
                                         <Typography
                                           variant="body2"
                                           color="text.secondary"
-                                          sx={{ fontSize: "10px", fontWeight: 500 }}
+                                          sx={{
+                                            fontSize: "10px",
+                                            fontWeight: 500,
+                                          }}
                                         >
                                           {team2?.cityName}
                                         </Typography>
@@ -362,13 +385,16 @@ const CupToursView: FC<CupToursViewProps> = ({
                                         color="text.secondary"
                                         sx={{ fontSize: "10px" }}
                                       >
-                                        {new Date(tour.dateTime).toLocaleString("ru-RU", {
-                                          day: "numeric",
-                                          month: "long",
-                                          year: "numeric",
-                                          hour: "2-digit",
-                                          minute: "2-digit",
-                                        })}
+                                        {new Date(tour.dateTime).toLocaleString(
+                                          "ru-RU",
+                                          {
+                                            day: "numeric",
+                                            month: "long",
+                                            year: "numeric",
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                          },
+                                        )}
                                         {tour.location && ` • ${tour.location}`}
                                       </Typography>
                                     </Box>
@@ -380,7 +406,9 @@ const CupToursView: FC<CupToursViewProps> = ({
                         );
                       })}
                     </Timeline>
-                  ) : (
+                  )}
+
+                  {(!group.tours || group.tours.length === 0) && (
                     <Typography
                       variant="body2"
                       color="text.secondary"
@@ -388,6 +416,29 @@ const CupToursView: FC<CupToursViewProps> = ({
                     >
                       Туры не найдены
                     </Typography>
+                  )}
+
+                  {/* Кнопка добавления тура */}
+                  {onAddTour && (
+                    <Box
+                      sx={{ mt: 2, display: "flex", justifyContent: "center" }}
+                    >
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<AddIcon />}
+                        onClick={() => onAddTour(group.id, group.name)}
+                        sx={{
+                          width: "100%",
+                          borderRadius: "8px",
+                          textTransform: "none",
+                          fontSize: "12px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Добавить тур
+                      </Button>
+                    </Box>
                   )}
                 </>
               )}
