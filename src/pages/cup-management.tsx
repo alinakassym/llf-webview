@@ -14,6 +14,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { SportSelectRow, type Sport } from "../components/SportSelectRow";
 import { SportType, SportTypeName } from "../types/sportType";
 import CupGroupsList from "../components/CupGroupsList";
+import CupToursView from "../components/CupToursView";
 import CreateCupGroupModal, {
   type CreateCupGroupData,
 } from "../components/CreateCupGroupModal";
@@ -414,15 +415,19 @@ const CupManagementPage: FC = () => {
         {/* Таб "Туры" */}
         {tabValue === 1 && (
           <Box role="tabpanel" id="cup-tabpanel-1">
-            <Box
-              sx={{
-                textAlign: "center",
-                py: 4,
-                color: "text.secondary",
-              }}
-            >
-              Туры будут отображаться здесь
-            </Box>
+            {groupsLoading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  py: 4,
+                }}
+              >
+                <CircularProgress size={40} />
+              </Box>
+            ) : (
+              <CupToursView groups={groups} />
+            )}
           </Box>
         )}
       </Container>
