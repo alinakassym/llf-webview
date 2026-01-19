@@ -53,6 +53,39 @@ const getStatusColor = (status: TourStatus) => {
   }
 };
 
+interface TourItem {
+  team1Set1Score: number | null;
+  team2Set1Score: number | null;
+  team1Set2Score: number | null;
+  team2Set2Score: number | null;
+  team1Set3Score: number | null;
+  team2Set3Score: number | null;
+}
+
+const hasSetsScore = (tourItem: unknown): boolean => {
+  if (
+    typeof tourItem === "object" &&
+    tourItem !== null &&
+    "team1Set1Score" in tourItem &&
+    "team2Set1Score" in tourItem &&
+    "team1Set2Score" in tourItem &&
+    "team2Set2Score" in tourItem &&
+    "team1Set3Score" in tourItem &&
+    "team2Set3Score" in tourItem
+  ) {
+    const item = tourItem as TourItem;
+    return [
+      item.team1Set1Score,
+      item.team2Set1Score,
+      item.team1Set2Score,
+      item.team2Set2Score,
+      item.team1Set3Score,
+      item.team2Set3Score,
+    ].some((score) => score !== null && score !== undefined);
+  }
+  return false;
+};
+
 interface CupToursViewProps {
   groups: CupGroup[];
   onExpandGroup?: (groupId: number) => void;
@@ -310,8 +343,11 @@ const CupToursView: FC<CupToursViewProps> = ({
                                   {/* Match information */}
                                   <Box
                                     sx={{
+                                      mt: 2,
                                       display: "flex",
-                                      alignItems: "center",
+                                      alignItems: hasSetsScore(tour)
+                                        ? "flex-start"
+                                        : "center",
                                       justifyContent: "space-between",
                                       gap: 2,
                                     }}
@@ -322,7 +358,7 @@ const CupToursView: FC<CupToursViewProps> = ({
                                         display: "flex",
                                         flexDirection: "column",
                                         alignItems: "start",
-                                        gap: 1,
+                                        gap: 0,
                                         flex: 1,
                                       }}
                                     >
@@ -351,27 +387,181 @@ const CupToursView: FC<CupToursViewProps> = ({
                                     </Box>
 
                                     {/* Score or VS */}
-                                    <Typography
-                                      variant="body2"
+                                    <Box
                                       sx={{
-                                        fontSize:
-                                          status === "FINISHED"
-                                            ? "16px"
-                                            : "12px",
-                                        fontWeight: 700,
-                                        color:
-                                          status === "FINISHED"
-                                            ? "text.primary"
-                                            : "text.secondary",
-                                        minWidth: "40px",
-                                        textAlign: "center",
+                                        mb: hasSetsScore(tour) ? 0 : 2,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: 1,
                                       }}
                                     >
-                                      {tour.team1Score !== null &&
-                                      tour.team2Score !== null
-                                        ? `${tour.team1Score}:${tour.team2Score}`
-                                        : "VS"}
-                                    </Typography>
+                                      <Typography
+                                        variant="body2"
+                                        sx={{
+                                          fontSize:
+                                            status === "FINISHED"
+                                              ? "16px"
+                                              : "12px",
+                                          fontWeight: 700,
+                                          color:
+                                            status === "FINISHED"
+                                              ? "text.primary"
+                                              : "text.secondary",
+                                          minWidth: "40px",
+                                          textAlign: "center",
+                                        }}
+                                      >
+                                        {tour.team1Score !== null &&
+                                        tour.team2Score !== null
+                                          ? `${tour.team1Score}:${tour.team2Score}`
+                                          : "VS"}
+                                      </Typography>
+
+                                      {/* Sets information */}
+                                      {hasSetsScore(tour) && (
+                                        <Box
+                                          sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                          }}
+                                        >
+                                          {/* СЕТ 1 */}
+                                          <Box
+                                            sx={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              justifyContent: "center",
+                                              gap: 1,
+                                            }}
+                                          >
+                                            {/* Команда 1 */}
+                                            <Typography
+                                              variant="body2"
+                                              sx={{
+                                                fontSize: "12px",
+                                                fontWeight: 600,
+                                              }}
+                                            >
+                                              {tour.team1Set1Score}
+                                            </Typography>
+
+                                            {/* Score or VS */}
+                                            <Typography
+                                              variant="body2"
+                                              sx={{
+                                                fontSize: "10px",
+                                                fontWeight: 700,
+                                                color: "text.secondary",
+                                                textAlign: "center",
+                                              }}
+                                            >
+                                              (сет 1)
+                                            </Typography>
+
+                                            {/* Команда 2 */}
+                                            <Typography
+                                              variant="body2"
+                                              sx={{
+                                                fontSize: "12px",
+                                                fontWeight: 600,
+                                              }}
+                                            >
+                                              {tour.team2Set1Score}
+                                            </Typography>
+                                          </Box>
+
+                                          {/* СЕТ 2 */}
+                                          <Box
+                                            sx={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              justifyContent: "center",
+                                              gap: 1,
+                                            }}
+                                          >
+                                            {/* Команда 1 */}
+                                            <Typography
+                                              variant="body2"
+                                              sx={{
+                                                fontSize: "12px",
+                                                fontWeight: 600,
+                                              }}
+                                            >
+                                              {tour.team1Set2Score}
+                                            </Typography>
+
+                                            {/* Score or VS */}
+                                            <Typography
+                                              variant="body2"
+                                              sx={{
+                                                fontSize: "10px",
+                                                fontWeight: 700,
+                                                color: "text.secondary",
+                                                textAlign: "center",
+                                              }}
+                                            >
+                                              (сет 2)
+                                            </Typography>
+
+                                            {/* Команда 2 */}
+                                            <Typography
+                                              variant="body2"
+                                              sx={{
+                                                fontSize: "12px",
+                                                fontWeight: 600,
+                                              }}
+                                            >
+                                              {tour.team2Set2Score}
+                                            </Typography>
+                                          </Box>
+
+                                          {/* СЕТ 3 */}
+                                          <Box
+                                            sx={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              justifyContent: "center",
+                                              gap: 1,
+                                            }}
+                                          >
+                                            {/* Команда 1 */}
+                                            <Typography
+                                              variant="body2"
+                                              sx={{
+                                                fontSize: "12px",
+                                                fontWeight: 600,
+                                              }}
+                                            >
+                                              {tour.team1Set3Score}
+                                            </Typography>
+
+                                            {/* Score or VS */}
+                                            <Typography
+                                              variant="body2"
+                                              sx={{
+                                                fontSize: "10px",
+                                                fontWeight: 700,
+                                                color: "text.secondary",
+                                                textAlign: "center",
+                                              }}
+                                            >
+                                              (сет 3)
+                                            </Typography>
+
+                                            {/* Команда 2 */}
+                                            <Typography
+                                              variant="body2"
+                                              sx={{
+                                                fontSize: "12px",
+                                                fontWeight: 600,
+                                              }}
+                                            >
+                                              {tour.team2Set3Score}
+                                            </Typography>
+                                          </Box>
+                                        </Box>
+                                      )}
+                                    </Box>
 
                                     {/* Команда 2 */}
                                     <Box
@@ -379,7 +569,7 @@ const CupToursView: FC<CupToursViewProps> = ({
                                         display: "flex",
                                         flexDirection: "column",
                                         alignItems: "end",
-                                        gap: 1,
+                                        gap: 0,
                                         flex: 1,
                                       }}
                                     >
