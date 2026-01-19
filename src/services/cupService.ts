@@ -1,5 +1,5 @@
 import { apiRequest } from "./api";
-import type { Cup, CupGroup, CupGroupTeam } from "../types/cup";
+import type { Cup, CupGroup, CupGroupTeam, CupTour } from "../types/cup";
 
 interface CupsResponse {
   records: Cup[];
@@ -25,6 +25,25 @@ export interface UpdateCupPayload {
   sportType: number;
   startDate: string | null;
   endDate: string | null;
+}
+
+export interface CreateCupTourPayload {
+  number: number;
+  name: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  dateTime: string | null;
+  location: string | null;
+  team1Id: number;
+  team2Id: number;
+  team1Score: number | null;
+  team2Score: number | null;
+  team1Set1Score: number | null;
+  team2Set1Score: number | null;
+  team1Set2Score: number | null;
+  team2Set2Score: number | null;
+  team1Set3Score: number | null;
+  team2Set3Score: number | null;
 }
 
 export const cupService = {
@@ -170,6 +189,23 @@ export const cupService = {
       token,
       body: JSON.stringify(data),
     });
+    return response;
+  },
+
+  createTour: async (
+    cupId: number,
+    groupId: number,
+    data: CreateCupTourPayload,
+    token: string,
+  ): Promise<CupTour> => {
+    const response = await apiRequest<CupTour>(
+      `/cups/${cupId}/groups/${groupId}/tours`,
+      {
+        method: "POST",
+        token,
+        body: JSON.stringify(data),
+      },
+    );
     return response;
   },
 };

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import type { CupGroup, CupGroupTeam } from "../../types/cup";
-import { cupService } from "../../services/cupService";
+import type { CupGroup, CupGroupTeam, CupTour } from "../../types/cup";
+import { cupService, type CreateCupTourPayload } from "../../services/cupService";
 
 interface CupGroupState {
   itemsByCupId: Record<string, CupGroup[]>;
@@ -143,6 +143,23 @@ export const deleteCupGroup = createAsyncThunk<
   },
 );
 
+// Thunk для создания тура
+export const createCupTour = createAsyncThunk<
+  { cupId: string; groupId: number; tour: CupTour },
+  {
+    cupId: number;
+    groupId: number;
+    data: CreateCupTourPayload;
+    token: string;
+  }
+>(
+  "cupGroups/createCupTour",
+  async ({ cupId, groupId, data, token }) => {
+    const tour = await cupService.createTour(cupId, groupId, data, token);
+    return { cupId: String(cupId), groupId, tour };
+  },
+);
+
 const cupGroupSlice = createSlice({
   name: "cupGroups",
   initialState,
@@ -250,6 +267,22 @@ const cupGroupSlice = createSlice({
         if (groups) {
           // Удаляем группу из массива, создавая новый массив для правильного ре-рендера
           state.itemsByCupId[cupId] = groups.filter((g) => g.id !== groupId);
+        }
+      })
+      .addCase(createCupTour.fulfilled, (state, action) => {
+        const { cupId, groupId, tour } = action.payload;
+        const groups = state.itemsByCupId[cupId];
+        if (groups) {
+          // Находим группу по ID
+          const group = groups.find((g) => g.id === groupId);
+          if (group) {
+            // Инициализируем массив tours если его нет
+            if (!group.tours) {
+              group.tours = [];
+            }
+            // Добавляем тур в группу
+            group.tours.push(tour);
+          }
         }
       });
   },
