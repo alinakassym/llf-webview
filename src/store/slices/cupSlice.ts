@@ -2,7 +2,11 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { Cup } from "../../types/cup";
-import { cupService, type CreateCupPayload } from "../../services/cupService";
+import {
+  cupService,
+  type CreateCupPayload,
+  type UpdateCupPayload,
+} from "../../services/cupService";
 
 interface CupState {
   itemsByCityId: Record<string, Cup[]>;
@@ -46,6 +50,15 @@ export const deleteCup = createAsyncThunk<
   // API возвращает 204 No Content, используем оптимистичное удаление
   await cupService.deleteCup(cupId, token);
   return cupId;
+});
+
+// Thunk для обновления кубка
+export const updateCup = createAsyncThunk<
+  Cup,
+  { cupId: number; data: UpdateCupPayload; token: string }
+>("cups/updateCup", async ({ cupId, data, token }) => {
+  const cup = await cupService.updateCup(cupId, data, token);
+  return cup;
 });
 
 const cupSlice = createSlice({
@@ -117,6 +130,24 @@ const cupSlice = createSlice({
             (cup) => cup.id !== cupId,
           );
         });
+      })
+      .addCase(updateCup.fulfilled, (state, action) => {
+        const cup = action.payload;
+        const cityId = String(cup.cityId);
+
+        // Обновляем кубок в кеше конкретного города
+        if (state.itemsByCityId[cityId]) {
+          state.itemsByCityId[cityId] = state.itemsByCityId[cityId].map((c) =>
+            c.id === cup.id ? cup : c,
+          );
+        }
+
+        // Обновляем в кеше "__ALL__" если он существует
+        if (state.itemsByCityId["__ALL__"]) {
+          state.itemsByCityId["__ALL__"] = state.itemsByCityId["__ALL__"].map(
+            (c) => (c.id === cup.id ? cup : c),
+          );
+        }
       });
   },
 });

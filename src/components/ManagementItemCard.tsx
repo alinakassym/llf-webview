@@ -9,6 +9,7 @@ interface ManagementItemCardProps {
   title: string;
   subtitle?: string;
   onEdit?: () => void;
+  onClickCard?: () => void;
   onDelete?: () => void;
 }
 
@@ -16,6 +17,7 @@ const ManagementItemCard: FC<ManagementItemCardProps> = ({
   title,
   subtitle,
   onEdit,
+  onClickCard,
   onDelete,
 }) => {
   return (
@@ -35,7 +37,7 @@ const ManagementItemCard: FC<ManagementItemCardProps> = ({
         marginBottom: 1,
       }}
     >
-      <Box onClick={onEdit} sx={{ flex: 1 }}>
+      <Box onClick={onClickCard} sx={{ flex: 1 }}>
         <Typography
           variant="body2"
           fontWeight={600}

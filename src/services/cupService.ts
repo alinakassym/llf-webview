@@ -18,6 +18,15 @@ export interface CreateCupPayload {
   endDate: string | null;
 }
 
+export interface UpdateCupPayload {
+  name: string;
+  cityId: number;
+  leagueId: number | null;
+  sportType: number;
+  startDate: string | null;
+  endDate: string | null;
+}
+
 export const cupService = {
   getCups: async (
     token: string,
@@ -149,5 +158,18 @@ export const cupService = {
       method: "DELETE",
       token,
     });
+  },
+
+  updateCup: async (
+    cupId: number,
+    data: UpdateCupPayload,
+    token: string,
+  ): Promise<Cup> => {
+    const response = await apiRequest<Cup>(`/cups/${cupId}`, {
+      method: "PUT",
+      token,
+      body: JSON.stringify(data),
+    });
+    return response;
   },
 };

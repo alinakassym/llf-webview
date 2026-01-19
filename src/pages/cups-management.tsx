@@ -11,6 +11,7 @@ import AllCitiesCupsList from "../components/AllCitiesCupsList";
 import CreateCupModal, {
   type CreateCupData,
 } from "../components/CreateCupModal";
+import EditCupModal from "../components/EditCupModal";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import { SportType, SportTypeName } from "../types/sportType";
 import type { Cup } from "../types/cup";
@@ -19,6 +20,7 @@ import { fetchCities } from "../store/slices/citySlice";
 import {
   fetchCups,
   createCup,
+  updateCup,
   deleteCup,
   selectCupsByCity,
 } from "../store/slices/cupSlice";
@@ -65,6 +67,8 @@ const CupsManagementPage: FC = () => {
     name: string;
   } | null>(null);
   const [isDeletingCup, setIsDeletingCup] = useState(false);
+  const [isEditCupModalOpen, setIsEditCupModalOpen] = useState(false);
+  const [cupToEdit, setCupToEdit] = useState<Cup | null>(null);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -172,8 +176,16 @@ const CupsManagementPage: FC = () => {
     return grouped;
   }, [selectedCity, filteredCups]);
 
-  const handleEdit = (cityId: number, cupId: string) => {
+  const handleClickCard = (cityId: number, cupId: string) => {
     navigate(`/cup-management/${cityId}/${cupId}/${selectedSportType}`);
+  };
+
+  const handleEdit = (cupId: string) => {
+    const cup = cups.find((c) => c.id === Number(cupId));
+    if (cup) {
+      setCupToEdit(cup);
+      setIsEditCupModalOpen(true);
+    }
   };
 
   const handleDelete = (cupId: string, cupName: string) => {
@@ -235,6 +247,34 @@ const CupsManagementPage: FC = () => {
     } finally {
       setIsDeletingCup(false);
     }
+  };
+
+  const handleCloseEditCupModal = () => {
+    setIsEditCupModalOpen(false);
+    setCupToEdit(null);
+  };
+
+  const handleUpdateCup = async (data: CreateCupData) => {
+    if (!cupToEdit || !activeToken) {
+      throw new Error("No cup or token available");
+    }
+
+    await dispatch(
+      updateCup({
+        cupId: cupToEdit.id,
+        data: {
+          name: data.name,
+          cityId: data.cityId,
+          leagueId: cupToEdit.leagueId,
+          sportType: selectedSportType,
+          startDate: cupToEdit.startDate,
+          endDate: cupToEdit.endDate,
+        },
+        token: activeToken,
+      }),
+    ).unwrap();
+
+    handleCloseEditCupModal();
   };
 
   const handleSportChange = useCallback((sportId: number) => {
@@ -327,6 +367,7 @@ const CupsManagementPage: FC = () => {
           >
             <AllCitiesCupsList
               cupsByCity={cupsByGroup}
+              onClickCard={handleClickCard}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
@@ -362,6 +403,15 @@ const CupsManagementPage: FC = () => {
         title="Удалить кубок?"
         message={`Вы уверены, что хотите удалить кубок "${cupToDelete?.name}"?`}
         loading={isDeletingCup}
+      />
+
+      <EditCupModal
+        open={isEditCupModalOpen}
+        onClose={handleCloseEditCupModal}
+        onSubmit={handleUpdateCup}
+        cup={cupToEdit}
+        cities={cities}
+        sportType={selectedSportType}
       />
     </Box>
   );
