@@ -37,6 +37,7 @@ import {
   deleteCupGroup,
   createCupTour,
   updateCupTour,
+  deleteCupTour,
   selectCupGroupsByCupId,
   selectCupGroupsLoadingForCup,
 } from "../store/slices/cupGroupSlice";
@@ -458,16 +459,14 @@ const CupManagementPage: FC = () => {
 
     setIsDeletingTour(true);
     try {
-      // TODO: Implement deleteCupTour thunk
-      console.log("Delete tour:", tourToDelete);
-      // await dispatch(
-      //   deleteCupTour({
-      //     cupId: parseInt(cupId),
-      //     groupId: tourToDelete.groupId,
-      //     tourId: tourToDelete.tourId,
-      //     token: activeToken,
-      //   }),
-      // ).unwrap();
+      await dispatch(
+        deleteCupTour({
+          cupId: parseInt(cupId),
+          groupId: tourToDelete.groupId,
+          tourId: tourToDelete.tourId,
+          token: activeToken,
+        }),
+      ).unwrap();
       handleCloseDeleteTourDialog();
     } catch (error) {
       console.error("Error deleting tour:", error);

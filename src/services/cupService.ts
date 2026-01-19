@@ -240,4 +240,11 @@ export const cupService = {
       body: JSON.stringify(data),
     });
   },
+
+  deleteTour: async (tourId: number, token: string): Promise<void> => {
+    await apiRequest<void>(`/cups/tours/${tourId}`, {
+      method: "DELETE",
+      token,
+    });
+  },
 };

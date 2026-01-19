@@ -190,6 +190,30 @@ export const updateCupTour = createAsyncThunk<
   },
 );
 
+// Thunk для удаления тура
+export const deleteCupTour = createAsyncThunk<
+  { cupId: string; groupId: number; tourId: number },
+  {
+    cupId: number;
+    groupId: number;
+    tourId: number;
+    token: string;
+  }
+>(
+  "cupGroups/deleteCupTour",
+  async ({ cupId, groupId, tourId, token }) => {
+    // API возвращает 204 No Content, используем оптимистичное удаление
+    await cupService.deleteTour(tourId, token);
+
+    // Возвращаем идентификаторы для удаления из state
+    return {
+      cupId: String(cupId),
+      groupId,
+      tourId,
+    };
+  },
+);
+
 const cupGroupSlice = createSlice({
   name: "cupGroups",
   initialState,
@@ -355,6 +379,18 @@ const cupGroupSlice = createSlice({
                 team2SetsWon: existingTour.team2SetsWon,
               };
             }
+          }
+        }
+      })
+      .addCase(deleteCupTour.fulfilled, (state, action) => {
+        const { cupId, groupId, tourId } = action.payload;
+        const groups = state.itemsByCupId[cupId];
+        if (groups) {
+          // Находим группу по ID
+          const group = groups.find((g) => g.id === groupId);
+          if (group && group.tours) {
+            // Удаляем тур из группы, создавая новый массив
+            group.tours = group.tours.filter((t) => t.id !== tourId);
           }
         }
       });
