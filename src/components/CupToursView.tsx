@@ -8,10 +8,45 @@ import {
   AccordionSummary,
   AccordionDetails,
   CircularProgress,
+  Card,
+  CardContent,
 } from "@mui/material";
+import {
+  Timeline,
+  TimelineItem,
+  TimelineSeparator,
+  TimelineDot,
+  TimelineConnector,
+  TimelineContent,
+} from "@mui/lab";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import type { CupGroup } from "../types/cup";
+import type { CupGroup, CupTour } from "../types/cup";
 import { ShirtIcon } from "./icons";
+
+type TourStatus = "FINISHED" | "SCHEDULED" | "PENDING";
+
+const getTourStatus = (tour: CupTour): TourStatus => {
+  if (tour.team1Score !== null && tour.team2Score !== null) {
+    return "FINISHED";
+  }
+  if (tour.dateTime !== null) {
+    return "SCHEDULED";
+  }
+  return "PENDING";
+};
+
+const getStatusColor = (status: TourStatus) => {
+  switch (status) {
+    case "FINISHED":
+      return "success";
+    case "SCHEDULED":
+      return "primary";
+    case "PENDING":
+      return "grey";
+    default:
+      return "grey";
+  }
+};
 
 interface CupToursViewProps {
   groups: CupGroup[];
@@ -125,10 +160,21 @@ const CupToursView: FC<CupToursViewProps> = ({
               ) : (
                 <>
                   {group.tours && group.tours.length > 0 ? (
-                    <Box
-                      sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                    <Timeline
+                      position="right"
+                      sx={{
+                        p: 0,
+                        m: 0,
+                        "& .MuiTimelineItem-root": {
+                          minHeight: "auto",
+                          "&:before": {
+                            flex: 0,
+                            padding: 0,
+                          },
+                        },
+                      }}
                     >
-                      {group.tours.map((tour) => {
+                      {group.tours.map((tour, index) => {
                         // Находим команды по ID из teams массива
                         const team1 = group.teams?.find(
                           (t) => t.teamId === tour.team1Id,
@@ -136,116 +182,204 @@ const CupToursView: FC<CupToursViewProps> = ({
                         const team2 = group.teams?.find(
                           (t) => t.teamId === tour.team2Id,
                         );
+                        const status = getTourStatus(tour);
+                        const isLastItem = index === group.tours!.length - 1;
 
                         return (
-                          <Box
-                            key={tour.id}
-                            sx={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: 1,
-                              p: 1.5,
-                              borderRadius: "8px",
-                              backgroundColor: "surface",
-                            }}
-                          >
-                            <Typography
-                              variant="body2"
-                              fontWeight={600}
-                              sx={{ fontSize: "12px", mb: 0.5 }}
-                            >
-                              {tour.name || `Тур ${tour.number}`}
-                            </Typography>
-
-                            {/* Матч между командами */}
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                gap: 2,
-                              }}
-                            >
-                              {/* Команда 1 */}
-                              <Box
+                          <TimelineItem key={tour.id}>
+                            <TimelineSeparator>
+                              <TimelineDot
+                                color={getStatusColor(status)}
+                                variant={status === "PENDING" ? "outlined" : "filled"}
+                              />
+                              {!isLastItem && <TimelineConnector />}
+                            </TimelineSeparator>
+                            <TimelineContent sx={{ py: 0, px: 2, pb: 2 }}>
+                              <Card
                                 sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1,
-                                  flex: 1,
+                                  borderRadius: "8px",
+                                  border: 1,
+                                  borderColor: "cardBorder",
+                                  backgroundColor: "background.paper",
+                                  boxShadow: "none",
                                 }}
                               >
-                                <ShirtIcon color1={team1?.primaryColor} />
-                                <Box>
-                                  <Typography
-                                    variant="body2"
-                                    sx={{ fontSize: "12px", fontWeight: 600 }}
+                                <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
+                                  {/* Tour header */}
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                      mb: 1,
+                                    }}
                                   >
-                                    {tour.team1Name}
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    sx={{ fontSize: "12px", fontWeight: 500 }}
-                                  >
-                                    {team1?.cityName}
-                                  </Typography>
-                                </Box>
-                              </Box>
+                                    <Typography
+                                      variant="body2"
+                                      fontWeight={600}
+                                      sx={{ fontSize: "12px" }}
+                                    >
+                                      {tour.name || `Тур ${tour.number}`}
+                                    </Typography>
+                                    <Box
+                                      sx={{
+                                        px: 1,
+                                        py: 0.25,
+                                        borderRadius: "4px",
+                                        backgroundColor:
+                                          status === "FINISHED"
+                                            ? "success.light"
+                                            : status === "SCHEDULED"
+                                              ? "primary.light"
+                                              : "action.hover",
+                                      }}
+                                    >
+                                      <Typography
+                                        variant="caption"
+                                        sx={{
+                                          fontSize: "10px",
+                                          fontWeight: 600,
+                                          color:
+                                            status === "FINISHED"
+                                              ? "success.dark"
+                                              : status === "SCHEDULED"
+                                                ? "primary.dark"
+                                                : "text.secondary",
+                                        }}
+                                      >
+                                        {status === "FINISHED"
+                                          ? "ЗАВЕРШЕН"
+                                          : status === "SCHEDULED"
+                                            ? "ЗАПЛАНИРОВАН"
+                                            : "ОЖИДАНИЕ"}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
 
-                              {/* VS или счет */}
-                              <Typography
-                                variant="body2"
-                                sx={{
-                                  fontSize: "12px",
-                                  fontWeight: 600,
-                                  color: "text.secondary",
-                                }}
-                              >
-                                {tour.team1Score !== null &&
-                                tour.team2Score !== null
-                                  ? `${tour.team1Score}:${tour.team2Score}`
-                                  : "VS"}
-                              </Typography>
+                                  {/* Match information */}
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "space-between",
+                                      gap: 2,
+                                    }}
+                                  >
+                                    {/* Команда 1 */}
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1,
+                                        flex: 1,
+                                      }}
+                                    >
+                                      <ShirtIcon color1={team1?.primaryColor} />
+                                      <Box>
+                                        <Typography
+                                          variant="body2"
+                                          sx={{ fontSize: "12px", fontWeight: 600 }}
+                                        >
+                                          {tour.team1Name}
+                                        </Typography>
+                                        <Typography
+                                          variant="body2"
+                                          color="text.secondary"
+                                          sx={{ fontSize: "10px", fontWeight: 500 }}
+                                        >
+                                          {team1?.cityName}
+                                        </Typography>
+                                      </Box>
+                                    </Box>
 
-                              {/* Команда 2 */}
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1,
-                                  flex: 1,
-                                  justifyContent: "flex-end",
-                                }}
-                              >
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "flex-end",
-                                  }}
-                                >
-                                  <Typography
-                                    variant="body2"
-                                    sx={{ fontSize: "12px", fontWeight: 600 }}
-                                  >
-                                    {tour.team2Name}
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    sx={{ fontSize: "12px", fontWeight: 500 }}
-                                  >
-                                    {team2?.cityName}
-                                  </Typography>
-                                </Box>
-                                <ShirtIcon color1={team2?.primaryColor} />
-                              </Box>
-                            </Box>
-                          </Box>
+                                    {/* Score or VS */}
+                                    <Typography
+                                      variant="body2"
+                                      sx={{
+                                        fontSize: status === "FINISHED" ? "16px" : "12px",
+                                        fontWeight: 700,
+                                        color:
+                                          status === "FINISHED"
+                                            ? "text.primary"
+                                            : "text.secondary",
+                                        minWidth: "40px",
+                                        textAlign: "center",
+                                      }}
+                                    >
+                                      {tour.team1Score !== null &&
+                                      tour.team2Score !== null
+                                        ? `${tour.team1Score}:${tour.team2Score}`
+                                        : "VS"}
+                                    </Typography>
+
+                                    {/* Команда 2 */}
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1,
+                                        flex: 1,
+                                        justifyContent: "flex-end",
+                                      }}
+                                    >
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          alignItems: "flex-end",
+                                        }}
+                                      >
+                                        <Typography
+                                          variant="body2"
+                                          sx={{ fontSize: "12px", fontWeight: 600 }}
+                                        >
+                                          {tour.team2Name}
+                                        </Typography>
+                                        <Typography
+                                          variant="body2"
+                                          color="text.secondary"
+                                          sx={{ fontSize: "10px", fontWeight: 500 }}
+                                        >
+                                          {team2?.cityName}
+                                        </Typography>
+                                      </Box>
+                                      <ShirtIcon color1={team2?.primaryColor} />
+                                    </Box>
+                                  </Box>
+
+                                  {/* Date/time and location for scheduled matches */}
+                                  {status === "SCHEDULED" && tour.dateTime && (
+                                    <Box
+                                      sx={{
+                                        mt: 1,
+                                        pt: 1,
+                                        borderTop: 1,
+                                        borderColor: "divider",
+                                      }}
+                                    >
+                                      <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        sx={{ fontSize: "10px" }}
+                                      >
+                                        {new Date(tour.dateTime).toLocaleString("ru-RU", {
+                                          day: "numeric",
+                                          month: "long",
+                                          year: "numeric",
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                        })}
+                                        {tour.location && ` • ${tour.location}`}
+                                      </Typography>
+                                    </Box>
+                                  )}
+                                </CardContent>
+                              </Card>
+                            </TimelineContent>
+                          </TimelineItem>
                         );
                       })}
-                    </Box>
+                    </Timeline>
                   ) : (
                     <Typography
                       variant="body2"
