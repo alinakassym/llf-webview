@@ -326,11 +326,14 @@ const CupManagementPage: FC = () => {
   };
 
   const handleExpandTourGroup = (groupId: number) => {
+    console.log("cupId: ", cupId);
+    console.log("activeToken: ", activeToken);
     if (cupId && activeToken) {
       const group = groups.find((g) => g.id === groupId);
 
+      console.log("group: ", group);
       // Загружаем туры только если их еще нет
-      if (group && !group.tours) {
+      if (group && !group.tours?.length) {
         setLoadingTourGroupIds((prev) =>
           prev.includes(groupId) ? prev : [...prev, groupId],
         );
@@ -342,9 +345,7 @@ const CupManagementPage: FC = () => {
             token: activeToken,
           }),
         ).finally(() => {
-          setLoadingTourGroupIds((prev) =>
-            prev.filter((id) => id !== groupId),
-          );
+          setLoadingTourGroupIds((prev) => prev.filter((id) => id !== groupId));
         });
       }
     }

@@ -42,15 +42,19 @@ const CupToursView: FC<CupToursViewProps> = ({
   const handleAccordionChange =
     (groupId: number) =>
     (_event: React.SyntheticEvent, isExpanded: boolean) => {
+      console.log("groupId: ", groupId);
+      console.log("isExpanded: ", isExpanded);
       setExpandedGroupIds((prev) =>
         isExpanded ? [...prev, groupId] : prev.filter((id) => id !== groupId),
       );
+      console.log("expandedGroupIds", expandedGroupIds);
 
       if (isExpanded && onExpandGroup) {
         const group = groups.find((g) => g.id === groupId);
+        console.log("groups: ", groups);
 
         // Загружаем туры только если их еще нет
-        if (group && !group.tours) {
+        if (group && !group.tours?.length) {
           onExpandGroup(groupId);
         }
       }
