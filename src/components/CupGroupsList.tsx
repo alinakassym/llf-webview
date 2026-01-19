@@ -32,7 +32,6 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
   onDelete,
   onExpandGroup,
   onAddTeam,
-  onEditTeam,
   onDeleteTeam,
 }) => {
   const [expandedGroupIds, setExpandedGroupIds] = useState<number[]>([]);

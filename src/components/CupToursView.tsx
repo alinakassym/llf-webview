@@ -7,15 +7,23 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  CircularProgress,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import type { CupGroup } from "../types/cup";
+import { ShirtIcon } from "./icons";
 
 interface CupToursViewProps {
   groups: CupGroup[];
+  onExpandGroup?: (groupId: number) => void;
+  loadingGroupIds?: number[];
 }
 
-const CupToursView: FC<CupToursViewProps> = ({ groups }) => {
+const CupToursView: FC<CupToursViewProps> = ({
+  groups,
+  onExpandGroup,
+  loadingGroupIds,
+}) => {
   const [expandedGroupIds, setExpandedGroupIds] = useState<number[]>([]);
 
   if (groups.length === 0) {
@@ -37,6 +45,15 @@ const CupToursView: FC<CupToursViewProps> = ({ groups }) => {
       setExpandedGroupIds((prev) =>
         isExpanded ? [...prev, groupId] : prev.filter((id) => id !== groupId),
       );
+
+      if (isExpanded && onExpandGroup) {
+        const group = groups.find((g) => g.id === groupId);
+
+        // Загружаем туры только если их еще нет
+        if (group && !group.tours) {
+          onExpandGroup(groupId);
+        }
+      }
     };
 
   return (
@@ -91,13 +108,151 @@ const CupToursView: FC<CupToursViewProps> = ({ groups }) => {
 
           <AccordionDetails sx={{ pt: 0, pb: 2 }}>
             <Box sx={{ px: 0 }}>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ fontSize: "12px", textAlign: "center", py: 2 }}
-              >
-                Содержимое будет отображаться здесь
-              </Typography>
+              {loadingGroupIds?.includes(group.id) ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    py: 2,
+                  }}
+                >
+                  <CircularProgress size={24} />
+                </Box>
+              ) : (
+                <>
+                  {group.tours && group.tours.length > 0 ? (
+                    <Box
+                      sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                    >
+                      {group.tours.map((tour) => {
+                        // Находим команды по ID из teams массива
+                        const team1 = group.teams?.find(
+                          (t) => t.teamId === tour.team1Id,
+                        );
+                        const team2 = group.teams?.find(
+                          (t) => t.teamId === tour.team2Id,
+                        );
+
+                        return (
+                          <Box
+                            key={tour.id}
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 1,
+                              p: 1.5,
+                              borderRadius: "8px",
+                              backgroundColor: "surface",
+                            }}
+                          >
+                            <Typography
+                              variant="body2"
+                              fontWeight={600}
+                              sx={{ fontSize: "12px", mb: 0.5 }}
+                            >
+                              {tour.name || `Тур ${tour.number}`}
+                            </Typography>
+
+                            {/* Матч между командами */}
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                gap: 2,
+                              }}
+                            >
+                              {/* Команда 1 */}
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                  flex: 1,
+                                }}
+                              >
+                                <ShirtIcon color1={team1?.primaryColor} />
+                                <Box>
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ fontSize: "12px", fontWeight: 600 }}
+                                  >
+                                    {tour.team1Name}
+                                  </Typography>
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ fontSize: "12px", fontWeight: 500 }}
+                                  >
+                                    {team1?.cityName}
+                                  </Typography>
+                                </Box>
+                              </Box>
+
+                              {/* VS или счет */}
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontSize: "12px",
+                                  fontWeight: 600,
+                                  color: "text.secondary",
+                                }}
+                              >
+                                {tour.team1Score !== null &&
+                                tour.team2Score !== null
+                                  ? `${tour.team1Score}:${tour.team2Score}`
+                                  : "VS"}
+                              </Typography>
+
+                              {/* Команда 2 */}
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                  flex: 1,
+                                  justifyContent: "flex-end",
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "flex-end",
+                                  }}
+                                >
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ fontSize: "12px", fontWeight: 600 }}
+                                  >
+                                    {tour.team2Name}
+                                  </Typography>
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ fontSize: "12px", fontWeight: 500 }}
+                                  >
+                                    {team2?.cityName}
+                                  </Typography>
+                                </Box>
+                                <ShirtIcon color1={team2?.primaryColor} />
+                              </Box>
+                            </Box>
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  ) : (
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: "12px", textAlign: "center", py: 2 }}
+                    >
+                      Туры не найдены
+                    </Typography>
+                  )}
+                </>
+              )}
             </Box>
           </AccordionDetails>
         </Accordion>

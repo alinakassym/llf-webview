@@ -89,6 +89,7 @@ const CupManagementPage: FC = () => {
     name: string;
   } | null>(null);
   const [isDeletingGroup, setIsDeletingGroup] = useState(false);
+  const [loadingTourGroupIds, setLoadingTourGroupIds] = useState<number[]>([]);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -324,6 +325,31 @@ const CupManagementPage: FC = () => {
     }
   };
 
+  const handleExpandTourGroup = (groupId: number) => {
+    if (cupId && activeToken) {
+      const group = groups.find((g) => g.id === groupId);
+
+      // Загружаем туры только если их еще нет
+      if (group && !group.tours) {
+        setLoadingTourGroupIds((prev) =>
+          prev.includes(groupId) ? prev : [...prev, groupId],
+        );
+
+        dispatch(
+          fetchCupGroupById({
+            cupId: parseInt(cupId),
+            groupId,
+            token: activeToken,
+          }),
+        ).finally(() => {
+          setLoadingTourGroupIds((prev) =>
+            prev.filter((id) => id !== groupId),
+          );
+        });
+      }
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -426,7 +452,11 @@ const CupManagementPage: FC = () => {
                 <CircularProgress size={40} />
               </Box>
             ) : (
-              <CupToursView groups={groups} />
+              <CupToursView
+                groups={groups}
+                onExpandGroup={handleExpandTourGroup}
+                loadingGroupIds={loadingTourGroupIds}
+              />
             )}
           </Box>
         )}
