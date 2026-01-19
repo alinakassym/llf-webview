@@ -11,6 +11,7 @@ import {
   Card,
   CardContent,
   Button,
+  IconButton,
 } from "@mui/material";
 import {
   Timeline,
@@ -22,6 +23,8 @@ import {
 } from "@mui/lab";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import type { CupGroup, CupTour } from "../types/cup";
 import { ShirtIcon } from "./icons";
 
@@ -55,6 +58,8 @@ interface CupToursViewProps {
   onExpandGroup?: (groupId: number) => void;
   loadingGroupIds?: number[];
   onAddTour?: (groupId: number, groupName: string) => void;
+  onEditTour?: (groupId: number, tourId: number, tourName: string) => void;
+  onDeleteTour?: (groupId: number, tourId: number, tourName: string) => void;
 }
 
 const CupToursView: FC<CupToursViewProps> = ({
@@ -62,6 +67,8 @@ const CupToursView: FC<CupToursViewProps> = ({
   onExpandGroup,
   loadingGroupIds,
   onAddTour,
+  onEditTour,
+  onDeleteTour,
 }) => {
   const [expandedGroupIds, setExpandedGroupIds] = useState<number[]>([]);
 
@@ -225,42 +232,78 @@ const CupToursView: FC<CupToursViewProps> = ({
                                     <Typography
                                       variant="body2"
                                       fontWeight={600}
-                                      sx={{ fontSize: "12px" }}
+                                      sx={{ fontSize: "12px", flex: 1 }}
                                     >
                                       {tour.name || `Тур ${tour.number}`}
                                     </Typography>
+
                                     <Box
                                       sx={{
-                                        px: 1,
-                                        py: 0.25,
-                                        borderRadius: "4px",
-                                        backgroundColor:
-                                          status === "FINISHED"
-                                            ? "success.light"
-                                            : status === "SCHEDULED"
-                                            ? "primary.light"
-                                            : "action.hover",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1,
                                       }}
                                     >
-                                      <Typography
-                                        variant="caption"
-                                        sx={{
-                                          fontSize: "10px",
-                                          fontWeight: 600,
-                                          color:
-                                            status === "FINISHED"
-                                              ? "success.dark"
-                                              : status === "SCHEDULED"
-                                              ? "primary.dark"
-                                              : "text.secondary",
-                                        }}
-                                      >
-                                        {status === "FINISHED"
-                                          ? "ЗАВЕРШЕН"
-                                          : status === "SCHEDULED"
-                                          ? "ЗАПЛАНИРОВАН"
-                                          : "ОЖИДАНИЕ"}
-                                      </Typography>
+                                      {/* CRUD Actions */}
+                                      {(onEditTour || onDeleteTour) && (
+                                        <Box sx={{ display: "flex", gap: 0.5 }}>
+                                          {onEditTour && (
+                                            <IconButton
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                onEditTour(
+                                                  group.id,
+                                                  tour.id,
+                                                  tour.name ||
+                                                    `Тур ${tour.number}`,
+                                                );
+                                              }}
+                                              sx={{
+                                                width: 32,
+                                                height: 32,
+                                                borderRadius: "8px",
+                                                backgroundColor: "surface",
+                                                color: "primary.main",
+                                                "&:hover": {
+                                                  backgroundColor: "surface",
+                                                  opacity: 0.8,
+                                                },
+                                              }}
+                                            >
+                                              <EditIcon sx={{ fontSize: 16 }} />
+                                            </IconButton>
+                                          )}
+
+                                          {onDeleteTour && (
+                                            <IconButton
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                onDeleteTour(
+                                                  group.id,
+                                                  tour.id,
+                                                  tour.name ||
+                                                    `Тур ${tour.number}`,
+                                                );
+                                              }}
+                                              sx={{
+                                                width: 32,
+                                                height: 32,
+                                                borderRadius: "8px",
+                                                backgroundColor: "surface",
+                                                color: "#ef4444",
+                                                "&:hover": {
+                                                  backgroundColor: "surface",
+                                                  opacity: 0.8,
+                                                },
+                                              }}
+                                            >
+                                              <DeleteIcon
+                                                sx={{ fontSize: 16 }}
+                                              />
+                                            </IconButton>
+                                          )}
+                                        </Box>
+                                      )}
                                     </Box>
                                   </Box>
 
@@ -277,7 +320,8 @@ const CupToursView: FC<CupToursViewProps> = ({
                                     <Box
                                       sx={{
                                         display: "flex",
-                                        alignItems: "center",
+                                        flexDirection: "column",
+                                        alignItems: "start",
                                         gap: 1,
                                         flex: 1,
                                       }}
@@ -333,12 +377,13 @@ const CupToursView: FC<CupToursViewProps> = ({
                                     <Box
                                       sx={{
                                         display: "flex",
-                                        alignItems: "center",
+                                        flexDirection: "column",
+                                        alignItems: "end",
                                         gap: 1,
                                         flex: 1,
-                                        justifyContent: "flex-end",
                                       }}
                                     >
+                                      <ShirtIcon color1={team2?.primaryColor} />
                                       <Box
                                         sx={{
                                           display: "flex",
@@ -366,39 +411,61 @@ const CupToursView: FC<CupToursViewProps> = ({
                                           {team2?.cityName}
                                         </Typography>
                                       </Box>
-                                      <ShirtIcon color1={team2?.primaryColor} />
                                     </Box>
                                   </Box>
 
                                   {/* Date/time and location for scheduled matches */}
-                                  {status === "SCHEDULED" && tour.dateTime && (
+                                  <Box
+                                    sx={{
+                                      mt: 2,
+                                      pt: 1,
+                                      width: "100%",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "space-between",
+                                      borderTop: 0.5,
+                                      borderColor: "divider",
+                                    }}
+                                  >
                                     <Box
                                       sx={{
-                                        mt: 1,
-                                        pt: 1,
-                                        borderTop: 1,
-                                        borderColor: "divider",
+                                        py: 1,
+                                        fontSize: "10px",
+                                        fontWeight: 600,
+                                        lineHeight: "10px",
                                       }}
                                     >
-                                      <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                        sx={{ fontSize: "10px" }}
-                                      >
-                                        {new Date(tour.dateTime).toLocaleString(
-                                          "ru-RU",
-                                          {
-                                            day: "numeric",
-                                            month: "long",
-                                            year: "numeric",
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                          },
-                                        )}
-                                        {tour.location && ` • ${tour.location}`}
-                                      </Typography>
+                                      {tour?.location ?? ""}
                                     </Box>
-                                  )}
+                                    <Box
+                                      sx={{
+                                        px: 2,
+                                        py: 1,
+                                        borderRadius: "4px",
+                                        backgroundColor:
+                                          status === "FINISHED"
+                                            ? "success.light"
+                                            : status === "SCHEDULED"
+                                            ? "primary.light"
+                                            : "action.hover",
+                                        fontSize: "10px",
+                                        fontWeight: 600,
+                                        lineHeight: "10px",
+                                        color:
+                                          status === "FINISHED"
+                                            ? "success.dark"
+                                            : status === "SCHEDULED"
+                                            ? "primary.dark"
+                                            : "text.secondary",
+                                      }}
+                                    >
+                                      {status === "FINISHED"
+                                        ? "ЗАВЕРШЕН"
+                                        : status === "SCHEDULED"
+                                        ? "ЗАПЛАНИРОВАН"
+                                        : "ОЖИДАНИЕ"}
+                                    </Box>
+                                  </Box>
                                 </CardContent>
                               </Card>
                             </TimelineContent>
@@ -421,7 +488,7 @@ const CupToursView: FC<CupToursViewProps> = ({
                   {/* Кнопка добавления тура */}
                   {onAddTour && (
                     <Box
-                      sx={{ mt: 2, display: "flex", justifyContent: "center" }}
+                      sx={{ mt: 0, display: "flex", justifyContent: "center" }}
                     >
                       <Button
                         variant="outlined"

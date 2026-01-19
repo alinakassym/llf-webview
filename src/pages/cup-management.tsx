@@ -99,6 +99,13 @@ const CupManagementPage: FC = () => {
     id: number;
     name: string;
   } | null>(null);
+  const [deleteTourDialogOpen, setDeleteTourDialogOpen] = useState(false);
+  const [tourToDelete, setTourToDelete] = useState<{
+    groupId: number;
+    tourId: number;
+    tourName: string;
+  } | null>(null);
+  const [isDeletingTour, setIsDeletingTour] = useState(false);
 
   // Используем webViewToken если доступен, иначе fallback на Firebase token
   const activeToken = useMemo(
@@ -385,6 +392,56 @@ const CupManagementPage: FC = () => {
     ).unwrap();
   };
 
+  const handleEditTour = (
+    groupId: number,
+    tourId: number,
+    tourName: string,
+  ) => {
+    // TODO: Implement edit tour modal
+    console.log("Edit tour:", { groupId, tourId, tourName });
+  };
+
+  const handleDeleteTour = (
+    groupId: number,
+    tourId: number,
+    tourName: string,
+  ) => {
+    setTourToDelete({ groupId, tourId, tourName });
+    setDeleteTourDialogOpen(true);
+  };
+
+  const handleCloseDeleteTourDialog = () => {
+    if (!isDeletingTour) {
+      setDeleteTourDialogOpen(false);
+      setTourToDelete(null);
+    }
+  };
+
+  const handleConfirmDeleteTour = async () => {
+    if (!tourToDelete || !activeToken || !cupId) {
+      return;
+    }
+
+    setIsDeletingTour(true);
+    try {
+      // TODO: Implement deleteCupTour thunk
+      console.log("Delete tour:", tourToDelete);
+      // await dispatch(
+      //   deleteCupTour({
+      //     cupId: parseInt(cupId),
+      //     groupId: tourToDelete.groupId,
+      //     tourId: tourToDelete.tourId,
+      //     token: activeToken,
+      //   }),
+      // ).unwrap();
+      handleCloseDeleteTourDialog();
+    } catch (error) {
+      console.error("Error deleting tour:", error);
+    } finally {
+      setIsDeletingTour(false);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -492,6 +549,8 @@ const CupManagementPage: FC = () => {
                 onExpandGroup={handleExpandTourGroup}
                 loadingGroupIds={loadingTourGroupIds}
                 onAddTour={handleAddTour}
+                onEditTour={handleEditTour}
+                onDeleteTour={handleDeleteTour}
               />
             )}
           </Box>
@@ -557,6 +616,15 @@ const CupManagementPage: FC = () => {
             ? (groups.find((g) => g.id === selectedGroupForTour.id)?.tours?.length || 0) + 1
             : 1
         }
+      />
+
+      <DeleteConfirmDialog
+        open={deleteTourDialogOpen}
+        onClose={handleCloseDeleteTourDialog}
+        onConfirm={handleConfirmDeleteTour}
+        title="Удалить тур?"
+        message={`Вы уверены, что хотите удалить тур "${tourToDelete?.tourName}"?`}
+        loading={isDeletingTour}
       />
     </Box>
   );
