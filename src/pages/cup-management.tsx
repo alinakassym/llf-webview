@@ -22,6 +22,9 @@ import AddTeamToCupGroupModal from "../components/AddTeamToCupGroupModal";
 import CreateCupTourModal, {
   type CreateCupTourData,
 } from "../components/CreateCupTourModal";
+import EditCupTourModal, {
+  type EditCupTourData,
+} from "../components/EditCupTourModal";
 import DeleteConfirmDialog from "../components/DeleteConfirmDialog";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
@@ -33,6 +36,7 @@ import {
   deleteTeamFromCupGroup,
   deleteCupGroup,
   createCupTour,
+  updateCupTour,
   selectCupGroupsByCupId,
   selectCupGroupsLoadingForCup,
 } from "../store/slices/cupGroupSlice";
@@ -98,6 +102,12 @@ const CupManagementPage: FC = () => {
   const [selectedGroupForTour, setSelectedGroupForTour] = useState<{
     id: number;
     name: string;
+  } | null>(null);
+  const [isEditTourModalOpen, setIsEditTourModalOpen] = useState(false);
+  const [editingTourData, setEditingTourData] = useState<{
+    groupId: number;
+    groupName: string;
+    tourId: number;
   } | null>(null);
   const [deleteTourDialogOpen, setDeleteTourDialogOpen] = useState(false);
   const [tourToDelete, setTourToDelete] = useState<{
@@ -392,13 +402,37 @@ const CupManagementPage: FC = () => {
     ).unwrap();
   };
 
-  const handleEditTour = (
-    groupId: number,
-    tourId: number,
-    tourName: string,
-  ) => {
-    // TODO: Implement edit tour modal
-    console.log("Edit tour:", { groupId, tourId, tourName });
+  const handleEditTour = (groupId: number, tourId: number) => {
+    const group = groups.find((g) => g.id === groupId);
+    if (group) {
+      setEditingTourData({
+        groupId,
+        groupName: group.name,
+        tourId,
+      });
+      setIsEditTourModalOpen(true);
+    }
+  };
+
+  const handleCloseEditTourModal = () => {
+    setIsEditTourModalOpen(false);
+    setEditingTourData(null);
+  };
+
+  const handleEditTourSubmit = async (data: EditCupTourData) => {
+    if (!activeToken || !cupId || !editingTourData) {
+      throw new Error("No auth token, cupId or editing tour data");
+    }
+
+    await dispatch(
+      updateCupTour({
+        cupId: parseInt(cupId),
+        groupId: editingTourData.groupId,
+        tourId: editingTourData.tourId,
+        data,
+        token: activeToken,
+      }),
+    ).unwrap();
   };
 
   const handleDeleteTour = (
@@ -615,6 +649,21 @@ const CupManagementPage: FC = () => {
           selectedGroupForTour
             ? (groups.find((g) => g.id === selectedGroupForTour.id)?.tours?.length || 0) + 1
             : 1
+        }
+      />
+
+      <EditCupTourModal
+        open={isEditTourModalOpen}
+        onClose={handleCloseEditTourModal}
+        teams={editingTourData ? groups.find((g) => g.id === editingTourData.groupId)?.teams || [] : []}
+        onSubmit={handleEditTourSubmit}
+        groupName={editingTourData?.groupName || ""}
+        editingTour={
+          editingTourData
+            ? groups
+                .find((g) => g.id === editingTourData.groupId)
+                ?.tours?.find((t) => t.id === editingTourData.tourId) || null
+            : null
         }
       />
 

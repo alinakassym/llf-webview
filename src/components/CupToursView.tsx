@@ -91,7 +91,7 @@ interface CupToursViewProps {
   onExpandGroup?: (groupId: number) => void;
   loadingGroupIds?: number[];
   onAddTour?: (groupId: number, groupName: string) => void;
-  onEditTour?: (groupId: number, tourId: number, tourName: string) => void;
+  onEditTour?: (groupId: number, tourId: number) => void;
   onDeleteTour?: (groupId: number, tourId: number, tourName: string) => void;
 }
 
@@ -284,12 +284,7 @@ const CupToursView: FC<CupToursViewProps> = ({
                                             <IconButton
                                               onClick={(e) => {
                                                 e.stopPropagation();
-                                                onEditTour(
-                                                  group.id,
-                                                  tour.id,
-                                                  tour.name ||
-                                                    `Тур ${tour.number}`,
-                                                );
+                                                onEditTour(group.id, tour.id);
                                               }}
                                               sx={{
                                                 width: 32,

@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { CupGroup, CupGroupTeam, CupTour } from "../../types/cup";
-import { cupService, type CreateCupTourPayload } from "../../services/cupService";
+import {
+  cupService,
+  type CreateCupTourPayload,
+  type UpdateCupTourPayload,
+} from "../../services/cupService";
 
 interface CupGroupState {
   itemsByCupId: Record<string, CupGroup[]>;
@@ -160,6 +164,32 @@ export const createCupTour = createAsyncThunk<
   },
 );
 
+// Thunk для обновления тура
+export const updateCupTour = createAsyncThunk<
+  { cupId: string; groupId: number; tourId: number; data: UpdateCupTourPayload },
+  {
+    cupId: number;
+    groupId: number;
+    tourId: number;
+    data: UpdateCupTourPayload;
+    token: string;
+  }
+>(
+  "cupGroups/updateCupTour",
+  async ({ cupId, groupId, tourId, data, token }) => {
+    // API возвращает 204 No Content, используем оптимистичное обновление
+    await cupService.updateTour(tourId, data, token);
+
+    // Возвращаем данные для обновления state
+    return {
+      cupId: String(cupId),
+      groupId,
+      tourId,
+      data,
+    };
+  },
+);
+
 const cupGroupSlice = createSlice({
   name: "cupGroups",
   initialState,
@@ -282,6 +312,49 @@ const cupGroupSlice = createSlice({
             }
             // Добавляем тур в группу
             group.tours.push(tour);
+          }
+        }
+      })
+      .addCase(updateCupTour.fulfilled, (state, action) => {
+        const { cupId, groupId, tourId, data } = action.payload;
+        const groups = state.itemsByCupId[cupId];
+        if (groups) {
+          // Находим группу по ID
+          const group = groups.find((g) => g.id === groupId);
+          if (group && group.tours) {
+            // Находим и обновляем тур
+            const tourIndex = group.tours.findIndex((t) => t.id === tourId);
+            if (tourIndex !== -1) {
+              // Оптимистичное обновление: обновляем тур с новыми данными
+              const existingTour = group.tours[tourIndex];
+              group.tours[tourIndex] = {
+                ...existingTour,
+                number: data.number,
+                name: data.name,
+                startDate: data.startDate,
+                endDate: data.endDate,
+                dateTime: data.dateTime,
+                location: data.location,
+                team1Id: data.team1Id,
+                team2Id: data.team2Id,
+                team1Score: data.team1Score,
+                team2Score: data.team2Score,
+                team1Set1Score: data.team1Set1Score,
+                team2Set1Score: data.team2Set1Score,
+                team1Set2Score: data.team1Set2Score,
+                team2Set2Score: data.team2Set2Score,
+                team1Set3Score: data.team1Set3Score,
+                team2Set3Score: data.team2Set3Score,
+                // Сохраняем поля, которых нет в UpdateCupTourPayload
+                cupGroupId: existingTour.cupGroupId,
+                matchId: existingTour.matchId,
+                sportType: existingTour.sportType,
+                team1Name: existingTour.team1Name,
+                team2Name: existingTour.team2Name,
+                team1SetsWon: existingTour.team1SetsWon,
+                team2SetsWon: existingTour.team2SetsWon,
+              };
+            }
           }
         }
       });

@@ -46,6 +46,26 @@ export interface CreateCupTourPayload {
   team2Set3Score: number | null;
 }
 
+export interface UpdateCupTourPayload {
+  number: number;
+  name: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  cupGroupId: number;
+  dateTime: string | null;
+  location: string | null;
+  team1Id: number;
+  team2Id: number;
+  team1Score: number | null;
+  team2Score: number | null;
+  team1Set1Score: number | null;
+  team2Set1Score: number | null;
+  team1Set2Score: number | null;
+  team2Set2Score: number | null;
+  team1Set3Score: number | null;
+  team2Set3Score: number | null;
+}
+
 export const cupService = {
   getCups: async (
     token: string,
@@ -207,5 +227,17 @@ export const cupService = {
       },
     );
     return response;
+  },
+
+  updateTour: async (
+    tourId: number,
+    data: UpdateCupTourPayload,
+    token: string,
+  ): Promise<void> => {
+    await apiRequest<void>(`/cups/tours/${tourId}`, {
+      method: "PUT",
+      token,
+      body: JSON.stringify(data),
+    });
   },
 };
