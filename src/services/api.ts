@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://api.steppe.dev/scoreapp/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ApiRequestOptions extends RequestInit {
   token?: string;
