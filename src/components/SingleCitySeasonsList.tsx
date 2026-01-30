@@ -2,7 +2,7 @@ import { type FC } from "react";
 import { Box, Typography } from "@mui/material";
 import ManagementItemCard from "./ManagementItemCard";
 import type { Season } from "../types/season";
-import { formatDate } from "../utils/dateFormat";
+import { formatDate } from "../utils/dateTimeFormat";
 
 interface SingleCitySeasonsListProps {
   cityName: string;

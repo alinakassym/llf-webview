@@ -27,6 +27,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import type { CupGroup, CupTour } from "../types/cup";
 import { ShirtIcon } from "./icons";
+import { formatTime } from "../utils/dateTimeFormat";
 
 type TourStatus = "FINISHED" | "SCHEDULED" | "PENDING";
 
@@ -405,6 +406,7 @@ const CupToursView: FC<CupToursViewProps> = ({
                                               ? "16px"
                                               : "12px",
                                           fontWeight: 700,
+                                          lineHeight: 1,
                                           color:
                                             status === "FINISHED"
                                               ? "text.primary"
@@ -418,6 +420,15 @@ const CupToursView: FC<CupToursViewProps> = ({
                                           ? `${tour.team1Score}:${tour.team2Score}`
                                           : "VS"}
                                       </Typography>
+                                      {tour.dateTime && (
+                                        <Typography
+                                          variant="caption"
+                                          color="text.secondary"
+                                          sx={{ mb: 0, lineHeight: 1 }}
+                                        >
+                                          {formatTime(tour.dateTime)}
+                                        </Typography>
+                                      )}
 
                                       {/* Sets information */}
                                       {hasSetsScore(tour) && (

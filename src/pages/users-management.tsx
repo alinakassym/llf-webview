@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchUsers } from "../store/slices/userSlice";
 import { useAuth } from "../hooks/useAuth";
 import { useWebViewToken } from "../hooks/useWebViewToken";
-import { calculateAge } from "../utils/dateFormat";
+import { calculateAge } from "../utils/dateTimeFormat";
 
 const UsersManagementPage: FC = () => {
   const dispatch = useAppDispatch();

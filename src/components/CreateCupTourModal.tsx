@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { CupGroupTeam } from "../types/cup";
+import { formatDateTimeLocal } from "../utils/dateTimeFormat";
 
 export interface CreateCupTourData {
   number: number;
@@ -323,7 +324,7 @@ const CreateCupTourModal: FC<CreateCupTourModalProps> = ({
             type="datetime-local"
             value={
               formData.dateTime
-                ? new Date(formData.dateTime).toISOString().slice(0, 16)
+                ? formatDateTimeLocal(new Date(formData.dateTime))
                 : ""
             }
             onChange={handleDateChange("dateTime")}
