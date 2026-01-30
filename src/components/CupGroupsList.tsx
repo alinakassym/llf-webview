@@ -209,7 +209,10 @@ const CupGroupsList: FC<CupGroupsListProps> = ({
                               gap: 10,
                             }}
                           >
-                            <ShirtIcon color1={team.primaryColor} />
+                            <ShirtIcon
+                              color1={team?.primaryColor ?? "#5060D8"}
+                              color2={team?.secondaryColor ?? "#5060D8"}
+                            />
                             <Box>
                               <Typography
                                 variant="body1"

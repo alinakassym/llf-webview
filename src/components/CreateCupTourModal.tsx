@@ -119,8 +119,9 @@ const CreateCupTourModal: FC<CreateCupTourModalProps> = ({
   };
 
   const handleTextChange =
-    (field: "name" | "location") => (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value.trim() || null;
+    (field: "name" | "location") =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value || null;
       setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -196,7 +197,11 @@ const CreateCupTourModal: FC<CreateCupTourModalProps> = ({
 
     setSubmitting(true);
     try {
-      await onSubmit(formData);
+      await onSubmit({
+        ...formData,
+        name: formData?.name ? formData.name.trim() : "",
+        location: formData?.location ? formData?.location.trim() : "",
+      });
       handleClose();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
