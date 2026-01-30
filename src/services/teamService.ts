@@ -7,16 +7,18 @@ export interface CreateTeamPayload {
   name: string;
   primaryColor: string;
   secondaryColor: string;
-  leagueId: number;
+  leagueId?: number;
   cityId: number;
+  sportType: number;
 }
 
 export interface UpdateTeamPayload {
   name: string;
   primaryColor: string;
   secondaryColor: string;
-  leagueId: number;
+  leagueId?: number;
   cityId: number;
+  sportType: number;
 }
 
 export const teamService = {
@@ -52,10 +54,23 @@ export const teamService = {
   },
 
   createTeam: async (data: CreateTeamPayload, token: string): Promise<Team> => {
+    // Формируем payload без leagueId если он не указан
+    const payload: Record<string, unknown> = {
+      name: data.name,
+      primaryColor: data.primaryColor,
+      secondaryColor: data.secondaryColor,
+      cityId: data.cityId,
+      sportType: data.sportType,
+    };
+
+    if (data.leagueId !== undefined) {
+      payload.leagueId = data.leagueId;
+    }
+
     const response = await apiRequest<Team>("/teams", {
       method: "POST",
       token,
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
     return response;
   },
@@ -65,10 +80,23 @@ export const teamService = {
     data: UpdateTeamPayload,
     token: string,
   ): Promise<Team> => {
+    // Формируем payload без leagueId если он не указан
+    const payload: Record<string, unknown> = {
+      name: data.name,
+      primaryColor: data.primaryColor,
+      secondaryColor: data.secondaryColor,
+      cityId: data.cityId,
+      sportType: data.sportType,
+    };
+
+    if (data.leagueId !== undefined) {
+      payload.leagueId = data.leagueId;
+    }
+
     const response = await apiRequest<Team>(`/teams/${teamId}`, {
       method: "PUT",
       token,
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
     return response;
   },

@@ -35,7 +35,8 @@ export interface CreateTeamData {
   primaryColor: string;
   secondaryColor: string;
   cityId: number;
-  leagueId: string;
+  leagueId?: string;
+  sportType: number;
 }
 
 // Константа для пустого массива чтобы избежать создания нового reference
@@ -55,7 +56,8 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
     primaryColor: "#FFFFFF",
     secondaryColor: "#000000",
     cityId: 0,
-    leagueId: "",
+    leagueId: undefined,
+    sportType,
   });
   const [errors, setErrors] = useState<
     Partial<Record<keyof CreateTeamData, string>>
@@ -93,11 +95,12 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
       // При изменении города сбрасываем выбранную лигу
       if (field === "cityId") {
         const cityId = Number(e.target.value);
-        setFormData((prev) => ({ ...prev, cityId, leagueId: "" }));
+        setFormData((prev) => ({ ...prev, cityId, leagueId: undefined }));
       } else if (field === "name") {
         setFormData((prev) => ({ ...prev, name: e.target.value }));
       } else if (field === "leagueId") {
-        setFormData((prev) => ({ ...prev, leagueId: e.target.value }));
+        const value = e.target.value;
+        setFormData((prev) => ({ ...prev, leagueId: value || undefined }));
       } else if (field === "primaryColor") {
         setFormData((prev) => ({ ...prev, primaryColor: e.target.value }));
       } else if (field === "secondaryColor") {
@@ -119,9 +122,6 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
     if (formData.cityId === 0) {
       newErrors.cityId = "Выберите город";
     }
-    if (!formData.leagueId) {
-      newErrors.leagueId = "Выберите лигу";
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -134,7 +134,8 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
         primaryColor: "#FFFFFF",
         secondaryColor: "#000000",
         cityId: 0,
-        leagueId: "",
+        leagueId: undefined,
+        sportType,
       });
       setErrors({});
       setLoading(false);
@@ -313,17 +314,14 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
           <TextField
             label="Лига"
             select
-            value={formData.leagueId}
+            value={formData.leagueId || ""}
             onChange={handleChange("leagueId")}
             error={Boolean(errors.leagueId)}
             helperText={errors.leagueId}
             disabled={formData.cityId === 0 || loading}
             fullWidth
-            required
           >
-            <MenuItem value="" disabled>
-              Выберите лигу
-            </MenuItem>
+            <MenuItem value="">Не указывать лигу</MenuItem>
             {leagues.map((league) => (
               <MenuItem key={league.id} value={league.id}>
                 {league.name}

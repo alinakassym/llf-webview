@@ -38,7 +38,8 @@ export interface EditTeamData {
   primaryColor: string;
   secondaryColor: string;
   cityId: number;
-  leagueId: number;
+  leagueId?: number;
+  sportType: number;
 }
 
 // Константа для пустого массива чтобы избежать создания нового reference
@@ -59,7 +60,8 @@ const EditTeamModal: FC<EditTeamModalProps> = ({
     primaryColor: "#FFFFFF",
     secondaryColor: "#000000",
     cityId: 0,
-    leagueId: 0,
+    leagueId: undefined,
+    sportType,
   });
   const [errors, setErrors] = useState<
     Partial<Record<keyof EditTeamData, string>>
@@ -74,7 +76,8 @@ const EditTeamModal: FC<EditTeamModalProps> = ({
         primaryColor: team.primaryColor,
         secondaryColor: team.secondaryColor,
         cityId: team.cityId,
-        leagueId: team.leagueId,
+        leagueId: team.leagueId || undefined,
+        sportType: team.sportType,
       });
     }
   }, [open, team]);
@@ -109,11 +112,15 @@ const EditTeamModal: FC<EditTeamModalProps> = ({
       // При изменении города сбрасываем выбранную лигу
       if (field === "cityId") {
         const cityId = Number(e.target.value);
-        setFormData((prev) => ({ ...prev, cityId, leagueId: 0 }));
+        setFormData((prev) => ({ ...prev, cityId, leagueId: undefined }));
       } else if (field === "name") {
         setFormData((prev) => ({ ...prev, name: e.target.value }));
       } else if (field === "leagueId") {
-        setFormData((prev) => ({ ...prev, leagueId: Number(e.target.value) }));
+        const value = e.target.value;
+        setFormData((prev) => ({
+          ...prev,
+          leagueId: value ? Number(value) : undefined,
+        }));
       } else if (field === "primaryColor") {
         setFormData((prev) => ({ ...prev, primaryColor: e.target.value }));
       } else if (field === "secondaryColor") {
@@ -135,9 +142,6 @@ const EditTeamModal: FC<EditTeamModalProps> = ({
     if (formData.cityId === 0) {
       newErrors.cityId = "Выберите город";
     }
-    if (formData.leagueId === 0) {
-      newErrors.leagueId = "Выберите лигу";
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -150,7 +154,8 @@ const EditTeamModal: FC<EditTeamModalProps> = ({
         primaryColor: "#FFFFFF",
         secondaryColor: "#000000",
         cityId: 0,
-        leagueId: 0,
+        leagueId: undefined,
+        sportType,
       });
       setErrors({});
       setLoading(false);
@@ -346,17 +351,14 @@ const EditTeamModal: FC<EditTeamModalProps> = ({
           <TextField
             label="Лига"
             select
-            value={formData.leagueId}
+            value={formData.leagueId ?? ""}
             onChange={handleChange("leagueId")}
             error={Boolean(errors.leagueId)}
             helperText={errors.leagueId}
             disabled={formData.cityId === 0 || loading}
             fullWidth
-            required
           >
-            <MenuItem value={0} disabled>
-              Выберите лигу
-            </MenuItem>
+            <MenuItem value="">Не указывать лигу</MenuItem>
             {leagues.map((league) => (
               <MenuItem key={league.id} value={league.id}>
                 {league.name}
