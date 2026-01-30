@@ -2,7 +2,6 @@ import { type FC } from "react";
 import { Box, Typography } from "@mui/material";
 import ManagementItemCard from "./ManagementItemCard";
 import type { Cup } from "../types/cup";
-import { formatDate } from "../utils/dateFormat";
 
 interface AllCitiesCupsListProps {
   cupsByCity: Record<string, Cup[]>;
@@ -49,9 +48,6 @@ const AllCitiesCupsList: FC<AllCitiesCupsListProps> = ({
               <ManagementItemCard
                 key={`${cityName}${cup.id}`}
                 title={cup.name}
-                subtitle={`${formatDate(cup.startDate)} - ${formatDate(
-                  cup.endDate,
-                )}`}
                 onClickCard={() => onClickCard(cup.cityId, String(cup.id))}
                 onEdit={() => onEdit(String(cup.id))}
                 onDelete={() => onDelete(String(cup.id), cup.name)}
