@@ -107,7 +107,7 @@ const teamSlice = createSlice({
       .addCase(fetchTeams.fulfilled, (state, action) => {
         const { cacheKey, teams } = action.payload;
         state.itemsByCityId[cacheKey] = teams.sort((a, b) =>
-          a.leagueName.localeCompare(b.leagueName),
+          (a.leagueName || '').localeCompare(b.leagueName || ''),
         );
         state.loadingCities = state.loadingCities.filter(
           (id) => id !== cacheKey,
@@ -135,7 +135,7 @@ const teamSlice = createSlice({
           state.itemsByCityId[cityId] = [
             ...state.itemsByCityId[cityId],
             team,
-          ].sort((a, b) => a.leagueName.localeCompare(b.leagueName));
+          ].sort((a, b) => (a.leagueName || '').localeCompare(b.leagueName || ''));
         } else {
           state.itemsByCityId[cityId] = [team];
         }
@@ -145,7 +145,7 @@ const teamSlice = createSlice({
           state.itemsByCityId["__ALL__"] = [
             ...state.itemsByCityId["__ALL__"],
             team,
-          ].sort((a, b) => a.leagueName.localeCompare(b.leagueName));
+          ].sort((a, b) => (a.leagueName || '').localeCompare(b.leagueName || ''));
         }
       })
       .addCase(deleteTeam.fulfilled, (state, action) => {
