@@ -373,8 +373,8 @@ const VolleyballTeamEditPage: FC = () => {
               {team.primaryColor && team.secondaryColor ? (
                 <ShirtIcon
                   size={64}
-                  color1={team.primaryColor}
-                  color2={team.secondaryColor}
+                  color1={team?.primaryColor ?? "#5060D8"}
+                  color2={team?.secondaryColor ?? "#5060D8"}
                 />
               ) : (
                 <Box

@@ -357,7 +357,14 @@ const CupToursView: FC<CupToursViewProps> = ({
                                         flex: 1,
                                       }}
                                     >
-                                      <ShirtIcon color1={team1?.primaryColor} />
+                                      <ShirtIcon
+                                        color1={
+                                          team1?.primaryColor ?? "#5060D8"
+                                        }
+                                        color2={
+                                          team1?.secondaryColor ?? "#5060D8"
+                                        }
+                                      />
                                       <Box>
                                         <Typography
                                           variant="body2"
@@ -568,7 +575,14 @@ const CupToursView: FC<CupToursViewProps> = ({
                                         flex: 1,
                                       }}
                                     >
-                                      <ShirtIcon color1={team2?.primaryColor} />
+                                      <ShirtIcon
+                                        color1={
+                                          team2?.primaryColor ?? "#5060D8"
+                                        }
+                                        color2={
+                                          team2?.secondaryColor ?? "#5060D8"
+                                        }
+                                      />
                                       <Box
                                         sx={{
                                           display: "flex",

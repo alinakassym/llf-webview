@@ -215,8 +215,8 @@ const CreateTeamModal: FC<CreateTeamModalProps> = ({
           >
             <ShirtIcon
               size={64}
-              color1={formData.primaryColor}
-              color2={formData.secondaryColor}
+              color1={formData?.primaryColor ?? "#5060D8"}
+              color2={formData?.secondaryColor ?? "#5060D8"}
             />
           </Box>
           <Box
