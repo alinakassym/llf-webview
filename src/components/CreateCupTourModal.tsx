@@ -28,6 +28,7 @@ export interface CreateCupTourData {
   endDate: string | null;
   dateTime: string | null;
   location: string | null;
+  streamUrl: string | null;
   team1Id: number;
   team2Id: number;
   team1Score: number | null;
@@ -64,6 +65,7 @@ const CreateCupTourModal: FC<CreateCupTourModalProps> = ({
     endDate: null,
     dateTime: null,
     location: null,
+    streamUrl: null,
     team1Id: 0,
     team2Id: 0,
     team1Score: null,
@@ -94,6 +96,7 @@ const CreateCupTourModal: FC<CreateCupTourModalProps> = ({
         endDate: null,
         dateTime: null,
         location: null,
+        streamUrl: null,
         team1Id: 0,
         team2Id: 0,
         team1Score: null,
@@ -120,7 +123,7 @@ const CreateCupTourModal: FC<CreateCupTourModalProps> = ({
   };
 
   const handleTextChange =
-    (field: "name" | "location") =>
+    (field: "name" | "location" | "streamUrl") =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value || null;
       setFormData((prev) => ({ ...prev, [field]: value }));
@@ -202,6 +205,7 @@ const CreateCupTourModal: FC<CreateCupTourModalProps> = ({
         ...formData,
         name: formData?.name ? formData.name.trim() : "",
         location: formData?.location ? formData?.location.trim() : "",
+        streamUrl: formData?.streamUrl ? formData.streamUrl.trim() : null,
       });
       handleClose();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -341,6 +345,15 @@ const CreateCupTourModal: FC<CreateCupTourModalProps> = ({
             onChange={handleTextChange("location")}
             disabled={submitting}
             fullWidth
+          />
+
+          <TextField
+            label="Ссылка на трансляцию"
+            value={formData.streamUrl || ""}
+            onChange={handleTextChange("streamUrl")}
+            disabled={submitting}
+            fullWidth
+            placeholder="https://..."
           />
 
           <Divider sx={{ my: 1 }} />
