@@ -25,6 +25,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import type { CupGroup, CupTour } from "../types/cup";
 import { ShirtIcon } from "./icons";
 import { formatTime } from "../utils/dateTimeFormat";
@@ -424,7 +425,11 @@ const CupToursView: FC<CupToursViewProps> = ({
                                         <Typography
                                           variant="caption"
                                           color="text.secondary"
-                                          sx={{ mb: 0, lineHeight: 1 }}
+                                          sx={{
+                                            mb: 0,
+                                            lineHeight: 1,
+                                            textAlign: "center",
+                                          }}
                                         >
                                           {formatTime(tour.dateTime)}
                                         </Typography>
@@ -624,7 +629,7 @@ const CupToursView: FC<CupToursViewProps> = ({
                                     </Box>
                                   </Box>
 
-                                  {/* Date/time and location for scheduled matches */}
+                                  {/* Location, streamUrl and status for scheduled matches */}
                                   <Box
                                     sx={{
                                       mt: 2,
@@ -640,6 +645,7 @@ const CupToursView: FC<CupToursViewProps> = ({
                                     <Box
                                       sx={{
                                         py: 1,
+                                        width: "40%",
                                         fontSize: "10px",
                                         fontWeight: 600,
                                         lineHeight: "10px",
@@ -647,10 +653,32 @@ const CupToursView: FC<CupToursViewProps> = ({
                                     >
                                       {tour?.location ?? ""}
                                     </Box>
+                                    {tour.streamUrl && (
+                                      <IconButton
+                                        component="a"
+                                        href={tour.streamUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                        sx={{
+                                          width: 28,
+                                          height: 28,
+                                          color: "primary.main",
+                                          "&:hover": {
+                                            backgroundColor: "primary.light",
+                                          },
+                                        }}
+                                      >
+                                        <PlayCircleOutlineIcon
+                                          sx={{ fontSize: 20 }}
+                                        />
+                                      </IconButton>
+                                    )}
                                     <Box
                                       sx={{
                                         px: 2,
                                         py: 1,
+                                        width: "40%",
                                         borderRadius: "4px",
                                         backgroundColor:
                                           status === "FINISHED"
