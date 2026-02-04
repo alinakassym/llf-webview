@@ -354,7 +354,7 @@ const cupGroupSlice = createSlice({
               group.tours[tourIndex] = {
                 ...existingTour,
                 number: data.number,
-                name: data.name,
+                name: data.name ?? "",
                 startDate: data.startDate,
                 endDate: data.endDate,
                 dateTime: data.dateTime,

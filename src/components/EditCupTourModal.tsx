@@ -124,7 +124,7 @@ const EditCupTourModal: FC<EditCupTourModalProps> = ({
 
   const handleTextChange =
     (field: "name" | "location") => (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value.trim() || null;
+      const value = e.target.value || null;
       setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
