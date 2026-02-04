@@ -31,6 +31,7 @@ export interface CupTour {
   matchId: number;
   dateTime: string | null;
   location: string | null;
+  streamUrl: string | null;
   team1Id: number;
   team1Name: string;
   team2Id: number;

@@ -34,6 +34,7 @@ export interface CreateCupTourPayload {
   endDate: string | null;
   dateTime: string | null;
   location: string | null;
+  streamUrl: string | null;
   team1Id: number;
   team2Id: number;
   team1Score: number | null;
@@ -54,6 +55,7 @@ export interface UpdateCupTourPayload {
   cupGroupId: number;
   dateTime: string | null;
   location: string | null;
+  streamUrl: string | null;
   team1Id: number;
   team2Id: number;
   team1Score: number | null;

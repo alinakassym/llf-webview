@@ -29,6 +29,7 @@ export interface EditCupTourData {
   cupGroupId: number;
   dateTime: string | null;
   location: string | null;
+  streamUrl: string | null;
   team1Id: number;
   team2Id: number;
   team1Score: number | null;
@@ -66,6 +67,7 @@ const EditCupTourModal: FC<EditCupTourModalProps> = ({
     cupGroupId: 0,
     dateTime: null,
     location: null,
+    streamUrl: null,
     team1Id: 0,
     team2Id: 0,
     team1Score: null,
@@ -97,6 +99,7 @@ const EditCupTourModal: FC<EditCupTourModalProps> = ({
         cupGroupId: editingTour.cupGroupId,
         dateTime: editingTour.dateTime,
         location: editingTour.location,
+        streamUrl: editingTour.streamUrl,
         team1Id: editingTour.team1Id,
         team2Id: editingTour.team2Id,
         team1Score: editingTour.team1Score,
@@ -123,8 +126,9 @@ const EditCupTourModal: FC<EditCupTourModalProps> = ({
   };
 
   const handleTextChange =
-    (field: "name" | "location") => (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value.trim() || null;
+    (field: "name" | "location" | "streamUrl") =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value || null;
       setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -339,6 +343,15 @@ const EditCupTourModal: FC<EditCupTourModalProps> = ({
             onChange={handleTextChange("location")}
             disabled={submitting}
             fullWidth
+          />
+
+          <TextField
+            label="Ссылка на трансляцию"
+            value={formData.streamUrl || ""}
+            onChange={handleTextChange("streamUrl")}
+            disabled={submitting}
+            fullWidth
+            placeholder="https://..."
           />
 
           <Divider sx={{ my: 1 }} />
